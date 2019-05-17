@@ -25,12 +25,19 @@ def df_to_dataset(dataframe, shuffle=True, batch_size=32):
   return ds
 
 # This is a simple feed forward neural network that uses Keras and Tensorflow.
-# It takes a Pandas dataframe as input, and the number of epochs, then prepares, 
-# trains and saves the model to disk so you can load it later. Currently it is 
+# Inputs:
+#    - df: pandas dataframe with training data
+#    - batch_size: batch size (integer)
+#    - hidden_layers: an array of numbers that represent the number of hidden layers and the 
+#                     number of neurons in each. [128, 128, 128] is 3 hidden layers with 128 
+#                     neurons each
+#    - n_ephoch: the number of epochs the system trains
+# It then prepares, trains and saves the model to disk so you can load it later. Currently it is 
 # a binary classifier, but it can be easily changed
 # It also automatically scales the data. This should speed up the process of training
 
-def run_neural_network(df, batch_size):
+
+def run_neural_network(df, batch_size, hidden_layers, n_epochs):
   scaler = StandardScaler()
 
   train, test = train_test_split(df, test_size=0.2)
@@ -72,23 +79,32 @@ def run_neural_network(df, batch_size):
     feature_columns.append(tf.feature_column.numeric_column(header))
 
 
-  feature_layer = tf.keras.layers.DenseFeatures(feature_columns)
+  feature_layer = keras.layers.DenseFeatures(feature_columns)
   print('feature_layer', feature_layer)
 
-  model = tf.keras.Sequential([
-    feature_layer,
-    keras.layers.Dense(128, activation='relu'),
-    keras.layers.Dense(128, activation='relu'),
-    keras.layers.Dense(1, activation='sigmoid')
-  ])
+  model = keras.Sequential()
+  model.add(feature_layer)
 
+  for n_neurons in hidden_layers:
+    model.add(keras.layers.Dense(units=n_neurons, activation='relu'))
+  
+  model.add(keras.layers.Dense(1, activation='softmax'))
+
+  # model = tf.keras.Sequential([
+  #   feature_layer,
+  #   keras.layers.Dense(128, activation='relu'),
+  #   keras.layers.Dense(128, activation='relu'),
+  #   keras.layers.Dense(1, activation='sigmoid')
+  # ])
+
+  # custom optimizer
   opt = SGD(lr=0.01, momentum=0.9)
 
   model.compile(optimizer='adam',
                 loss='binary_crossentropy',
                 metrics=['accuracy'])
 
-  model.fit(train_ds, validation_data=val_ds, epochs=5)
+  model.fit(train_ds, validation_data=val_ds, epochs=n_epochs)
 
   # serialize model to JSON
   model_json = model.to_json()
