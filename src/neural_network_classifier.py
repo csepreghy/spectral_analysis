@@ -32,6 +32,7 @@ def df_to_dataset(dataframe, shuffle=True, batch_size=32):
 #                     number of neurons in each. [128, 128, 128] is 3 hidden layers with 128 
 #                     neurons each
 #    - n_ephoch: the number of epochs the system trains
+#
 # It then prepares, trains and saves the model to disk so you can load it later. Currently it is 
 # a binary classifier, but it can be easily changed
 # It also automatically scales the data. This should speed up the process of training
@@ -89,13 +90,6 @@ def run_neural_network(df, batch_size, hidden_layers, n_epochs):
     model.add(keras.layers.Dense(units=n_neurons, activation='relu'))
   
   model.add(keras.layers.Dense(1, activation='softmax'))
-
-  # model = tf.keras.Sequential([
-  #   feature_layer,
-  #   keras.layers.Dense(128, activation='relu'),
-  #   keras.layers.Dense(128, activation='relu'),
-  #   keras.layers.Dense(1, activation='sigmoid')
-  # ])
 
   # custom optimizer
   opt = SGD(lr=0.01, momentum=0.9)
