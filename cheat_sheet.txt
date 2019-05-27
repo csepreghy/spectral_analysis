@@ -1,0 +1,27 @@
+GIT:
+
+# see the list of files you have changed
+git status
+
+# see the exact changes in all the files you have changed
+git diff
+
+# see all the changes you have made locally to the __init__.py file
+git diff __init__.py
+
+# to have all the changes from others that are already on GitHub. (always pull before pushing)
+git pull 
+
+# adds all changes to staging. You can only commit from staging.
+git add . 
+
+# commits all the changes you added to staging. You can make multiple commits before pushing them
+git commit -m "my commit message that describes accurately what I changed in the code"
+
+# see all commits you have locally. It only shows commit message, id and author
+git log
+
+# this is for seeing the each changes from all commits you have locally (like doing git diff)
+git log -p
+
+# if you have a merge conflict, cry quietly. We all know how you feel. :")
