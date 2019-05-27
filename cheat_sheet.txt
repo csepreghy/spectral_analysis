@@ -12,7 +12,10 @@ git diff __init__.py
 # to have all the changes from others that are already on GitHub. (always pull before pushing)
 git pull 
 
-# adds all changes to staging. You can only commit from staging.
+# adds __init__.py to staging. You can now commit from staging
+git add __init__.py
+
+# adds all changes to staging. You can now commit from staging.
 git add . 
 
 # commits all the changes you added to staging. You can make multiple commits before pushing them
