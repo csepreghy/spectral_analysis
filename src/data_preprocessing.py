@@ -5,3 +5,7 @@ fits_image_filename = fits.util.get_testdata_filepath('http://www.gama-survey.or
 hdul = fits.open(fits_image_filename)
 print(hdul.info())
 hdul.close()
+
+wavelength = []
+for i in range (0,4954):
+    wavelength.append(3727+i*1.03552901537)

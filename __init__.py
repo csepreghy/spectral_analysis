@@ -12,4 +12,4 @@ from src.neural_network_classifier import run_neural_network
 gama_df = get_gama_dataset_from_csv()
 print(gama_df.head())
 
-sp = get_SDSS_dataset_from_query()
+#sp = get_SDSS_dataset_from_query()
