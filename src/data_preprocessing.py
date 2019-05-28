@@ -9,3 +9,6 @@ hdul.close()
 wavelength = []
 for i in range (0,4954):
     wavelength.append(3727+i*1.03552901537)
+
+#plot
+#plt.plot(wavelength, list(data)[0])
