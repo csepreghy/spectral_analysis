@@ -1,5 +1,7 @@
 from astroquery.gama import GAMA
 from astroquery.sdss import SDSS
+import astropy.units as u
+from astropy import coordinates as coords
 
 from astropy import coordinates as coords
 
@@ -24,3 +26,11 @@ def get_gama_dataset_from_csv():
   gama_df = pd.read_csv('data/GAMA.csv')
   
   return gama_df
+
+def get_SDSS_dataset_from_query():
+  pos = coords.SkyCoord('120.01976d +45.916684d', frame='icrs')
+  xid = SDSS.query_region(pos, spectro=True, radius=2000*u.arcsec)
+  sp = SDSS.get_spectra(matches=xid)
+  #im = SDSS.get_images(matches=xid, band='g')
+
+  return sp
