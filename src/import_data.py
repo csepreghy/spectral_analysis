@@ -32,7 +32,7 @@ def get_SDSS_dataset_from_query():
 def get_save_SDSS_from_coordinates(coord_list):
   for index, coordinate in enumerate(coord_list):
     pos = coords.SkyCoord(coord_list[index], frame='icrs')
-    xid = SDSS.query_region(pos, spectro=True, radius=20*u.arcsec)
+    xid = SDSS.query_region(pos, spectro=True, radius=10*u.arcsec)
     sp = SDSS.get_spectra(matches=xid)
 
     flux = []
