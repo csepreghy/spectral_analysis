@@ -3,13 +3,20 @@ import matplotlib.pyplot as plt
 from matplotlib import style
 import pandas as pd
 
-from src.import_data import get_gama_dataset_from_query, get_gama_dataset_from_csv, get_SDSS_dataset_from_query
+from astropy.io.fits import HDUList
+from astropy import coordinates as coords
+import astropy.units as u
+from astroquery.sdss import SDSS
+
+from src.import_data import get_gama_dataset_from_query, get_gama_dataset_from_csv, get_SDSS_dataset_from_query, get_save_SDSS_from_coordinates
 from src.neural_network_classifier import run_neural_network
 
 # df = pd.read_hdf('train.h5')
 # model = run_neural_network(df, batch_size=5, hidden_layers=[128, 128], n_epochs=5)
 
-gama_df = get_gama_dataset_from_csv()
-print(gama_df.head())
+# gama_df = get_gama_dataset_from_csv()
+# sp, xid = get_SDSS_dataset_from_query()
 
-#sp = get_SDSS_dataset_from_query()
+
+coord_list = ['0h8m05.63s +14d50m23.3s', '0h9m06.63s +15d55m23.3s']
+get_save_SDSS_from_coordinates(coord_list)
