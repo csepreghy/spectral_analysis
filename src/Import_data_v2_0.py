@@ -34,6 +34,10 @@ import numpy as np
 
 def get_save_SDSS_from_coordinates(coord_list):
 
+    # Set counter for missed sources
+    n = 0
+
+    # Create columns for df
     df = {}
     df['flux_list'] = []  # ': flux,
     df['wavelength'] = []  #: wavelength,
@@ -43,18 +47,25 @@ def get_save_SDSS_from_coordinates(coord_list):
     df['objid'] = []  #: xid['objid'],
     df['coordinate'] = []  #: coordinate
 
-    for coordinate in coord_list:
-        pos = coords.SkyCoord(coordinate, frame='icrs')
-        xid = SDSS.query_region(pos, spectro=True, radius=5 * u.arcsec)
-        sp = SDSS.get_spectra(matches=xid)
+    for index, coordinate in enumerate(coord_list):
+        try:
+            pos = coords.SkyCoord(coordinate, frame='icrs')
+            xid = SDSS.query_region(pos, spectro=True, radius=3 * u.arcsec)
+            sp = SDSS.get_spectra(matches=xid)
 
-        df['flux_list'].append(sp[0][1].data['flux'])
-        df['wavelength'].append(10. ** sp[0][1].data['loglam'])
-        df['z'].append(xid['z'])
-        df['ra'].append(xid['ra'])
-        df['dec'].append(xid['dec'])
-        df['objid'].append(xid['objid'])
-        df['coordinate'].append(coordinate)
+            df['flux_list'].append(sp[0][1].data['flux'])
+            df['wavelength'].append(10. ** sp[0][1].data['loglam'])
+            df['z'].append(xid['z'])
+            df['ra'].append(xid['ra'])
+            df['dec'].append(xid['dec'])
+            df['objid'].append(xid['objid'])
+            df['coordinate'].append(coordinate)
+            print(index)
+
+        except:
+            n += 1
+            print('Sorry, I fucked up')
 
     df = pd.DataFrame(df)
     df.to_pickle('data/sdss_csv/Test.pkl')
+    print("Missed ", n, "times")

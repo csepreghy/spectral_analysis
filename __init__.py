@@ -23,4 +23,4 @@ with open('data/sdss_coordinates_lowz.txt') as text_file:
   coord_list = text_file.read().splitlines()
   # mystring.replace('\n', ' ').replace('\r', '')
 
-get_save_SDSS_from_coordinates(coord_list[0:5000])
+get_save_SDSS_from_coordinates(coord_list[0:100])
