@@ -57,4 +57,4 @@ def get_save_SDSS_from_coordinates(coord_list):
         df['coordinate'].append(coordinate)
 
     df = pd.DataFrame(df)
-    df.to_pickle('data/sdss_csv/' + coordinate + '.pkl')
+    df.to_pickle('data/sdss_csv/Test.pkl')
