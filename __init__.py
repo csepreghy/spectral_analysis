@@ -8,7 +8,7 @@ from astropy import coordinates as coords
 import astropy.units as u
 from astroquery.sdss import SDSS
 
-from src.import_data import get_save_SDSS_from_coordinates
+from src.import_data_v2.0 import get_save_SDSS_from_coordinates
 from src.neural_network_classifier import run_neural_network
 
 # df = pd.read_hdf('train.h5')
