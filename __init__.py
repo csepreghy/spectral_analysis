@@ -8,7 +8,7 @@ from astropy import coordinates as coords
 import astropy.units as u
 from astroquery.sdss import SDSS
 
-from src.import_data_v2.0 import get_save_SDSS_from_coordinates
+from src.Import_data_v2_0 import get_save_SDSS_from_coordinates
 from src.neural_network_classifier import run_neural_network
 
 # df = pd.read_hdf('train.h5')
@@ -24,4 +24,3 @@ with open('data/sdss_coordinates_lowz.txt') as text_file:
   # mystring.replace('\n', ' ').replace('\r', '')
 
 get_save_SDSS_from_coordinates(coord_list[0:5000])
-   
