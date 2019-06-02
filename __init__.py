@@ -1,14 +1,9 @@
-import numpy as np
-import matplotlib.pyplot as plt
-from matplotlib import style
+
 import pandas as pd
 
-from astropy.io.fits import HDUList
-from astropy import coordinates as coords
-import astropy.units as u
-from astroquery.sdss import SDSS
+import time as time
 
-from src.Import_data_v2_0 import get_save_SDSS_from_coordinates
+from src.import_data import get_save_SDSS_from_coordinates
 from src.neural_network_classifier import run_neural_network
 
 # df = pd.read_hdf('train.h5')
@@ -19,8 +14,37 @@ from src.neural_network_classifier import run_neural_network
 
 
 # coord_list = ['0h8m05.63s +14d50m23.3s', '0h9m06.63s +15d55m23.3s']
-with open('data/sdss_coordinates_lowz.txt') as text_file:
-  coord_list = text_file.read().splitlines()
-  # mystring.replace('\n', ' ').replace('\r', '')
+# with open('data/sdss_coordinates_lowz.txt') as text_file:
+#   coord_list = text_file.read().splitlines()
+#   # mystring.replace('\n', ' ').replace('\r', '')
 
-get_save_SDSS_from_coordinates(coord_list[0:100])
+coord_list=pd.read_csv("data/lowz.csv")
+# coord_list.head()
+start=time.time()
+
+ra_list = coord_list["ra"].tolist()
+dec_list= coord_list["dec"].tolist()
+
+
+end=time.time()
+
+
+
+
+tt=end - start
+print("time for listing is:", tt)
+
+
+
+start1=time.time()
+
+ra=ra_list[:1000]
+dec=dec_list[:1000]
+get_save_SDSS_from_coordinates( ra , dec )
+
+end1=time.time()
+
+tt1= end1- start1
+length=len(ra)
+print("time for "+str(length)+" stellar objects:" , tt1)
+
