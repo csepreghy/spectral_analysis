@@ -11,3 +11,7 @@ lib64
 __pycache__
 .DS_Store
 .idea
+.idea/*.*
+*.pkl
+*/*.pkl
+data/sdss_csv/*.pkl
