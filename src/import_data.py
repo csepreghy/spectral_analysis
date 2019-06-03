@@ -3,6 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib import style
 import time as time
+from astropy.table import Table
 
 from astroquery.sdss import SDSS
 import astropy.units as u
@@ -40,7 +41,7 @@ def get_save_SDSS_from_coordinates(ra, dec):
             #             print(len(xid))
 
             if len(xid) > 1:
-                xid = xid[0]
+                xid = Table(xid[0])
             elif len(xid) == 1:
                 xid = xid
         else:
