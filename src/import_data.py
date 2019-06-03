@@ -29,7 +29,7 @@ def get_save_SDSS_from_coordinates(ra, dec):
     while counter < int(length):
         counter += 1
         pos = coords.SkyCoord((ra[counter]) * u.deg, (dec[counter]) * u.deg, frame='icrs')
-        xid = SDSS.query_region(pos, spectro=True, radius=5 * u.arcsec)
+        xid = SDSS.query_region(pos, spectro=True)#, radius=5 * u.arcsec)
 
         #         print(xid)
         #         print(counter)
@@ -39,7 +39,7 @@ def get_save_SDSS_from_coordinates(ra, dec):
         if xid != None:
             #             print(len(xid))
 
-            if len(xid) < 1:
+            if len(xid) > 1:
                 xid = xid[0]
             elif len(xid) == 1:
                 xid = xid
