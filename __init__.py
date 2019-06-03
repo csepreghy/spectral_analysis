@@ -38,8 +38,8 @@ print("time for listing is:", tt)
 
 start1=time.time()
 
-ra=ra_list[:1000]
-dec=dec_list[:1000]
+ra=ra_list[10001:20000]
+dec=dec_list[10001:20000]
 get_save_SDSS_from_coordinates( ra , dec )
 
 end1=time.time()
