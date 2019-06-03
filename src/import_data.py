@@ -45,7 +45,7 @@ def get_save_SDSS_from_coordinates(ra, dec):
             elif len(xid) == 1:
                 xid = xid
         else:
-            number_none = +1
+            number_none =+1
             print(counter)
             continue
 
