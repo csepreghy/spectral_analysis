@@ -25,7 +25,7 @@ def get_save_SDSS_from_coordinates(ra, dec):
     df['objid'] = []  #: xid['objid'],
     #     df['coordinate'] = []  #: coordinate
     df['zErr'] = []
-    df['SpecClass']=[]
+    df['specClass']=[]
 
     counter = -1
     length = len(ra) - 1
@@ -84,7 +84,7 @@ def get_save_SDSS_from_coordinates(ra, dec):
             df['objid'].append(xid['objid'])
             #         df['coordinate'].append(coordinate)
             df['zErr'].append(so['zErr'])
-            df['SpecClass'].append(so['SpecClass'])
+            df['specClass'].append(so['specClass'])
 
             print(df)
 
