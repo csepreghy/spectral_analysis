@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import sys
 
 
-spectra = pd.read_pickle('/Users/nikki/Documents/Machine Learning/Big project/spectral-analysis/data/sdss_csv/Test.pkl')
+spectra = pd.read_pickle('data/sdss/60001-65000.pkl')
 
 
 print(spectra.iloc[0])
