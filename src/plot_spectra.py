@@ -8,8 +8,8 @@ from scipy import ndimage
 from plotify import Plotify
 
 plotify = Plotify()
-spectra = pd.read_pickle('../data/sdss/14998_15-30.pkl')
 
+spectra = pd.read_pickle('../data/sdss/14998_15-30.pkl')
 
 print(spectra.iloc[0])
 
@@ -17,8 +17,8 @@ z = spectra.get_values()[:,3]
 fluxes = spectra.get_values()[:,0]
 wavelengths = spectra.get_values()[:, 1]
 
-spectrum_x = spectra.iloc[0]['wavelength']
-spectrum_y = spectra.iloc[0]['flux_list']
+spectrum_x = spectra.iloc[1]['wavelength']
+spectrum_y = spectra.iloc[1]['flux_list']
 print('spectra.iloc[0][ra]', type(spectra.iloc[0]['ra']))
 spectrum_title = 'Spectrum for coordinates: ' + str(spectra.iloc[0]['ra']) + ', ' +  str(spectra.iloc[0]['dec'])
 
@@ -37,7 +37,6 @@ def apply_gaussian_filter(fluxes, sigma):
   return filters.gaussian(image=fluxes, sigma=sigma)
 
 spectrum_y = apply_gaussian_filter(spectrum_y, sigma=32)
-
 
 fig, ax = plotify.plot(
   x_list = spectrum_x,
