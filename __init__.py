@@ -4,6 +4,8 @@ import pandas as pd
 import time as time
 
 from src.import_data import get_save_SDSS_from_coordinates
+from src.SDSS_direct_query import query
+from src.MergeTables import merge
 from src.neural_network_classifier import run_neural_network
 
 # df = pd.read_hdf('train.h5')
@@ -18,17 +20,14 @@ from src.neural_network_classifier import run_neural_network
 #   coord_list = text_file.read().splitlines()
 #   # mystring.replace('\n', ' ').replace('\r', '')
 
+query()
+
 coord_list=pd.read_csv("data/lowz.csv")
 # coord_list.head()
 start=time.time()
-
 ra_list = coord_list["ra"].tolist()
 dec_list= coord_list["dec"].tolist()
-
-
 end=time.time()
-
-
 
 
 tt=end - start
@@ -37,14 +36,13 @@ print("time for listing is:", tt)
 
 
 start1=time.time()
-
-ra=ra_list[14001:18000]
-dec=dec_list[14001:18000]
+ra=ra_list[15001:30000]
+dec=dec_list[15001:30000]
 get_save_SDSS_from_coordinates( ra , dec )
-
 end1=time.time()
 
 tt1= end1- start1
-length=len(ra)
+length=len(ra) -1
 print("time for "+str(length)+" stellar objects:" , tt1)
 
+merge(length)
