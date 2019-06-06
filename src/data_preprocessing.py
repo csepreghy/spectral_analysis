@@ -1,40 +1,88 @@
 import numpy as np
-from astropy.io import fits
-import urllib.request
 import pandas as pd
+import matplotlib.pyplot as plt
+import sys
+from skimage import io, filters, feature
+from scipy import ndimage
 
-url = 'http://www.gama-survey.org/dr3/data/spectra/gama/reduced_27/1d/G02_Y3_001_004.fit'
-urllib.request.urlretrieve(url, 'G02_Y3_001_004.fit')
+from plotify import Plotify
 
-# fits_image_filename = fits.util.get_testdata_filepath('G02_Y3_001_004.fit')
-hdul = fits.open('G02_Y3_001_004.fit')
-
-with fits.open('G02_Y3_001_004.fit') as data:
-  df = pd.DataFrame(data[0].data)
-
-  for index, item in enumerate(data[0].header):
-    print(item, data[0].header[index])
-
-print(df.head())
+# --- Initialize variables --- #
+plotify = Plotify()
+spectra = pd.read_pickle('data/sdss/FinalTable.pkl')
 
 
-fits_image_filename = fits.util.get_testdata_filepath('http://www.gama-survey.org/dr3/data/spectra/gama/reduced_27/1d/G02_Y3_001_004.fit')
-hdul = fits.open(fits_image_filename)
-print(hdul.info())
-hdul.close()
+def apply_gaussian_filter(fluxes, sigma):
+  return filters.gaussian(image=fluxes, sigma=sigma)
 
-#GAMA
-wavelength = []
-increase = 5129/4954
-for i in range (0,4954):
-    wavelength.append(3727+i*increase)
 
-#plot GAMA
-#plt.errorbar(wavelength, list(data)[0], list(data)[1], marker='.', linestyle="", color='black', alpha=0.5, ms=1.5)
+def plot_one_spectrum(spectra, nth_element, sigma, downsize, filename):
+  z = spectra.get_values()[:, 3]
+  fluxes = spectra.get_values()[:, 0]
+  wavelengths = spectra.get_values()[:, 1]
+  gaussian_sigma = sigma
+  spectrum_x = spectra.iloc[nth_element]['wavelength']
+  spectrum_y = spectra.iloc[nth_element]['flux_list']
+  spectrum_title = 'Spectrum with guassian smoothing, sigma = ' + str(gaussian_sigma)
+  filename = filename + str(gaussian_sigma)
 
-#SDSS plotting
-fig, ax = plt.subplots(figsize=(14.,8.5))
-for i in np.arange(xid['ra'].size):
-    ax.plot(10.**sp[i][1].data['loglam'],sp[i][1].data['flux'],label=xid['instrument'][i])
-ax.set_ylabel('Flux [10$^{-17}$ ergs/cm$^2$/s/\AA]')
-ax.set_xlabel('Wavelength [\AA]')
+  spectrum_y_filtered = apply_gaussian_filter(spectrum_y, sigma=gaussian_sigma)
+  spectrum_y_downsized = spectrum_y_filtered[::downsize]
+  spectrum_x = spectrum_x[::downsize]
+  print('len(spectrum_y)', len(spectrum_y))
+
+  fig, ax = plotify.plot(
+      x_list=spectrum_x,
+      y_list=spectrum_y_downsized,
+      xlabel='Frequencies (Hz)',
+      ylabel='Flux',
+      title=spectrum_title,
+      figsize=(12, 8),
+      show_plot=True,
+      filename=filename,
+      ymin=np.amin(spectrum_y) - 4,
+      ymax=np.amax(spectrum_y) + 4
+  )
+
+
+# plot_one_spectrum(spectra=spectra, nth_element=434, sigma=2, downsize=4, filename='helloka')
+
+
+def process_all_objects(spectra=spectra, sigma=16, downsize=8):
+  min_wavelength_values = []
+  max_wavelength_values = []
+
+  for index, spectrum in spectra.iterrows():
+    min_wavelength_values.append(np.amin(spectrum['wavelength'].tolist()))
+    max_wavelength_values.append(np.amax(spectrum['wavelength'].tolist()))
+
+  absolute_min = np.amax(np.array(min_wavelength_values))
+  absolute_max = np.amin(np.array(max_wavelength_values))
+
+  print('absolute_min', absolute_min)
+  print('absolute_max', absolute_max)
+  print('min_wavelength_values', min_wavelength_values)
+
+  plotify.plot(
+    y_list=min_wavelength_values,
+    x_list=range(len(min_wavelength_values)),
+    title='Minimum Wavelength Values',
+    ymin=3400,
+    ymax=6500,
+    xlabel='',
+    ylabel='Wavelength',
+    filename='minimum-wavelength-values'
+  )
+
+  plotify.plot(
+    y_list=max_wavelength_values,
+    x_list=range(len(max_wavelength_values)),
+    title='Maximum Wavelength Values',
+    ymin = 6000,
+    ymax = 14000,
+    xlabel='',
+    ylabel='Wavelength',
+    filename='maximum-wavelength-values'
+  )
+
+process_all_objects(spectra=spectra, sigma=8, downsize=4)
