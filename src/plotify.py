@@ -155,12 +155,12 @@ class Plotify:
     if show == True: plt.show()
 
   def histogram(
-      self,
-      x_list,
-      ylabel='Y label',
-      xlabel='X label',
-      title='Title',
-      labels=('Label 1', 'Label 2')
+    self,
+    x_list,
+    ylabel='Y label',
+    xlabel='X label',
+    title='Title',
+    labels=('Label 1', 'Label 2')
   ):
     fig, ax = self.get_figax()
 
@@ -227,17 +227,19 @@ class Plotify:
       use_x_list_as_xticks=True,
       tickfrequencyone=False,
       equal_axis=False,
-      x_list=None,
+      x_list=[],
       figsize=(8,6),
-      filename='filename'
+      filename='filename',
+      ymin=-9999,
+      ymax=9999
   ):
     fig, ax = self.get_figax(figsize=figsize)
 
     ax.set_ylabel(ylabel)
     ax.set_xlabel(xlabel)
     ax.set_title(title)
-    ax.set_ylim(ymin=0)
-    ax.set_ylim(ymax=30)
+    if ymin != -9999: ax.set_ylim(ymin=ymin)
+    if ymax != 9999: ax.set_ylim(ymax=ymax)
     
     if equal_axis == True:
       plt.axis('equal')
@@ -245,8 +247,8 @@ class Plotify:
     if tickfrequencyone == True:
       ax.xaxis.set_major_locator(ticker.MultipleLocator(1))
 
-    if len(x_list) == 0: plt.plot(x_list, color=self.c_orange)
-    if len(x_list) > 0: plt.plot(x_list, y_list, color=self.c_orange)
+    if len(x_list) == 0: plt.scatter(x_list, color=self.c_orange, s=0.4)
+    if len(x_list) > 0: plt.scatter(x_list, y_list, color=self.c_orange, s=0.6)
     
     plt.savefig(('plots/' + filename), facecolor=self.background_color, dpi=180)
 
