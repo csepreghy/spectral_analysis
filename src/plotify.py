@@ -228,13 +228,16 @@ class Plotify:
       tickfrequencyone=False,
       equal_axis=False,
       x_list=None,
-      figsize=(8,6)
+      figsize=(8,6),
+      filename='filename'
   ):
     fig, ax = self.get_figax(figsize=figsize)
 
     ax.set_ylabel(ylabel)
     ax.set_xlabel(xlabel)
     ax.set_title(title)
+    ax.set_ylim(ymin=0)
+    ax.set_ylim(ymax=30)
     
     if equal_axis == True:
       plt.axis('equal')
@@ -244,6 +247,8 @@ class Plotify:
 
     if len(x_list) == 0: plt.plot(x_list, color=self.c_orange)
     if len(x_list) > 0: plt.plot(x_list, y_list, color=self.c_orange)
+    
+    plt.savefig(('plots/' + filename), facecolor=self.background_color, dpi=180)
 
     if show_plot == True:
       plt.show()
