@@ -8,7 +8,7 @@ from scipy import ndimage
 from plotify import Plotify
 
 plotify = Plotify()
-spectra = pd.read_pickle('data/sdss/60001-65000.pkl')
+spectra = pd.read_pickle('../data/sdss/14998_15-30.pkl')
 
 
 print(spectra.iloc[0])
@@ -33,10 +33,10 @@ print('spectrum_y', spectrum_y)
 #   ylabel = 'Flux'
 # )
 
-def apply_gaussian_filter(fluxes, sigma = 2):
+def apply_gaussian_filter(fluxes, sigma):
   return filters.gaussian(image=fluxes, sigma=sigma)
 
-spectrum_y = apply_gaussian_filter(spectrum_y, sigma=4)
+spectrum_y = apply_gaussian_filter(spectrum_y, sigma=32)
 
 
 fig, ax = plotify.plot(
