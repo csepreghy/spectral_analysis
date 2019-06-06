@@ -46,5 +46,3 @@ length=len(ra) -1
 print("time for "+str(length)+" stellar objects:" , tt1)
 
 merge(length)
-
-#test
