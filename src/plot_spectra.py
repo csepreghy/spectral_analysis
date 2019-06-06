@@ -13,7 +13,6 @@ spectra = pd.read_pickle('data/sdss/FinalTable.pkl')
 def apply_gaussian_filter(fluxes, sigma):
   return filters.gaussian(image=fluxes, sigma=sigma)
 
-
 z = spectra.get_values()[:,3]
 fluxes = spectra.get_values()[:,0]
 wavelengths = spectra.get_values()[:, 1]
