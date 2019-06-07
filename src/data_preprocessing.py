@@ -16,7 +16,7 @@ def apply_gaussian_filter(fluxes, sigma):
   return filters.gaussian(image=fluxes, sigma=sigma)
 
 
-def plot_one_spectrum(spectra, nth_element, sigma, downsize, filename):
+def plot_one_spectrum(spectra, nth_element, sigma, downsize, filename, save):
   z = spectra.get_values()[:, 3]
   fluxes = spectra.get_values()[:, 0]
   wavelengths = spectra.get_values()[:, 1]
@@ -32,20 +32,21 @@ def plot_one_spectrum(spectra, nth_element, sigma, downsize, filename):
   print('len(spectrum_y)', len(spectrum_y))
 
   fig, ax = plotify.plot(
-      x_list=spectrum_x,
-      y_list=spectrum_y_downsized,
-      xlabel='Frequencies (Hz)',
-      ylabel='Flux',
-      title=spectrum_title,
-      figsize=(12, 8),
-      show_plot=True,
-      filename=filename,
-      ymin=np.amin(spectrum_y) - 4,
-      ymax=np.amax(spectrum_y) + 4
+    x_list=spectrum_x,
+    y_list=spectrum_y_downsized,
+    xlabel='Frequencies (Hz)',
+    ylabel='Flux',
+    title=spectrum_title,
+    figsize=(12, 8),
+    show_plot=True,
+    filename=filename,
+    ymin=np.amin(spectrum_y) - 4,
+    ymax=np.amax(spectrum_y) + 4,
+    save=save
   )
 
 
-# plot_one_spectrum(spectra=spectra, nth_element=434, sigma=2, downsize=4, filename='helloka')
+plot_one_spectrum(spectra=spectra, nth_element=41, sigma=4, downsize=1, filename='helloka', save=False)
 
 
 def process_all_objects(spectra=spectra, sigma=16, downsize=8):
@@ -85,4 +86,4 @@ def process_all_objects(spectra=spectra, sigma=16, downsize=8):
     filename='maximum-wavelength-values'
   )
 
-process_all_objects(spectra=spectra, sigma=8, downsize=4)
+# process_all_objects(spectra=spectra, sigma=8, downsize=4)
