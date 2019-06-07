@@ -4,17 +4,16 @@ import pickle
 import pandas as pd
 import matplotlib.pyplot as plt
 
-with open('data/FinalTable_Nikki(0-10000).pkl', 'rb') as f:
-    x = pickle.load(f)
+def merge_data(filenames):
+    with open('data/'+filenames[0]+'.pkl', 'rb') as g:
+                data = pickle.load(g)
+    for i in range(len(filenames)):
+        with open('data/'+filenames[i]+'.pkl', 'rb') as f:
+            x = pickle.load(f)
+        datalist = pd.concat([data, x], ignore_index=True)
+        data = datalist
+    return data
 
-with open('data/FinalTable_10-15-Zoe.pkl', 'rb') as g:
-    y = pickle.load(g)
-
-newlist = pd.concat([x, y], ignore_index=True)
-print(newlist)
-
-#flux = x['flux_list'].tolist()
-#wl = x['wavelength'].tolist()
-
-#plt.plot(wl[0], flux[0])
-#plt.show()
+names = ['FinalTable_Nikki(0-10000)', 'FinalTable_10-15-Zoe']
+alldata = merge_data(names)
+#print(alldata)
