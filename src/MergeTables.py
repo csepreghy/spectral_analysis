@@ -6,7 +6,7 @@ import time as time
 def merge(length):
     start=time.time()
 
-    with open('data/sdss/'+str(length)+'.pkl', 'rb') as f:
+    with open('data/sdss/Nikki_35001-40000.pkl', 'rb') as f:
         x = pickle.load(f)
 
     df=pd.DataFrame(x)
