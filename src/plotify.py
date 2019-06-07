@@ -218,20 +218,21 @@ class Plotify:
     return ax
 
   def plot(
-      self,
-      y_list,
-      ylabel='Y label',
-      xlabel='X label',
-      title='Title',
-      show_plot=True,
-      use_x_list_as_xticks=True,
-      tickfrequencyone=False,
-      equal_axis=False,
-      x_list=[],
-      figsize=(8,6),
-      filename='filename',
-      ymin=-9999,
-      ymax=9999
+    self,
+    y_list,
+    ylabel='Y label',
+    xlabel='X label',
+    title='Title',
+    show_plot=True,
+    use_x_list_as_xticks=True,
+    tickfrequencyone=False,
+    equal_axis=False,
+    x_list=[],
+    figsize=(8,6),
+    filename='filename',
+    ymin=-9999,
+    ymax=9999,
+    save=False
   ):
     fig, ax = self.get_figax(figsize=figsize)
 
@@ -247,10 +248,10 @@ class Plotify:
     if tickfrequencyone == True:
       ax.xaxis.set_major_locator(ticker.MultipleLocator(1))
 
-    if len(x_list) == 0: plt.scatter(x_list, color=self.c_orange, s=0.4)
-    if len(x_list) > 0: plt.scatter(x_list, y_list, color=self.c_orange, s=0.6)
+    if len(x_list) == 0: plt.plot(x_list, color=self.c_orange)
+    if len(x_list) > 0: plt.plot(x_list, y_list, color=self.c_orange)
     
-    plt.savefig(('plots/' + filename), facecolor=self.background_color, dpi=180)
+    if save == True: plt.savefig(('plots/' + filename), facecolor=self.background_color, dpi=180)
 
     if show_plot == True:
       plt.show()
