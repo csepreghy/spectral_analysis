@@ -38,7 +38,7 @@ def df_to_dataset(dataframe, shuffle=True, batch_size=32):
 # It also automatically scales the data. This should speed up the process of training
 
 
-def run_neural_network(df, batch_size, hidden_layers, n_epochs):
+def run_neural_network(df, config):
   scaler = StandardScaler()
 
   train, test = train_test_split(df, test_size=0.2)
@@ -61,9 +61,9 @@ def run_neural_network(df, batch_size, hidden_layers, n_epochs):
   scaled_test_df['Truth'] = test['Truth']
   scaled_val_df['Truth'] = val['Truth']
 
-  train_ds = df_to_dataset(scaled_train_df, batch_size=batch_size)
-  val_ds = df_to_dataset(scaled_val_df, batch_size=batch_size)
-  test_ds = df_to_dataset(scaled_test_df, batch_size=batch_size)
+  train_ds = df_to_dataset(scaled_train_df, batch_size=config['batch_size'])
+  val_ds = df_to_dataset(scaled_val_df, batch_size=config['batch_size'])
+  test_ds = df_to_dataset(scaled_test_df, batch_size=config['batch_size'])
 
   feature_labels = list(df.columns.values)
   print('feature_labels', feature_labels)
@@ -86,7 +86,7 @@ def run_neural_network(df, batch_size, hidden_layers, n_epochs):
   model = keras.Sequential()
   model.add(feature_layer)
 
-  for n_neurons in hidden_layers:
+  for n_neurons in config['hidden_layers']:
     model.add(keras.layers.Dense(units=n_neurons, activation='relu'))
   
   model.add(keras.layers.Dense(1, activation='softmax'))
@@ -98,7 +98,7 @@ def run_neural_network(df, batch_size, hidden_layers, n_epochs):
                 loss='binary_crossentropy',
                 metrics=['accuracy'])
 
-  model.fit(train_ds, validation_data=val_ds, epochs=n_epochs)
+  model.fit(train_ds, validation_data=val_ds, epochs=config['n_epochs'])
 
   # serialize model to JSON
   model_json = model.to_json()
