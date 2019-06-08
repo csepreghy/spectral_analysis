@@ -102,7 +102,7 @@ speclines_name = np.array(speclines_name)[sort_index]
 # -------------------------------
 
 
-def get_spectrallines(flux, wavelength, z, sigma=4, delta1=10, delta2=80):
+def spectrallines_1source(flux, wavelength, z, sigma=4, delta1=10, delta2=80):
     """
     :param flux: Array of flux values of 1 source.
     :param wavelength: Array of wavelength values of 1 source.
@@ -230,50 +230,59 @@ def get_spectrallines(flux, wavelength, z, sigma=4, delta1=10, delta2=80):
     return final_vector
 
 
-
 # -------------------------------
 
 # Load the data and extract the important columns
 spectra = pd.read_pickle('../data/sdss/FinalTable.pkl')
 
-flux_list = spectra.get_values()[:,0]
-wavelength = spectra.get_values()[:,1]
-objid = spectra.get_values()[:,2]
-specclass_bytes = spectra.get_values()[:,4]
-z = spectra.get_values()[:,7]
-z_err = spectra.get_values()[:,5]
-dec = spectra.get_values()[:,6]
-ra = spectra.get_values()[:,8]
 
-# Convert the specclass bytes into strings
-specclass = []
-for i in specclass_bytes:
-    specclass.append(i.decode("utf-8"))
-specclass = np.array(specclass)
 
 
 # -------------------------------
 
 # Compute the spectral line vectors for all the data
 
-start = time.time()
+def get_spectrallines(raw_data):
+    """
+    :param raw_data: The raw data, in a pandas data frame
+    :return: A pandas data frame with 2 columns: one with the spectral lines and one with the objIDs
+    """
 
-speclines_vector = []
+    # Extract the important columns: flux list, wavelength list, objID, z
+    flux_list = spectra.get_values()[:, 0]
+    wavelength = spectra.get_values()[:, 1]
+    objid = spectra.get_values()[:, 2]
+    z = spectra.get_values()[:, 7]
+
+    # Create lists for the 2 columns: the spectral lines vector and the objID list
+    speclines_vector = []
+    speclines_objid = []
+
+    # Loop over all the sources in the data file: get for each one the vector with spectral lines
+    for n in range(len(raw_data)):
+        try:
+            vector = spectrallines_1source(flux_list[n], wavelength[n], z[n])
+            speclines_vector.append(vector)
+            speclines_objid.append(objid[n])
+
+        except:
+            print("Something went wrong with the spectral lines! At iteration ", n)
+            speclines_vector.append(np.nan)
+            speclines_objid.append(objid[n])
+
+    # Merge the two columns together in a data frame
+    df = {}
+    df['spectral_lines'] = speclines_vector
+    df['spectral_lines_objid'] = speclines_objid
+    df = pd.DataFrame(df)
+
+    return df
 
 
-for n in range(1000, 2000):
-    print(n)
-    try:
-        vector = get_spectrallines(flux_list[n], wavelength[n], z[n])
-        speclines_vector.append(vector)
-    except:
-        print("Something went wrong!")
-        speclines_vector.append(np.nan)
 
-end = time.time()
-tt = end - start
-print("Time elapsed: ", tt, "s")
-print(tt / 60, "min")
+df = get_spectrallines(spectra[:10])
+
+print(df.head())
 
 
 
