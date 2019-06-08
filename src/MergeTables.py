@@ -68,12 +68,8 @@ def merge(length):
     df_merge["ra"] = df_merge['ra_y']
     df_merge = df_merge.drop(columns={'dec_x', 'z_x', 'ra_x', 'dec_y', 'z_y', 'ra_y'})
 
-
-
-
-
     end=time.time()
-    df_merge.to_pickle('data/sdss/FinalTable.pkl')
+    df_merge.to_pickle('data/sdss/FinalTable_40-45.pkl')
 
     tt=end - start
     print("time:", tt)
