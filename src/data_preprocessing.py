@@ -51,30 +51,22 @@ def plot_one_spectrum(spectra, nth_element, sigma, downsize, filename, save):
 
 # 3845 is the max
 
-def cutoff(spectra=spectra, sigma=16, downsize=8):
-  min_wavelength_values = []
-  max_wavelength_values = []
+# FUNCTION DESCROPTION:
+#
+# name: filter_sources
+# input: (df) all sources with columns = [class, dec, flux_list, objid, plate, ra, wavelength, z, zErr]
+# output: (df) filtered df that removes all sources that fall out of the optimal wavelength range
 
-  df = spectra
+def filter_sources(df):
+  rows_after_removal = []
 
-  # for index, spectrum in islice(spectra.iterrows(), 5000):
-  #   min_value = np.amin(spectrum['wavelength'].tolist())
-  #   max_value = np.amax(spectrum['wavelength'].tolist())
+  print('Number of rows before filtering: ', str(len(df)))
 
-  #   if min_value < 3850: min_wavelength_values.append(min_value)
-  #   if max_value > 9100: max_wavelength_values.append(max_value)
-
-  # absolute_min = np.amax(np.array(min_wavelength_values))
-  # absolute_max = np.amin(np.array(max_wavelength_values))
-
-
-  rows_after_cutoff = []
-
-  for index, spectrum in spectra.iterrows():
+  for index, spectrum in df.iterrows():
     min_value = np.amin(spectrum['wavelength'].tolist())
     max_value = np.amax(spectrum['wavelength'].tolist())
 
-    if min_value < 3553 and max_value > 9100:
+    if min_value < 3850 and max_value > 9100:
       row = {
         'wavelength': spectrum['wavelength'].tolist(),
         'flux_list': spectrum['flux_list'].tolist(),
@@ -87,18 +79,17 @@ def cutoff(spectra=spectra, sigma=16, downsize=8):
         'z': spectrum['z'],
       }
 
-      rows_after_cutoff.append(row)
+      rows_after_removal.append(row)
     
-  cut_df = pd.DataFrame(rows_after_cutoff)
+  filtered_df = pd.DataFrame(rows_after_removal)
+  print('Number of rows after filtering: ', str(len(filtered_df)))
+
+  return filtered_df
 
 
-  # df.loc[(np.amin(df['wavelength'].tolist()) < 3850) & 
-  #        (np.amax(df['wavelength'].tolist()) < 9100)]
 
 
-
-
-cutoff(spectra=spectra)
+filtered_df = filter_sources(df=spectra)
 
 
 def check_minmax_values(spectra=spectra, sigma=16, downsize=8):
