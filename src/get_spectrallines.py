@@ -65,6 +65,7 @@ def find_criticalpoint(flux_interval, wavelength_interval, gradient_interval):
 def find_criticalpoint_extended(flux_interval, wavelength_interval, gradient_interval):
     """
     Function that returns the first critical point it finds in the interval. If none is found, it returns a NaN.
+    It has a delayed start, which is useful for finding the MgII spectral line.
     """
     for i in range(30, len(flux_interval)-1):
         # Check if the derivative changes sign between i and i+1
@@ -121,6 +122,7 @@ def get_spectrallines(flux, wavelength, z, sigma=4, delta1=10, delta2=80):
     smoothflux = apply_gaussian_filter(flux, sigma=sigma)
     gradient = np.gradient(smoothflux, wavelength)
 
+    # The spectral lines EW will be saved in this list
     final_vector = []
 
     for s in range(len(speclines)):
@@ -143,7 +145,7 @@ def get_spectrallines(flux, wavelength, z, sigma=4, delta1=10, delta2=80):
         # Find the exact midpoint in a small interval
         wavelength_mid = find_midpoint(interval_flux, interval_wavelength, interval_gradient, speclines[s] * (1 + z))
 
-        # If still no critical point is found:
+        # If still no critical point is found: use location of spectral line
         if np.isnan(wavelength_mid):
             wavelength_mid = speclines[s] * (1+z)
 
@@ -161,63 +163,68 @@ def get_spectrallines(flux, wavelength, z, sigma=4, delta1=10, delta2=80):
         interval_l_gradient = gradient[(wavelength_mid < wavelength) & (wavelength < end_left)]
 
         # Find start point
-        if s == 0:
+        if s == 0: # for MgII: use different function, that ignores the first critical point
             wavelength_start = find_criticalpoint_extended(interval_r_flux, interval_r_wavelength, interval_r_gradient)
         else:
             wavelength_start = find_criticalpoint(interval_r_flux, interval_r_wavelength, interval_r_gradient)
 
-        if len(interval_r_wavelength) == 0:
+        if len(interval_r_wavelength) == 0: # If there are no points to right: use first point of interval
             wavelength_start = interval_wavelength[0]
 
         # Find end point
-        if s == 0:
+        if s == 0: # for MgII: use different function, that ignores the first critical point
             wavelength_end = find_criticalpoint_extended(interval_l_flux, interval_l_wavelength, interval_l_gradient)
-        elif len(interval_l_wavelength) == 0:
+        elif len(interval_l_wavelength) == 0: # If there are no points to left: use last point of interval
             wavelength_end = interval_wavelength[-1]
         else:
             wavelength_end = find_criticalpoint(interval_l_flux, interval_l_wavelength, interval_l_gradient)
 
-        # If no critical points are found:
+        # If no critical points are found in the interval:
 
         if np.isnan(wavelength_start):
-            if not np.isnan(wavelength_end):
+            if not np.isnan(wavelength_end): # Critical point found for end point: mirror that distance
                 wavelength_start = closest(np.flip(interval_r_wavelength), wavelength_mid - (wavelength_end - wavelength_mid))
-            else:
+            else: # None found: take point closest to end of interval
                 wavelength_start = closest(np.flip(interval_r_wavelength), end_right)
 
         if np.isnan(wavelength_end):
-            if not np.isnan(wavelength_start):
+            if not np.isnan(wavelength_start): # Critical point found for start point: mirror that distance
                 wavelength_end = closest(interval_l_wavelength, wavelength_mid + (wavelength_mid - wavelength_start))
-            else:
+            else: # None found: take point closest to end of interval
                 wavelength_end = closest(interval_l_wavelength, end_left)
 
-
+        # Get corresponding indices of the start and end points
         index_start = list(wavelength).index(wavelength_start)
         index_end = list(wavelength).index(wavelength_end)
 
         # -------- Step 3: Make continuum --------
 
+        # Connect the start and end point by a straight line. --> y = a x + b
         slope = (smoothflux[index_end] - smoothflux[index_start]) / (wavelength_end - wavelength_start)
         intercept = smoothflux[index_start] - slope * wavelength_start
         def continuum(X):
             return slope * X + intercept
 
-        test_wavelength = np.linspace(wavelength_start, wavelength_end, 100)
-        test_continuum = continuum(test_wavelength)
+        #test_wavelength = np.linspace(wavelength_start, wavelength_end, 100)
+        #test_continuum = continuum(test_wavelength)
 
 
         # -------- Step 4: Compute Pseudo-Equivalent Widths (EW) --------
 
+        # Define the interval to look at: all points between start and end point of spectral line
         EWinterval_flux = smoothflux[(wavelength_start < wavelength) & (wavelength < wavelength_end)]
         EWinterval_wavelength = np.array(wavelength[(wavelength_start < wavelength) & (wavelength < wavelength_end)])
         EWinterval_continuum = continuum(EWinterval_wavelength)
 
-        if len(EWinterval_wavelength) == 0:
+        if len(EWinterval_wavelength) == 0: # No points? EW = 0
             EW = 0.0
         else:
+            # Make an array of delta_wavelength. This is the width of the bars.
             Delta_wavelength = np.append(np.diff(EWinterval_wavelength), np.diff(EWinterval_wavelength)[-1])
+            # Obtain the area by multiplying the height ( = flux - continuum) by the width
             EW = np.sum((EWinterval_flux - EWinterval_continuum) / EWinterval_continuum * Delta_wavelength)
 
+        # Add the found EW to the vector
         final_vector.append(EW)
 
     return final_vector
@@ -253,6 +260,7 @@ start = time.time()
 
 speclines_vector = []
 
+
 for n in range(1000, 2000):
     print(n)
     try:
@@ -267,14 +275,11 @@ tt = end - start
 print("Time elapsed: ", tt, "s")
 print(tt / 60, "min")
 
-print(" ")
-print(speclines_vector)
-print(speclines_vector[0])
 
 
 """
 
-# This is for the visualisation
+# This part is for the visualisation
 
 # Sort the spectra on the different classes: QSO, stars or galaxies
 qso_z = z[specclass == "QSO"]
