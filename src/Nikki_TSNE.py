@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import sys
 
 # The spectral lines
 qso = ['Lya_em', 'C4_ab', 'C4_ab', 'Lyb_ab']
@@ -12,7 +13,16 @@ wl_gal = [3727, 4959, 5007, 5892, 5175]
 wl_star = [6678, 2600, 2383, 2374, 3934, 3969]
 
 # Load the data and extract the important columns
-spectra = pd.read_pickle('../data/sdss/FinalTable.pkl')
+spectra = pd.read_pickle('../data/sdss/speclines_test.pkl')
+
+print(len(spectra))
+
+print(spectra['spectral_lines'][0])
+
+print(spectra.head())
+
+
+sys.exit()
 
 flux_list = spectra.get_values()[:,0]
 wavelength = spectra.get_values()[:,1]
