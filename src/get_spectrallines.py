@@ -253,6 +253,7 @@ def get_spectrallines(raw_data):
     objid = raw_data.get_values()[:, 2]
     z = raw_data.get_values()[:, 7]
 
+    """
     # ------ Temporarily: get class ------
     specclass_bytes = raw_data.get_values()[:, 4]
 
@@ -263,7 +264,7 @@ def get_spectrallines(raw_data):
     specclass = np.array(specclass)
 
     # -------------------------------------
-
+    """
 
     # Create lists for the 2 columns: the spectral lines vector and the objID list
     speclines_vector = []
@@ -274,22 +275,22 @@ def get_spectrallines(raw_data):
     for n in range(len(raw_data)):
         print(n)
 
-        #try:
-        vector = spectrallines_1source(flux_list[n], wavelength[n], z[n])
-        speclines_vector.append(vector)
-        speclines_objid.append(objid[n])
+        try:
+            vector = spectrallines_1source(flux_list[n], wavelength[n], z[n])
+            speclines_vector.append(vector)
+            speclines_objid.append(objid[n])
 
-        #except:
-        #    m += 1
-        #    print("Something went wrong with the spectral lines! At iteration ", n)
-        #    speclines_vector.append(np.nan)
-        #    speclines_objid.append(objid[n])
+        except:
+            m += 1
+            print("Something went wrong with the spectral lines! At iteration ", n)
+            speclines_vector.append(np.nan)
+            speclines_objid.append(objid[n])
 
     # Merge the two columns together in a data frame
     df = {}
     df['spectral_lines_objid'] = speclines_objid
     df['spectral_lines'] = speclines_vector
-    df['class'] = specclass
+    #df['class'] = specclass
     df = pd.DataFrame(df)
 
     print("There were ", m, "mistakes made.")
@@ -301,8 +302,7 @@ start = time.time()
 df = get_spectrallines(spectra)
 
 #print(df.head())
-
-df.to_pickle('../data/sdss/speclines_test.pkl')
+#df.to_pickle('../data/sdss/speclines_test.pkl')
 
 end = time.time()
 tt = end - start
