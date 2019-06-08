@@ -8,6 +8,8 @@ from src.SDSS_direct_query import query
 from src.MergeTables import merge
 from src.neural_network_classifier import run_neural_network
 
+from ml import model
+
 # df = pd.read_hdf('train.h5')
 # model = run_neural_network(df, batch_size=5, hidden_layers=[128, 128], n_epochs=5)
 
@@ -33,11 +35,9 @@ end=time.time()
 tt=end - start
 print("time for listing is:", tt)
 
-
-
 start1=time.time()
-ra=ra_list[15001:30000]
-dec=dec_list[15001:30000]
+ra=ra_list[40001:45000]
+dec=dec_list[40001:45000]
 get_save_SDSS_from_coordinates( ra , dec )
 end1=time.time()
 
