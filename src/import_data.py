@@ -110,5 +110,5 @@ def get_save_SDSS_from_coordinates(ra, dec):
             n = n +1
     # print(df)
     df = pd.DataFrame(df)
-    df.to_pickle('data/sdss/'+str(length)+'.pkl')
+    df.to_pickle('data/sdss/Nikki_35001-40000.pkl')
     print("number of None values for Xid is:", number_none)
