@@ -1,17 +1,9 @@
-
 import pandas as pd
-
 import time as time
 
 from src.import_data import get_save_SDSS_from_coordinates
 from src.SDSS_direct_query import query
-from src.MergeTables import merge
-from src.neural_network_classifier import run_neural_network
-
-from ml import model
-
-# df = pd.read_hdf('train.h5')
-# model = run_neural_network(df, batch_size=5, hidden_layers=[128, 128], n_epochs=5)
+from src.merge_tables import merge
 
 # gama_df = get_gama_dataset_from_csv()
 # sp, xid = get_sample_SDSS_dataset_from_query()
