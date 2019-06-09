@@ -13,3 +13,7 @@ def merge_data(filenames):
         datalist = pd.concat([data, x], ignore_index=True)
         data = datalist
     return data
+
+names = ['FinalTable_Nikki(0-10000)', 'FinalTable_10-15-Zoe', 'FinalTable_15-30_Zoe', 'FinalTable_30001-35000(Nikki)', 'FinalTable_35001-40000(Nikki)', 'FinalTable_Andrew(40-45)']
+all_data = merge_data(names)
+all_data.to_pickle("./data/alldatamerged.pkl")
