@@ -50,8 +50,8 @@ def create_continuum(df, sigma, downsize):
   rows_after_smoothing = []
 
   for index, spectrum in df.iterrows():
-    wavelengths =  spectrum['wavelength']
-    fluxes = spectrum['flux_list']
+    wavelengths = spectrum['wavelength']
+    fluxes = np.array(spectrum['flux_list'])
     fluxes_filtered = apply_gaussian_filter(fluxes=fluxes, sigma=sigma)
     fluxes_downsized = fluxes_filtered[::downsize]
     wavelengths_downsized = wavelengths[::downsize]
@@ -122,8 +122,8 @@ def filter_sources(df):
 # filtered_df = filter_sources(df=spectra)
 # filtered_df.to_pickle('filtered_df.pkl')
 
-with open('filtered_df.pkl', 'rb') as f:
-  filtered_df = pickle.load(f)
+#with open('filtered_df.pkl', 'rb') as f:
+#  filtered_df = pickle.load(f)
 
 def spectrum_cutoff(df):
   rows_after_cutoff = []
@@ -197,4 +197,24 @@ def check_minmax_values(spectra=spectra, sigma=16, downsize=8):
     ylabel='Wavelength',
     filename='maximum-wavelength-values'
   )
+
+def merge_lines_and_continuum(spectral_lines, continuum):
+
+  # Merge the spectral lines and continuum table on objID
+  df_merge = pd.merge(spectral_lines, continuum, on=['objid'])
+
+  # Convert the specclass bytes into strings
+  specclass_bytes = df_merge['class'].get_values()
+  specclass = []
+  for i in specclass_bytes:
+    specclass.append(i.decode("utf-8"))
+  specclass = np.array(specclass)
+
+  df_merge['class'] = specclass
+
+  # Order the columns in a more sensible way
+  df_merge = df_merge[['objid', 'flux_list', 'wavelength', 'spectral_lines', 'z', 'zErr', 'ra', 'dec', 'plate', 'class']]
+
+  return df_merge
+
 
