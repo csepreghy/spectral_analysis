@@ -20,7 +20,7 @@ gal_lines = ['Na_ab', 'Mg_ab', 'Halpha_em', 'S2_em', 'Hbeta_em', 'Gband_ab', 'CA
 
 wl_qso = [2799, 4342, 4861, 4960, 5008, 6565, 3727]
 wl_star = [6565, 4861, 4340, 4101, 5896]
-wl_gal = [5893, 5175, 6565, 6716, 4861, 4304, 3933.7, 3968, 3727] #, 4000]
+wl_gal = [5893, 5175, 6565, 6716, 4861, 4304, 3933.7, 3968, 3727, 4000]
 
 # -------------------------------
 
@@ -62,7 +62,7 @@ galaxy_wavelength = wavelength[specclass == "GALAXY"]
 # -------------------------------
 
 # Choose spectrum to display (and shift back to emitted wavelength)
-n = 2
+n = 5
 print("Lambda_emit = ", 4200 / (1 + galaxy_z[n]))
 print("Lambda_emit = ", 5550 / (1 + galaxy_z[n]))
 print("Lambda_emit = ", 4350 / (1 + galaxy_z[n]))
@@ -109,8 +109,8 @@ plt.plot(galaxy_wavelength[n], galaxy_fluxlist[n], lw=0.3, color="gray")
 plt.plot(galaxy_wavelength[n], gal_smoothflux, color="black", ms=1)
 #plt.plot(galaxy_wavelength[n], 5 * np.gradient(smooth_flux, galaxy_wavelength[n]) + 30, '--', lw=1)
 #plt.plot(galaxy_wavelength[n], 10 * np.gradient(np.gradient(smooth_flux, galaxy_wavelength[n]), galaxy_wavelength[n]) + 30, '--', lw=1)
-colors = ["C0", "C1", "C2", "C3", "C4", "C3", "C6", "C2", "C9"]
-for j in range(9):
+colors = ["C0", "C1", "C2", "C3", "C4", "C3", "C6", "C2", "C8", "C9"]
+for j in range(10):
     plt.axvline(x=wl_gal[j] * (1 + galaxy_z[n]), lw=1, color=colors[j])
     #plt.axvline(x=wl_qso[j], ls='--', lw=1, color=colors[j])
 plt.grid()
