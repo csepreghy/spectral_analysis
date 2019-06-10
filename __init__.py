@@ -5,7 +5,7 @@ from src.import_data import get_save_SDSS_from_coordinates
 from src.SDSS_direct_query import query
 from src.merge_tables import merge
 
-from src.data_preprocessing import filter_sources, spectrum_cutoff, create_continuum
+from src.data_preprocessing import filter_sources, spectrum_cutoff, create_continuum, merge_lines_and_continuum
 from src.get_spectrallines import get_spectrallines
 
 # with open('data/sdss_coordinates_lowz.txt') as text_file:
@@ -34,11 +34,13 @@ from src.get_spectrallines import get_spectrallines
 
 # merge(length)
 
-spectra = pd.read_pickle('data/sdss/FinalTable.pkl')
+start = time.time()
+
+spectra = pd.read_pickle('data/alldatamerged.pkl')
 df_filtered = filter_sources(df = spectra)
 print('DF Filtered: ')
 print(df_filtered.head())
-df_spectral_lines = get_spectrallines(df = df_filtered)
+df_spectral_lines = get_spectrallines(df_filtered)
 print('Spectral Lines')
 print(df_spectral_lines.head())
 df_spectral_lines.to_pickle('spectral_lines_df.pkl')
@@ -46,7 +48,14 @@ df_cutoff = spectrum_cutoff(df = df_filtered)
 df_continuum = create_continuum(df = df_cutoff, sigma=8, downsize=4)
 df_continuum.to_pickle('continuum_df.pkl')
 
-# df_final = merge_lines_and_continuum(df_spectral_lines, df_continuum)
+df_complete = merge_lines_and_continuum(df_spectral_lines, df_continuum)
+df_complete.to_pickle('COMPLETE_df.pkl')
+
+end = time.time()
+tt = end - start
+print(" ")
+print("Time elapsed: ", tt, "s")
+print(tt/60, "min")
 
 # model = create_model(df_final, configs['neural_network'])
 
