@@ -17,8 +17,6 @@ print(df.head())
 print(df['OII'][5])
 
 
-
-
 configs = {
   'neural_network': {
     'type': 'neural_network',
