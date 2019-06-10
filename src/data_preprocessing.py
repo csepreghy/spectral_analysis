@@ -7,7 +7,7 @@ from scipy import ndimage
 import pickle
 from itertools import islice
 
-from plotify import Plotify
+from src.plotify import Plotify
 
 # --- Initialize variables --- #
 plotify = Plotify()
@@ -21,9 +21,6 @@ def apply_gaussian_filter(fluxes, sigma):
 
 
 def plot_one_spectrum(spectra, nth_element, sigma, downsize, filename, save):
-  z = spectra.get_values()[:, 3]
-  fluxes = spectra.get_values()[:, 0]
-  wavelengths = spectra.get_values()[:, 1]
   gaussian_sigma = sigma
   spectrum_x = spectra.iloc[nth_element]['wavelength']
   spectrum_y = spectra.iloc[nth_element]['flux_list']
@@ -38,7 +35,7 @@ def plot_one_spectrum(spectra, nth_element, sigma, downsize, filename, save):
   fig, ax = plotify.plot(
     x_list=spectrum_x,
     y_list=spectrum_y_downsized,
-    xlabel='Frequencies (Hz)',
+    xlabel='Frequencies',
     ylabel='Flux',
     title=spectrum_title,
     figsize=(12, 8),
@@ -48,6 +45,39 @@ def plot_one_spectrum(spectra, nth_element, sigma, downsize, filename, save):
     ymax=np.amax(spectrum_y) + 4,
     save=save
   )
+
+def create_continuum(df, sigma, downsize):
+  rows_after_smoothing = []
+
+  for index, spectrum in df.iterrows():
+    wavelengths =  spectrum['wavelength']
+    fluxes = spectrum['flux_list']
+    fluxes_filtered = apply_gaussian_filter(fluxes=fluxes, sigma=sigma)
+    fluxes_downsized = fluxes_filtered[::downsize]
+    wavelengths_downsized = wavelengths[::downsize]
+  
+    row = {
+      'wavelength': wavelengths_downsized,
+      'flux_list': fluxes_downsized,
+      'objid': spectrum['objid'],
+      'plate': spectrum['plate'],
+      'class': spectrum['class'],
+      'zErr': spectrum['zErr'],
+      'dec': spectrum['dec'],
+      'ra': spectrum['ra'],
+      'z': spectrum['z'],
+    }
+
+    rows_after_smoothing.append(row)
+    df_after_smoothing = pd.DataFrame(rows_after_smoothing)
+  
+  return df_after_smoothing
+
+# spectra = pd.read_pickle('data/sdss/FinalTable.pkl')
+# continuum_df = create_continuum(df=spectra, sigma=8, downsize=2)
+
+
+# def merge_lines_and_continuum(df_spectral_lines, df_continuum):
 
 
 # plot_one_spectrum(spectra=spectra, nth_element=41, sigma=4, downsize=1, filename='helloka', save=False)
@@ -128,8 +158,8 @@ def spectrum_cutoff(df):
 
   return filtered_df
 
-df_after_cutoff = spectrum_cutoff(filtered_df)
-print('df_after_cutoff', df_after_cutoff)
+# df_after_cutoff = spectrum_cutoff(filtered_df)
+# print('df_after_cutoff', df_after_cutoff)
 
 def check_minmax_values(spectra=spectra, sigma=16, downsize=8):
   min_wavelength_values = []
