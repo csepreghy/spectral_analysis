@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import sys
 from skimage import io, filters, feature
 from scipy import ndimage
+import pickle
 from itertools import islice
 
 from plotify import Plotify
@@ -12,6 +13,8 @@ from plotify import Plotify
 plotify = Plotify()
 spectra = pd.read_pickle('data/sdss/FinalTable.pkl')
 
+CUTOFF_MIN = 3850
+CUTOFF_MAX = 9100
 
 def apply_gaussian_filter(fluxes, sigma):
   return filters.gaussian(image=fluxes, sigma=sigma)
@@ -66,7 +69,7 @@ def filter_sources(df):
     min_value = np.amin(spectrum['wavelength'].tolist())
     max_value = np.amax(spectrum['wavelength'].tolist())
 
-    if min_value < 3850 and max_value > 9100:
+    if min_value < CUTOFF_MIN and max_value > CUTOFF_MAX:
       row = {
         'wavelength': spectrum['wavelength'].tolist(),
         'flux_list': spectrum['flux_list'].tolist(),
@@ -86,11 +89,47 @@ def filter_sources(df):
 
   return filtered_df
 
+# filtered_df = filter_sources(df=spectra)
+# filtered_df.to_pickle('filtered_df.pkl')
 
+with open('filtered_df.pkl', 'rb') as f:
+  filtered_df = pickle.load(f)
 
+def spectrum_cutoff(df):
+  rows_after_cutoff = []
+  for df_index, spectrum in df.iterrows():
+    cut_off_wavelengths = []
+    cut_off_fluxes = []
 
-filtered_df = filter_sources(df=spectra)
+    wavelengths = spectrum['wavelength']
+    fluxes = spectrum['flux_list']
+  
 
+    for wavelength, flux in zip(wavelengths, fluxes):
+      if wavelength > CUTOFF_MIN and wavelength < CUTOFF_MAX:
+        cut_off_wavelengths.append(wavelength)
+        cut_off_fluxes.append(flux)
+
+    row = {
+      'wavelength': cut_off_wavelengths,
+      'flux_list': cut_off_fluxes,
+      'objid': spectrum['objid'],
+      'plate': spectrum['plate'],
+      'class': spectrum['class'],
+      'zErr': spectrum['zErr'],
+      'dec': spectrum['dec'],
+      'ra': spectrum['ra'],
+      'z': spectrum['z'],
+    }
+
+    rows_after_cutoff.append(row)
+  
+  filtered_df = pd.DataFrame(rows_after_cutoff)
+
+  return filtered_df
+
+df_after_cutoff = spectrum_cutoff(filtered_df)
+print('df_after_cutoff', df_after_cutoff)
 
 def check_minmax_values(spectra=spectra, sigma=16, downsize=8):
   min_wavelength_values = []
