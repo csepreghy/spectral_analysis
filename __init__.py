@@ -34,21 +34,34 @@ from src.get_spectrallines import get_spectrallines
 
 # merge(length)
 
+
+#spectra = pd.read_pickle('data/alldatamerged.pkl')
+
+#df_continuum = pd.read_pickle('continuum_df.pkl')
+df_spectral_lines = pd.read_pickle('spectral_lines_df.pkl')
+
+
 start = time.time()
+
 
 spectra = pd.read_pickle('data/alldatamerged.pkl')
 df_filtered = filter_sources(df = spectra)
 print('DF Filtered: ')
 print(df_filtered.head())
+"""
 df_spectral_lines = get_spectrallines(df_filtered)
 print('Spectral Lines')
 print(df_spectral_lines.head())
-df_spectral_lines.to_pickle('spectral_lines_df.pkl')
+df_spectral_lines.to_pickle('spectral_lines2_df.pkl')
+"""
 df_cutoff = spectrum_cutoff(df = df_filtered)
-df_continuum = create_continuum(df = df_cutoff, sigma=8, downsize=4)
+df_continuum = create_continuum(df = df_cutoff, sigma=16, downsize=8)
 df_continuum.to_pickle('continuum_df.pkl')
 
+
 df_complete = merge_lines_and_continuum(df_spectral_lines, df_continuum)
+print("DF Complete: ")
+print(df_complete.head())
 df_complete.to_pickle('COMPLETE_df.pkl')
 
 end = time.time()
