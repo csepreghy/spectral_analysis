@@ -238,16 +238,16 @@ def spectrallines_1source(flux, wavelength, z, sigma=4, delta1=10, delta2=80):
 # -------------------------------
 
 # Load the data and extract the important columns
-#spectra = pd.read_pickle('../data/sdss/FinalTable_Nikki.pkl')
+# spectra = pd.read_pickle('../data/sdss/FinalTable_Nikki.pkl')
 
 
 # -------------------------------
 
 # Compute the spectral line vectors for all the data
 
-def get_spectrallines(raw_data):
+def get_spectrallines(df):
     """
-    :param raw_data: The raw data, in a pandas data frame
+    :param df: The raw data, in a pandas data frame
     :return: A pandas data frame with 2 columns: one with the spectral lines and one with the objIDs
     """
 
@@ -259,7 +259,7 @@ def get_spectrallines(raw_data):
 
     """
     # ------ Temporarily: get class ------
-    specclass_bytes = raw_data.get_values()[:, 4]
+    specclass_bytes = df.get_values()[:, 4]
 
     # Convert the specclass bytes into strings
     specclass = []
@@ -285,7 +285,7 @@ def get_spectrallines(raw_data):
 
         except:
             m += 1
-            print("Something went wrong with the spectral lines! At iteration ", n)
+            # print("Something went wrong with the spectral lines! At iteration ", n)
             speclines_vector.append(np.nan)
             speclines_objid.append(objid[n])
 
@@ -299,7 +299,6 @@ def get_spectrallines(raw_data):
     print("There were ", m, "mistakes made.")
 
     return df
-
 
 
 
