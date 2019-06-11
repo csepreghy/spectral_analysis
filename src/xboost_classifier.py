@@ -25,14 +25,14 @@ def run_xgboost(df, config):
   return model
 
 
-with open('data/sdss/FinalTable_Andrew(40-45).pkl', 'rb') as f:
-  df = pickle.load(f)
+#with open('data/sdss/FinalTable_Andrew(40-45).pkl', 'rb') as f:
+#  df = pickle.load(f)
 
 config = {
   'max_depth': 3,
   'learning_rate': 0.1
 }
 
-print('df', df)
+#print('df', df)
 
-run_xgboost(df, config)
+#run_xgboost(df, config)
