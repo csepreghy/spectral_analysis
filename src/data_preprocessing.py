@@ -4,23 +4,23 @@ import matplotlib.pyplot as plt
 import sys
 from skimage import io, filters, feature
 from scipy import ndimage
+import pickle
 from itertools import islice
 
-from plotify import Plotify
+from src.plotify import Plotify
 
 # --- Initialize variables --- #
 plotify = Plotify()
 spectra = pd.read_pickle('data/sdss/FinalTable.pkl')
 
+CUTOFF_MIN = 3850
+CUTOFF_MAX = 9100
 
 def apply_gaussian_filter(fluxes, sigma):
   return filters.gaussian(image=fluxes, sigma=sigma)
 
 
 def plot_one_spectrum(spectra, nth_element, sigma, downsize, filename, save):
-  z = spectra.get_values()[:, 3]
-  fluxes = spectra.get_values()[:, 0]
-  wavelengths = spectra.get_values()[:, 1]
   gaussian_sigma = sigma
   spectrum_x = spectra.iloc[nth_element]['wavelength']
   spectrum_y = spectra.iloc[nth_element]['flux_list']
@@ -35,7 +35,7 @@ def plot_one_spectrum(spectra, nth_element, sigma, downsize, filename, save):
   fig, ax = plotify.plot(
     x_list=spectrum_x,
     y_list=spectrum_y_downsized,
-    xlabel='Frequencies (Hz)',
+    xlabel='Frequencies',
     ylabel='Flux',
     title=spectrum_title,
     figsize=(12, 8),
@@ -45,6 +45,39 @@ def plot_one_spectrum(spectra, nth_element, sigma, downsize, filename, save):
     ymax=np.amax(spectrum_y) + 4,
     save=save
   )
+
+def create_continuum(df, sigma, downsize):
+  rows_after_smoothing = []
+
+  for index, spectrum in df.iterrows():
+    wavelengths = spectrum['wavelength']
+    fluxes = np.array(spectrum['flux_list'])
+    fluxes_filtered = apply_gaussian_filter(fluxes=fluxes, sigma=sigma)
+    fluxes_downsized = fluxes_filtered[::downsize]
+    wavelengths_downsized = wavelengths[::downsize]
+  
+    row = {
+      'wavelength': wavelengths_downsized,
+      'flux_list': fluxes_downsized,
+      'objid': spectrum['objid'],
+      'plate': spectrum['plate'],
+      'class': spectrum['class'],
+      'zErr': spectrum['zErr'],
+      'dec': spectrum['dec'],
+      'ra': spectrum['ra'],
+      'z': spectrum['z'],
+    }
+
+    rows_after_smoothing.append(row)
+    df_after_smoothing = pd.DataFrame(rows_after_smoothing)
+  
+  return df_after_smoothing
+
+# spectra = pd.read_pickle('data/sdss/FinalTable.pkl')
+# continuum_df = create_continuum(df=spectra, sigma=8, downsize=2)
+
+
+# def merge_lines_and_continuum(df_spectral_lines, df_continuum):
 
 
 # plot_one_spectrum(spectra=spectra, nth_element=41, sigma=4, downsize=1, filename='helloka', save=False)
@@ -66,7 +99,7 @@ def filter_sources(df):
     min_value = np.amin(spectrum['wavelength'].tolist())
     max_value = np.amax(spectrum['wavelength'].tolist())
 
-    if min_value < 3850 and max_value > 9100:
+    if min_value < CUTOFF_MIN and max_value > CUTOFF_MAX:
       row = {
         'wavelength': spectrum['wavelength'].tolist(),
         'flux_list': spectrum['flux_list'].tolist(),
@@ -86,11 +119,47 @@ def filter_sources(df):
 
   return filtered_df
 
+# filtered_df = filter_sources(df=spectra)
+# filtered_df.to_pickle('filtered_df.pkl')
 
+#with open('filtered_df.pkl', 'rb') as f:
+#  filtered_df = pickle.load(f)
 
+def spectrum_cutoff(df):
+  rows_after_cutoff = []
+  for df_index, spectrum in df.iterrows():
+    cut_off_wavelengths = []
+    cut_off_fluxes = []
 
-filtered_df = filter_sources(df=spectra)
+    wavelengths = spectrum['wavelength']
+    fluxes = spectrum['flux_list']
+  
 
+    for wavelength, flux in zip(wavelengths, fluxes):
+      if wavelength > CUTOFF_MIN and wavelength < CUTOFF_MAX:
+        cut_off_wavelengths.append(wavelength)
+        cut_off_fluxes.append(flux)
+
+    row = {
+      'wavelength': cut_off_wavelengths,
+      'flux_list': cut_off_fluxes,
+      'objid': spectrum['objid'],
+      'plate': spectrum['plate'],
+      'class': spectrum['class'],
+      'zErr': spectrum['zErr'],
+      'dec': spectrum['dec'],
+      'ra': spectrum['ra'],
+      'z': spectrum['z'],
+    }
+
+    rows_after_cutoff.append(row)
+  
+  filtered_df = pd.DataFrame(rows_after_cutoff)
+
+  return filtered_df
+
+# df_after_cutoff = spectrum_cutoff(filtered_df)
+# print('df_after_cutoff', df_after_cutoff)
 
 def check_minmax_values(spectra=spectra, sigma=16, downsize=8):
   min_wavelength_values = []
@@ -128,4 +197,64 @@ def check_minmax_values(spectra=spectra, sigma=16, downsize=8):
     ylabel='Wavelength',
     filename='maximum-wavelength-values'
   )
+
+def clear_duplicates(df1, df2):
+
+  # Get the IDs from both data frames
+  id_1 = df1['objid'].get_values()
+  id_2 = df2['objid'].get_values()
+
+  # Make a list with the duplicate IDs
+  u, c = np.unique(id_1, return_counts=True)
+  dup = u[c > 1]
+
+  # Get the indices
+  indices = []
+  for n in dup:
+    indices.append(list(id_1).index(n))
+
+  # Drop double IDs
+  df1_new = df1.drop(indices)
+  df2_new = df2.drop(indices)
+
+  # Reset index
+  df1_new = df1_new.reset_index()
+  df2_new = df2_new.reset_index()
+
+  return df1_new, df2_new
+
+
+def merge_lines_and_continuum(spectral_lines, continuum):
+
+
+  """
+  # Function to check if the IDs are unique:
+  def allUnique(x):
+    seen = set()
+    return not any(i in seen or seen.add(i) for i in x)
+  """
+
+  # First round clearing for duplicates
+  spectral_lines2, continuum2 = clear_duplicates(spectral_lines, continuum)
+
+  # Second round clearing for triple duplicates
+  spectral_lines3, continuum3 = clear_duplicates(spectral_lines2, continuum2)
+
+  # Merge the spectral lines and continuum table on objID
+  df_merge = continuum3.merge(spectral_lines3, on='objid')
+
+  # Convert the specclass bytes into strings
+  specclass_bytes = df_merge['class'].get_values()
+  specclass = []
+  for i in specclass_bytes:
+    specclass.append(i.decode("utf-8"))
+  specclass = np.array(specclass)
+
+  df_merge['class'] = specclass
+
+  # Order the columns in a more sensible way
+  df_merge = df_merge[['objid', 'flux_list', 'wavelength', 'spectral_lines', 'z', 'zErr', 'ra', 'dec', 'plate', 'class']]
+
+  return df_merge
+
 

@@ -24,6 +24,7 @@ speclines = list(spectra.get_values()[:,1])
 specclass = spectra.get_values()[:,2]
 
 
+
 Y = np.append(speclines, z.reshape(-1,1), axis=1)
 
 
@@ -59,6 +60,12 @@ for j in range(len(df)):
         classnumber.append(1.0)
 
 df['class_numbers'] = classnumber
+
+
+print(df.iloc[0])
+df.to_pickle('../data/sdss/speclines_0-10000.pkl')
+
+sys.exit()
 
 
 # ------- ------- PCA ------- -------
