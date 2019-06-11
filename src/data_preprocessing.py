@@ -198,10 +198,50 @@ def check_minmax_values(spectra=spectra, sigma=16, downsize=8):
     filename='maximum-wavelength-values'
   )
 
+def clear_duplicates(df1, df2):
+
+  # Get the IDs from both data frames
+  id_1 = df1['objid'].get_values()
+  id_2 = df2['objid'].get_values()
+
+  # Make a list with the duplicate IDs
+  u, c = np.unique(id_1, return_counts=True)
+  dup = u[c > 1]
+
+  # Get the indices
+  indices = []
+  for n in dup:
+    indices.append(list(id_1).index(n))
+
+  # Drop double IDs
+  df1_new = df1.drop(indices)
+  df2_new = df2.drop(indices)
+
+  # Reset index
+  df1_new = df1_new.reset_index()
+  df2_new = df2_new.reset_index()
+
+  return df1_new, df2_new
+
+
 def merge_lines_and_continuum(spectral_lines, continuum):
 
+
+  """
+  # Function to check if the IDs are unique:
+  def allUnique(x):
+    seen = set()
+    return not any(i in seen or seen.add(i) for i in x)
+  """
+
+  # First round clearing for duplicates
+  spectral_lines2, continuum2 = clear_duplicates(spectral_lines, continuum)
+
+  # Second round clearing for triple duplicates
+  spectral_lines3, continuum3 = clear_duplicates(spectral_lines2, continuum2)
+
   # Merge the spectral lines and continuum table on objID
-  df_merge = pd.merge(spectral_lines, continuum, on=['objid'])
+  df_merge = continuum3.merge(spectral_lines3, on='objid')
 
   # Convert the specclass bytes into strings
   specclass_bytes = df_merge['class'].get_values()
