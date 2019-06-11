@@ -1,4 +1,4 @@
-from sklearn.gaussian_process import GaussianProcessClassifier
+from sklearn.ensemble import RandomForestClassifier
 import pandas as pd
 from sklearn.gaussian_process.kernels import RBF
 from sklearn.preprocessing import OneHotEncoder
@@ -18,7 +18,7 @@ df_T = pd.DataFrame(x)
 
 df=df_T[:1000]
 
-def run_Gauss_classi(df):
+def run_Random_Forest(df):
     start= time.time()
     X = df.drop(columns={"flux_list", "wavelength", "objid", "ra", "dec", "class", "spectral_lines"})
     y = df["class"]
@@ -28,7 +28,7 @@ def run_Gauss_classi(df):
 
 
     kernel = 1.0 * RBF(1.0)#config['kernel_val'])
-    model = GaussianProcessClassifier(kernel=kernel, random_state=0).fit(X_train, y_train)
+    model = RandomForestClassifier().fit(X_train, y_train)
 
 
 
@@ -41,4 +41,4 @@ def run_Gauss_classi(df):
     print("time :", tt)
 
 
-run_Gauss_classi(df)
+run_Random_Forest(df)
