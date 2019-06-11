@@ -62,7 +62,7 @@ galaxy_wavelength = wavelength[specclass == "GALAXY"]
 # -------------------------------
 
 # Choose spectrum to display (and shift back to emitted wavelength)
-n = 5
+n = 4
 print("Lambda_emit = ", 4200 / (1 + galaxy_z[n]))
 print("Lambda_emit = ", 5550 / (1 + galaxy_z[n]))
 print("Lambda_emit = ", 4350 / (1 + galaxy_z[n]))
