@@ -200,7 +200,10 @@ def spectrallines_1source(flux, wavelength, z, sigma=4, delta1=10, delta2=80):
         # -------- Step 3: Make continuum --------
 
         # Connect the start and end point by a straight line. --> y = a x + b
-        slope = (smoothflux[index_end] - smoothflux[index_start]) / (wavelength_end - wavelength_start)
+        if wavelength_end == wavelength_start:
+            slope = 0.0
+        else:
+            slope = (smoothflux[index_end] - smoothflux[index_start]) / (wavelength_end - wavelength_start)
         intercept = smoothflux[index_start] - slope * wavelength_start
         def continuum(X):
             return slope * X + intercept
@@ -217,7 +220,8 @@ def spectrallines_1source(flux, wavelength, z, sigma=4, delta1=10, delta2=80):
         EWinterval_continuum = continuum(EWinterval_wavelength)
 
 
-        if len(EWinterval_wavelength) == 0 or len(EWinterval_wavelength) == 1: # No points? EW = 0
+        if len(EWinterval_wavelength) == 0 or len(EWinterval_wavelength) == 1 or np.any(EWinterval_continuum == 0.0):
+            # No points? EW = 0
             EW = 0.0
         else:
             # Make an array of delta_wavelength. This is the width of the bars.
@@ -234,28 +238,28 @@ def spectrallines_1source(flux, wavelength, z, sigma=4, delta1=10, delta2=80):
 # -------------------------------
 
 # Load the data and extract the important columns
-spectra = pd.read_pickle('../data/sdss/FinalTable_Nikki.pkl')
+# spectra = pd.read_pickle('../data/sdss/FinalTable_Nikki.pkl')
 
 
 # -------------------------------
 
 # Compute the spectral line vectors for all the data
 
-def get_spectrallines(raw_data):
+def get_spectrallines(df):
     """
-    :param raw_data: The raw data, in a pandas data frame
+    :param df: The raw data, in a pandas data frame
     :return: A pandas data frame with 2 columns: one with the spectral lines and one with the objIDs
     """
 
     # Extract the important columns: flux list, wavelength list, objID, z
-    flux_list = raw_data.get_values()[:, 0]
-    wavelength = raw_data.get_values()[:, 1]
-    objid = raw_data.get_values()[:, 2]
-    z = raw_data.get_values()[:, 7]
+    flux_list = raw_data['flux_list'].get_values()
+    wavelength = raw_data['wavelength'].get_values()
+    objid = raw_data['objid'].get_values()
+    z = raw_data['z'].get_values()
 
     """
     # ------ Temporarily: get class ------
-    specclass_bytes = raw_data.get_values()[:, 4]
+    specclass_bytes = df.get_values()[:, 4]
 
     # Convert the specclass bytes into strings
     specclass = []
@@ -273,22 +277,21 @@ def get_spectrallines(raw_data):
     # Loop over all the sources in the data file: get for each one the vector with spectral lines
     m = 0
     for n in range(len(raw_data)):
-        print(n)
 
         try:
-            vector = spectrallines_1source(flux_list[n], wavelength[n], z[n])
+            vector = spectrallines_1source(np.array(flux_list[n]), np.array(wavelength[n]), z[n])
             speclines_vector.append(vector)
             speclines_objid.append(objid[n])
 
         except:
             m += 1
-            print("Something went wrong with the spectral lines! At iteration ", n)
+            # print("Something went wrong with the spectral lines! At iteration ", n)
             speclines_vector.append(np.nan)
             speclines_objid.append(objid[n])
 
     # Merge the two columns together in a data frame
     df = {}
-    df['spectral_lines_objid'] = speclines_objid
+    df['objid'] = speclines_objid
     df['spectral_lines'] = speclines_vector
     #df['class'] = specclass
     df = pd.DataFrame(df)
@@ -297,17 +300,6 @@ def get_spectrallines(raw_data):
 
     return df
 
-start = time.time()
-
-df = get_spectrallines(spectra)
-
-#print(df.head())
-#df.to_pickle('../data/sdss/speclines_test.pkl')
-
-end = time.time()
-tt = end - start
-print("Time elapsed: ", tt, "s")
-print(tt/60, "min")
 
 
 """
