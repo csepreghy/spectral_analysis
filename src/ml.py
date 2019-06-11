@@ -3,7 +3,7 @@ import sys
 
 from neural_network_classifier import run_neural_network
 from xboost_classifier import run_xgboost
-from Caussian_classifier import run_Gauss_classi
+#from Caussian_classifier import run_Gauss_classi
 
 def create_model(df, config):
   if config['type'] == 'xgboost': model = run_xgboost(df, config)
