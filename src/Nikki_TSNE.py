@@ -9,6 +9,7 @@ from mpl_toolkits.mplot3d import Axes3D
 import seaborn as sb
 from matplotlib.lines import Line2D
 import time as time
+from sklearn.preprocessing import StandardScaler
 
 from src.plotify import Plotify
 plotify = Plotify()
@@ -77,9 +78,11 @@ def get_PCA(spectra, dimensions, speclines="yes", continuum="yes"):
     print(df.iloc[0])
 
     # Do PCA
+    scaler = StandardScaler()
+    X_std = scaler.fit_transform(X)
+
     pca = PCA(n_components=dimensions)
-    X = scaler.
-    pca_result = pca.fit_transform(X)
+    pca_result = pca.fit_transform(X_std)
     df['pca-one'] = pca_result[:, 0]
     df['pca-two'] = pca_result[:, 1]
     if dimensions > 2:
@@ -171,9 +174,12 @@ def get_tSNE(spectra, dimensions, speclines="yes", continuum="yes"):
     print(df.iloc[0])
 
     # Do t-SNE
+
+    scaler = StandardScaler()
+    X_std = scaler.fit_transform(X)
     time_start = time.time()
     tsne = TSNE(n_components=dimensions, verbose=0, perplexity=40, n_iter=1000)
-    tsne_results = tsne.fit_transform(X)
+    tsne_results = tsne.fit_transform(X_std)
     print('t-SNE done! Time elapsed: {} seconds'.format(time.time() - time_start))
 
     # -------- Make plots --------
@@ -203,7 +209,7 @@ def get_tSNE(spectra, dimensions, speclines="yes", continuum="yes"):
 
 # -----------------------------------------  -----------------------------------------
 
-get_PCA(spectra, 2)
+get_tSNE(spectra, dimensions=2)
 
 
 

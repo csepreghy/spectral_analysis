@@ -1,9 +1,14 @@
 import pandas as pd
 import sys
+import pickle
 
 from neural_network_classifier import run_neural_network
 from xboost_classifier import run_xgboost
+<<<<<<< HEAD
 #from Caussian_classifier import run_Gauss_classi
+=======
+from Gaussian_Classifier import run_Gauss_classi
+>>>>>>> b2d946f9314313280ae03cb66c2630886b9db464
 
 def create_model(df, config):
   if config['type'] == 'xgboost': model = run_xgboost(df, config)
@@ -15,6 +20,11 @@ def create_model(df, config):
 
 
 df = pd.read_pickle('../data/sdss/speclines_0-10000.pkl')
+
+# with open("../data/complete-splited.pkl", 'rb') as f:
+#
+#   x = pickle.load(f)
+# df = pd.DataFrame(x)
 
 print(df.head())
 print(df['OII'][5])
@@ -40,4 +50,4 @@ configs = {
 
 #df = pd.read_hdf('train.h5')
 
-model = create_model(df, configs['xgboost'])
+# model = create_model(df, configs['xgboost'])
