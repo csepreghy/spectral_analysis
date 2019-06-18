@@ -9,21 +9,217 @@ from mpl_toolkits.mplot3d import Axes3D
 import seaborn as sb
 from matplotlib.lines import Line2D
 import time as time
+from sklearn.preprocessing import StandardScaler
+
+from src.plotify import Plotify
+plotify = Plotify()
+
+# -----------------------------------------
 
 
 # Load the data and extract the important columns
-spectra = pd.read_pickle('../data/sdss/speclines_test.pkl')
+spectra = pd.read_pickle('../COMPLETE_df.pkl')
 full_spectra = pd.read_pickle('../data/sdss/FinalTable_Nikki.pkl')
 
+# -----------------------------------------
 
-print(spectra.head())
+def get_PCA(spectra, dimensions, speclines="yes", continuum="yes"):
+
+    # Get important columns from data frame
+    z = spectra['z'].get_values()
+    z_err = spectra['zErr'].get_values()
+    flux_list = list(spectra['flux_list'].get_values())
+    wavelength = spectra['wavelength'].get_values()[0]
+    spectral_lines = list(spectra['spectral_lines'].get_values())
+    specclass = spectra['class']
+
+    print(np.shape(flux_list))
+
+
+    # Input variables
+    if speclines == "yes" and continuum == "yes":
+        X = np.hstack((z.reshape(-1,1), z_err.reshape(-1,1), spectral_lines, flux_list))
+    elif speclines == "yes" and continuum == "no":
+        X = np.hstack((z.reshape(-1, 1), z_err.reshape(-1, 1), spectral_lines))
+    else:
+        X = np.hstack((z.reshape(-1, 1), z_err.reshape(-1, 1), flux_list))
+
+
+    # Make into data frame
+    speclines_name = ['MgII', 'OII', 'CaIIH', 'CaIIK', 'H_delta', 'G_band',
+                          'H_gamma', 'H_beta', 'OIII_1', 'OIII_2', 'Mg', 'NaI', 'H_alpha', 'S2']
+    df1 = pd.DataFrame(spectral_lines, columns=speclines_name)
+    df2 = pd.DataFrame(flux_list, columns=wavelength)
+
+    if speclines == "yes" and continuum == "yes":
+        df = pd.concat([df1, df2], axis=1)
+    elif speclines == "yes" and continuum == "no":
+        df = df1
+    else:
+        df = df2
+
+
+    # Make new specclass array, with numbers. QSO = 1, STAR = 2, GALAXY = 3
+    classnumber = []
+    for j in range(len(df)):
+        if specclass[j] == "GALAXY":
+            classnumber.append(3.0)
+        elif specclass[j] == "STAR":
+            classnumber.append(2.0)
+        elif specclass[j] == "QSO":
+            classnumber.append(1.0)
+
+    df['z'] = z
+    df['zErr'] = z_err
+    df['class'] = specclass
+    df['class_numbers'] = classnumber
+
+
+    print(df.iloc[0])
+
+    # Do PCA
+    scaler = StandardScaler()
+    X_std = scaler.fit_transform(X)
+
+    pca = PCA(n_components=dimensions)
+    pca_result = pca.fit_transform(X_std)
+    df['pca-one'] = pca_result[:, 0]
+    df['pca-two'] = pca_result[:, 1]
+    if dimensions > 2:
+        df['pca-three'] = pca_result[:, 2]
+    print('Explained variation per principal component: {}'.format(pca.explained_variance_ratio_))
+
+    # -------- Make plots --------
+
+    if dimensions == 2:
+        plt.figure(figsize=(16, 10))
+        sb.scatterplot(
+            x="pca-one", y="pca-two",
+            hue="class",
+            palette=sb.color_palette("hls", 3),
+            data=df,
+            legend="full",
+            alpha=0.3
+        )
+        if speclines == "yes" and continuum == "yes":
+            plt.xlim(-500, 400)
+            plt.ylim(-500, 3000)
+            plt.savefig("../plots/PCA_scaled_" + str(dimensions) + "comp_continuum+speclines.png", dpi=300)
+        elif speclines == "yes" and continuum == "no":
+            plt.xlim(-100, 0)
+            plt.ylim(-55, 75)
+            plt.savefig("../plots/PCA_scaled_" + str(dimensions) + "comp_speclines.png", dpi=300)
+        else:
+            plt.xlim(-250, 400)
+            plt.ylim(-400, 300)
+            plt.savefig("../plots/PCA_scaled_" + str(dimensions) + "comp_continuum.png", dpi=300)
+
+    plt.show()
+
+
+    return 5.0
+
+# -----------------------------------------  -----------------------------------------
+
+
+def get_tSNE(spectra, dimensions, speclines="yes", continuum="yes"):
+
+    # Get important columns from data frame
+    z = spectra['z'].get_values()
+    z_err = spectra['zErr'].get_values()
+    flux_list = list(spectra['flux_list'].get_values())
+    wavelength = spectra['wavelength'].get_values()[0]
+    spectral_lines = list(spectra['spectral_lines'].get_values())
+    specclass = spectra['class']
+
+
+    # Input variables
+    if speclines == "yes" and continuum == "yes":
+        X = np.hstack((z.reshape(-1,1), z_err.reshape(-1,1), spectral_lines, flux_list))
+    elif speclines == "yes" and continuum == "no":
+        X = np.hstack((z.reshape(-1, 1), z_err.reshape(-1, 1), spectral_lines))
+    else:
+        X = np.hstack((z.reshape(-1, 1), z_err.reshape(-1, 1), flux_list))
+
+
+    # Make into data frame
+    speclines_name = ['MgII', 'OII', 'CaIIH', 'CaIIK', 'H_delta', 'G_band',
+                          'H_gamma', 'H_beta', 'OIII_1', 'OIII_2', 'Mg', 'NaI', 'H_alpha', 'S2']
+    df1 = pd.DataFrame(spectral_lines, columns=speclines_name)
+    df2 = pd.DataFrame(flux_list, columns=wavelength)
+
+    if speclines == "yes" and continuum == "yes":
+        df = pd.concat([df1, df2], axis=1)
+    elif speclines == "yes" and continuum == "no":
+        df = df1
+    else:
+        df = df2
+
+
+    # Make new specclass array, with numbers. QSO = 1, STAR = 2, GALAXY = 3
+    classnumber = []
+    for j in range(len(df)):
+        if specclass[j] == "GALAXY":
+            classnumber.append(3.0)
+        elif specclass[j] == "STAR":
+            classnumber.append(2.0)
+        elif specclass[j] == "QSO":
+            classnumber.append(1.0)
+
+    df['z'] = z
+    df['zErr'] = z_err
+    df['class'] = specclass
+    df['class_numbers'] = classnumber
+
+    print(df.iloc[0])
+
+    # Do t-SNE
+
+    scaler = StandardScaler()
+    X_std = scaler.fit_transform(X)
+    time_start = time.time()
+    tsne = TSNE(n_components=dimensions, verbose=0, perplexity=40, n_iter=1000)
+    tsne_results = tsne.fit_transform(X_std)
+    print('t-SNE done! Time elapsed: {} seconds'.format(time.time() - time_start))
+
+    # -------- Make plots --------
+    df['tsne-2d-one'] = tsne_results[:, 0]
+    df['tsne-2d-two'] = tsne_results[:, 1]
+    plt.figure(figsize=(16, 10))
+    sb.scatterplot(
+        x="tsne-2d-one", y="tsne-2d-two",
+        hue="class",
+        palette=sb.color_palette("hls", 3),
+        data=df,
+        legend="full",
+        alpha=0.3)
+    if speclines == "yes" and continuum == "yes":
+        plt.savefig("../plots/tSNE_scaled_" + str(dimensions) + "comp_" + str(len(spectra)) + "_continuum+speclines.png", dpi=300)
+    elif speclines == "yes" and continuum == "no":
+        plt.savefig("../plots/tSNE_scaled_" + str(dimensions) + "comp_" + str(len(spectra)) + "_speclines.png", dpi=300)
+    else:
+        plt.savefig("../plots/tSNE_scaled_" + str(dimensions) + "comp_" + str(len(spectra)) + "_continuum.png", dpi=300)
+
+    plt.show()
+
+    return 5.0
+
+
+
+
+# -----------------------------------------  -----------------------------------------
+
+get_tSNE(spectra, dimensions=2)
+
+
+
+
+sys.exit()
 
 z = full_spectra.get_values()[:, 7]
 objid = spectra.get_values()[:,0]
 speclines = list(spectra.get_values()[:,1])
 specclass = spectra.get_values()[:,2]
-
-
 
 Y = np.append(speclines, z.reshape(-1,1), axis=1)
 
