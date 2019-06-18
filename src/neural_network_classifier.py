@@ -41,35 +41,75 @@ def df_to_dataset(dataframe, shuffle=True, batch_size=32):
 def run_neural_network(df, config):
   scaler = StandardScaler()
 
-  train, test = train_test_split(df, test_size=0.2)
-  train, val = train_test_split(train, test_size=0.2)
+  # train, test = train_test_split(df, test_size=0.2)
+  # train, val = train_test_split(train, test_size=0.2)
 
-  columns = [column for column in train.columns if column not in ['Truth']]
+  columns = []
+
+  df['class'] = pd.Categorical(df['class'])
+  dfDummies = pd.get_dummies(df['class'], prefix='category')
+  df = pd.concat([df, dfDummies], axis=1)
+
+  for column in df.columns:
+    if column not in ['class', 'dec', 'ra', 'plate', 'wavelength', 'objid']:
+      columns.append(column)
   
-  train_X_std = scaler.fit_transform(train[columns])
-  test_X_std = scaler.transform(test[columns])
-  val_X_std = scaler.transform(val[columns])
+  print('columns', columns)
+  
+  X = []
+  y = []
 
-  print('train.columns', train.columns)
-  print('test.columns', test.columns)
+  for index, spectrum in df[columns].iterrows():
+    X_row = []
 
-  scaled_train_df = pd.DataFrame(train_X_std, index=train.index, columns=columns)
-  scaled_test_df = pd.DataFrame(test_X_std, index=test.index, columns=columns)
-  scaled_val_df = pd.DataFrame(val_X_std, index=val.index, columns=columns)
+    spectral_lines = spectrum['spectral_lines']
+    for spectral_line in spectral_lines: X_row.append(spectral_line)
 
-  scaled_train_df['Truth'] = train['Truth']
-  scaled_test_df['Truth'] = test['Truth']
-  scaled_val_df['Truth'] = val['Truth']
+    flux_list = spectrum['flux_list']
+    for flux in flux_list:
+      X_row.append(flux)
+    
+    X_row.append(spectrum['z'])
+    X_row.append(spectrum['zErr'])
+
+    category_GALAXY = spectrum['category_GALAXY']
+    category_QSO = spectrum['category_QSO']
+    category_STAR = spectrum['category_STAR']
+
+    y_row = [category_GALAXY, category_QSO, category_STAR]
+
+    X.append(X_row)
+    y.append(y_row)
+  
+  X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+  X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.2, random_state=42)
+
+  print('len(X_train)', len(X_train))
+
+  X_train_std = scaler.fit_transform(X_train)
+  X_test_std = scaler.transform(X_test)
+  val_X_std = scaler.transform(X_val)
+
+
+
+  scaled_train_df = pd.DataFrame(X_train_std)
+  scaled_train_df['Truth'] = y_train
+
+  scaled_test_df = pd.DataFrame(X_test_std)
+  scaled_test_df['Truth'] = y_test
+
+  scaled_val_df = pd.DataFrame(val_X_std)
+  scaled_val_df['Truth'] = y_val
+
+  # df = pd.concat([df, dfDummies], axis=1)
 
   train_ds = df_to_dataset(scaled_train_df, batch_size=config['batch_size'])
   val_ds = df_to_dataset(scaled_val_df, batch_size=config['batch_size'])
   test_ds = df_to_dataset(scaled_test_df, batch_size=config['batch_size'])
 
-  feature_labels = list(df.columns.values)
-  print('feature_labels', feature_labels)
+  feature_labels = list(scaled_train_df.columns.values)
 
   for feature_batch, label_batch in train_ds.take(1):
-    print('A batch of p_charges:', feature_batch['p_numberOfInnermostPixelHits'])
     print('A batch of Truths:', label_batch)
     feature_labels = list(feature_batch.keys())
 
@@ -77,11 +117,9 @@ def run_neural_network(df, config):
   feature_columns = []
 
   for header in feature_labels:
-    feature_columns.append(tf.feature_column.numeric_column(header))
-
+    feature_columns.append(tf.feature_column.numeric_column(str(header) + 'somecrap'))
 
   feature_layer = keras.layers.DenseFeatures(feature_columns)
-  print('feature_layer', feature_layer)
 
   model = keras.Sequential()
   model.add(feature_layer)
@@ -89,16 +127,23 @@ def run_neural_network(df, config):
   for n_neurons in config['hidden_layers']:
     model.add(keras.layers.Dense(units=n_neurons, activation='relu'))
   
-  model.add(keras.layers.Dense(1, activation='softmax'))
+  model.add(keras.layers.Dense(3, activation='softmax'))
 
   # custom optimizer
   opt = SGD(lr=0.01, momentum=0.9)
 
   model.compile(optimizer='adam',
-                loss='binary_crossentropy',
+                loss='categorical_crossentropy',
                 metrics=['accuracy'])
+  print('X_train_std', X_train_std)
+  history = model.fit(X_train_std, y_train, validation_data=(val_X_std, y_val), epochs=config['n_epochs'])
 
-  model.fit(train_ds, validation_data=val_ds, epochs=config['n_epochs'])
+  # model.fit(X_train_std, y_train, epochs=config['n_epochs'])
+
+  _, test_acc = model.evaluate(X_test_std, y_test)
+
+  print('train_acc', train_acc)
+  print('test_acc', test_acc)
 
   # serialize model to JSON
   model_json = model.to_json()
