@@ -2,23 +2,15 @@ import pandas as pd
 import sys
 
 from neural_network_classifier import run_neural_network
-from xboost_classifier import run_xgboost
-from Caussian_classifier import run_Gauss_classi
+# from xboost_classifier import run_xgboost
+# from Caussian_classifier import run_Gauss_classi
 
 def create_model(df, config):
-  if config['type'] == 'xgboost': model = run_xgboost(df, config)
+#  if config['type'] == 'xgboost': model = run_xgboost(df, config)
   if config['type'] == 'neural_network': model = run_neural_network(df, config)
   if config['type'] == 'gauss_classi': model = run_Gauss_classi(df, config)
 
-  
   return model
-
-
-df = pd.read_pickle('../data/sdss/speclines_0-10000.pkl')
-
-print(df.head())
-print(df['OII'][5])
-
 
 configs = {
   'neural_network': {
@@ -39,5 +31,5 @@ configs = {
 }
 
 #df = pd.read_hdf('train.h5')
-
-model = create_model(df, configs['xgboost'])
+df = pd.read_pickle('COMPLETE_df.pkl')
+model = create_model(df, configs['neural_network'])

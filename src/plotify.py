@@ -13,7 +13,7 @@ class Plotify:
     plt.style.use('dark_background')
 
     # Color Constants
-    self.background_color = '#1C2024'
+    self.background_color = '#111111'
     self.grid_color = '#444444'
     self.legend_color = '#282D33'
     self.c_cyan = '#4FB99F'

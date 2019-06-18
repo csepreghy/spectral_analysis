@@ -20,12 +20,12 @@ def apply_gaussian_filter(fluxes, sigma):
   return filters.gaussian(image=fluxes, sigma=sigma)
 
 
-def plot_one_spectrum(spectra, nth_element, sigma, downsize, filename, save):
+def plot_one_spectrum(spectra, nth_element, sigma, downsize, filename, save, show_plot):
   gaussian_sigma = sigma
   spectrum_x = spectra.iloc[nth_element]['wavelength']
   spectrum_y = spectra.iloc[nth_element]['flux_list']
   spectrum_title = 'Spectrum with guassian smoothing, sigma = ' + str(gaussian_sigma)
-  filename = filename + str(gaussian_sigma)
+  filename = filename + str(gaussian_sigma) + '.png'
 
   spectrum_y_filtered = apply_gaussian_filter(spectrum_y, sigma=gaussian_sigma)
   spectrum_y_downsized = spectrum_y_filtered[::downsize]
@@ -39,7 +39,7 @@ def plot_one_spectrum(spectra, nth_element, sigma, downsize, filename, save):
     ylabel='Flux',
     title=spectrum_title,
     figsize=(12, 8),
-    show_plot=True,
+    show_plot=show_plot,
     filename=filename,
     ymin=np.amin(spectrum_y) - 4,
     ymax=np.amax(spectrum_y) + 4,
@@ -79,8 +79,9 @@ def create_continuum(df, sigma, downsize):
 
 # def merge_lines_and_continuum(df_spectral_lines, df_continuum):
 
+# sigmas = [0, 0.5, 1, 2, 3, 4, 6, 8, 10, 12, 16, 20, 26, 34, 42, 64]
 
-# plot_one_spectrum(spectra=spectra, nth_element=41, sigma=4, downsize=1, filename='helloka', save=False)
+plot_one_spectrum(spectra=spectra, nth_element=2019, sigma=0, downsize=4, filename=('animation_plot'), save=True, show_plot=False)
 
 # 3845 is the max
 
