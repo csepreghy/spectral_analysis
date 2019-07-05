@@ -11,44 +11,27 @@ import numpy as np
 import time as time
 
 
-with open("../data/complete-splited.pkl", 'rb') as f:
-    x = pickle.load(f)
+def run_gaussian_clf(df, config):
+  df = df[0:100]
+  start = time.time()
+  X = df.drop(columns={"flux_list", "wavelength", "objid", "ra", "dec", "class", "spectral_lines"})
+  y = df["class"]
 
-df_T = pd.DataFrame(x)
+  X_train, X_test, y_train, y_test = train_test_split(X, y,test_size=0.33, random_state=42)
 
-df=df_T[:100]
+  kernel = 1.0 * RBF(1.0)#config['kernel_val'])
+  model = GaussianProcessClassifier(kernel=kernel, random_state=0).fit(X_train, y_train)
 
-def run_Gauss_classi(df):
-    start= time.time()
-    X = df.drop(columns={"flux_list", "wavelength", "objid", "ra", "dec", "class", "spectral_lines"})
-    y = df["class"]
+  y_pred_test = model.predict(X_test)
+  accuracy_test=acc(y_test, y_pred_test)
+  end =time.time()
+  tt = end -start
+  print("Accuracy of trained model on test set: %.2f%%" % (accuracy_test * 100.0))
+  # print(y_pred_test)
+  print("time :", tt)
 
-    X_train, X_test, y_train, y_test = train_test_split(X, y,
-                                                        test_size=0.33, random_state=42)
-
-
-    kernel = 1.0 * RBF(1.0)#config['kernel_val'])
-    model = GaussianProcessClassifier(kernel=kernel, random_state=0).fit(X_train, y_train)
-
-
-
-    y_pred_test = model.predict(X_test)
-    accuracy_test=acc(y_test, y_pred_test)
-    end=time.time()
-    tt= end -start
-    print("Accuracy of trained model on test set: %.2f%%" % (accuracy_test * 100.0))
-    # print(y_pred_test)
-    print("time :", tt)
-
-    model.predict_proba(X_test)
-    df_result_GC = pd.DataFrame(model.predict_proba(X_test))
-    df_result_GC_rename = df_result_GC.rename(columns={0: "GALAXY",
-                                                       1: "QSO",
-                                                       2: "STAR"})
-    df_result_GC_rename["predict"] = y_pred_test
-    df_result_GC_rename["actual"] = y_test
-
-    df_result_GC_rename.to_pickle("../data/result_GC.pkl")
-
-
-run_Gauss_classi(df)
+  model.predict_proba(X_test)
+  df_result_GC = pd.DataFrame(model.predict_proba(X_test))
+  df_result_GC_rename = df_result_GC.rename(columns={0: "GALAXY", 1: "QSO", 2: "STAR"})
+  df_result_GC_rename["predict"] = y_pred_test
+  df_result_GC_rename["actual"] = y_test
