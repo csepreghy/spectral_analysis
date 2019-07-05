@@ -23,9 +23,9 @@ def run_gaussian_clf(df, config):
   model = GaussianProcessClassifier(kernel=kernel, random_state=0).fit(X_train, y_train)
 
   y_pred_test = model.predict(X_test)
-  accuracy_test=acc(y_test, y_pred_test)
-  end =time.time()
-  tt = end -start
+  accuracy_test = acc(y_test, y_pred_test)
+  end = time.time()
+  tt = end - start
   print("Accuracy of trained model on test set: %.2f%%" % (accuracy_test * 100.0))
   # print(y_pred_test)
   print("time :", tt)
