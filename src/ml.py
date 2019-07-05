@@ -4,12 +4,12 @@ import pickle
 
 from neural_network_classifier import run_neural_network
 # from xboost_classifier import run_xgboost
-#from Caussian_classifier import run_Gauss_classi
+from gaussian_classifier import run_gaussian_clf
 
 def create_model(df, config):
 #  if config['type'] == 'xgboost': model = run_xgboost(df, config)
   if config['type'] == 'neural_network': model = run_neural_network(df, config)
-  if config['type'] == 'gauss_classi': model = run_Gauss_classi(df, config)
+  if config['type'] == 'gaussian_clf': model = run_gaussian_clf(df, config)
 
   return model
 
@@ -25,12 +25,12 @@ configs = {
     'max_depth': 3,
     'learning_rate': 0.1
   },
-  'gauss_classi' :{
-    'type' : 'Gauss_classi',
+  'gaussian_clf': {
+    'type' : 'gaussian_clf',
     'kernel_val' : 1.0
   }
 }
 
 df = pd.read_pickle('COMPLETE_df.pkl')
-model = create_model(df, configs['neural_network'])
+model = create_model(df, configs['gaussian_clf'])
  
