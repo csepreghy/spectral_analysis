@@ -6,6 +6,8 @@ The project is focused on downloading spectral from the [SDSS survey](https://ww
 
 The aim to create automatic spectrum classification for stellar objects with machine learning that would would save time for researchers not having to classify these objects by eye.
 
-The project is run under the [DARK Cosmology Centre](https://dark.nbi.ku.dk/), [Univesity of Copenhagen](https://www.ku.dk/english/).
+An example spectrum of a quasar with the added spectral lines is shown in the image below.
 
-<img src="https://raw.githubusercontent.com/csepreghy/plotify/master/examples_img/scatterplot.png" width="600px" />
+<img src="https://raw.githubusercontent.com/csepreghy/spectral_analysis/master/plots/spectrum_quasar_plotify.png" width="600px" />
+
+The project is run under the [DARK Cosmology Centre](https://dark.nbi.ku.dk/), [Univesity of Copenhagen](https://www.ku.dk/english/).
