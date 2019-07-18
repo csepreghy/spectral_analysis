@@ -55,7 +55,7 @@ def run_neural_network(df, config):
   X = []
   y = []
 
-  for index, spectrum in df[columns].iterrows():
+  for _, spectrum in df[columns].iterrows():
     X_row = []
 
     spectral_lines = spectrum['spectral_lines']
