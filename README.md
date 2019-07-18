@@ -8,6 +8,6 @@ The aim to create automatic spectrum classification for stellar objects with mac
 
 An example spectrum of a quasar with the added spectral lines is shown in the image below.
 
-<img src="https://raw.githubusercontent.com/csepreghy/spectral-analysis/master/plots/spectrum_quasar_plotify.png" width="750px" />
+<img src="https://raw.githubusercontent.com/csepreghy/spectral-analysis/master/plots/spectrum_quasar_plotify.png" width="800px" />
 
 The project is run under the [DARK Cosmology Centre](https://dark.nbi.ku.dk/), [Univesity of Copenhagen](https://www.ku.dk/english/) with the assistance of Adriano Agnello.
