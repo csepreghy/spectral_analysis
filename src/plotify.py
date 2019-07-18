@@ -16,16 +16,33 @@ class Plotify:
     self.background_color = '#1C2024'
     self.grid_color = '#444444'
     self.legend_color = '#282D33'
+    self.c_white = '#FFFFFF'
     self.c_cyan = '#4FB99F'
     self.c_orange = '#F2B134'
     self.c_red = '#ED553B'
-    self.c_white = '#FFFFFF'
+    self.c_green = '#62BF04'
+    self.c_blue = '#189BF2'
+    self.c_pink = '#FF697C'
+    self.c_purple = '#EEA5FF'
 
-    self.plot_colors = [self.c_orange, self.c_cyan, self.c_red]
+    self.plot_colors = [self.c_orange, self.c_cyan, self.c_red, self.c_green, self.c_blue]
 
     rcParams.update({
         'font.sans-serif': 'Arial'
     })
+
+  def get_colors(self):
+    colors = {
+      'orange': self.c_orange,
+      'cyan': self.c_cyan,
+      'red': self.c_red,
+      'blue': self.c_blue,
+      'green': self.c_green,
+      'pink': self.c_pink,
+      'purple': self.c_purple
+    }
+
+    return colors
 
   def boxplot(self, data, labels, title, ylabel):
     fig, ax = plt.subplots()
@@ -33,15 +50,15 @@ class Plotify:
     ax.set_facecolor(self.background_color)
 
     bplot = ax.boxplot(
-        data,
-        vert=True,
-        patch_artist=True,
-        labels=labels,
-        boxprops=dict(facecolor=self.c_white, color=self.c_white),
-        capprops=dict(color=self.c_white),
-        whiskerprops=dict(color=self.c_white),
-        flierprops=dict(markeredgecolor=self.c_white),
-        medianprops=dict(color=self.c_white)
+      data,
+      vert=True,
+      patch_artist=True,
+      labels=labels,
+      boxprops=dict(facecolor=self.c_white, color=self.c_white),
+      capprops=dict(color=self.c_white),
+      whiskerprops=dict(color=self.c_white),
+      flierprops=dict(markeredgecolor=self.c_white),
+      medianprops=dict(color=self.c_white)
     )
 
     for patch, color in zip(bplot['boxes'], self.plot_colors):
@@ -57,20 +74,20 @@ class Plotify:
     plt.show()
 
   def scatter_plot(
-      self,
-      x_list,
-      y_list,
-      linewidth=0.5,
-      alpha=1,
-      xlabel='X label',
-      ylabel='Y label',
-      title='Title',
-      legend_labels=(''),
-      arrows=[],
-      equal_axis=False,
-      tickfrequencyone=True,
-      show_plot=True,
-      ax=None
+    self,
+    x_list,
+    y_list,
+    linewidth=0.5,
+    alpha=1,
+    xlabel='X label',
+    ylabel='Y label',
+    title='Title',
+    legend_labels=(''),
+    arrows=[],
+    equal_axis=False,
+    tickfrequencyone=True,
+    show_plot=True,
+    ax=None
   ):
     if ax == None:
       fig, ax = self.get_figax()
@@ -83,12 +100,12 @@ class Plotify:
 
     for i, x in enumerate(x_list):
       ax.scatter(
-          x,
-          y_list[i],
-          linewidths=linewidth,
-          alpha=alpha,
-          c=self.plot_colors[i],
-          edgecolor='#333333'
+        x,
+        y_list[i],
+        linewidths=linewidth,
+        alpha=alpha,
+        c=self.plot_colors[i],
+        edgecolor='#333333'
       )
 
     if len(arrows) > 0:
@@ -115,19 +132,19 @@ class Plotify:
       plt.show()
 
   def scatter3d(
-      self,
-      x,
-      y,
-      z,
-      linewidth=0.5,
-      alpha=1,
-      xlabel='X label',
-      ylabel='Y label',
-      zlabel='Z label',
-      title='Title',
-      arrows=[],
-      equal_axis=False,
-      show=True
+    self,
+    x,
+    y,
+    z,
+    linewidth=0.5,
+    alpha=1,
+    xlabel='X label',
+    ylabel='Y label',
+    zlabel='Z label',
+    title='Title',
+    arrows=[],
+    equal_axis=False,
+    show=True
   ):
     fig, ax = self.get_figax3d()
 
@@ -138,12 +155,12 @@ class Plotify:
     # ax.xaxis.set_major_locator(ticker.MultipleLocator(1))
 
     ax.scatter(
-        x,
-        y,
-        z,
-        alpha=alpha,
-        c=self.c_orange,
-        edgecolor='#555555'
+      x,
+      y,
+      z,
+      alpha=alpha,
+      c=self.c_orange,
+      edgecolor='#555555'
     )
 
     ax.grid(self.use_grid, color=self.grid_color)
@@ -176,19 +193,19 @@ class Plotify:
     plt.show()
 
   def bar(
-      self,
-      x_list,
-      y_list,
-      ylabel='Y label',
-      xlabel='X label',
-      title='Title',
-      ymin=0,
-      ymax=None,
-      linewidth=0.8,
-      use_x_list_as_xticks=False,
-      xticks=[],
-      rotation=0,
-      show=True
+    self,
+    x_list,
+    y_list,
+    ylabel='Y label',
+    xlabel='X label',
+    title='Title',
+    ymin=0,
+    ymax=None,
+    linewidth=0.8,
+    use_x_list_as_xticks=False,
+    xticks=[],
+    rotation=0,
+    show=True
   ):
     fig, ax = self.get_figax()
 
@@ -219,7 +236,7 @@ class Plotify:
 
   def plot(
     self,
-    y_list,
+    y,
     ylabel='Y label',
     xlabel='X label',
     title='Title',
@@ -227,11 +244,13 @@ class Plotify:
     use_x_list_as_xticks=True,
     tickfrequencyone=False,
     equal_axis=False,
-    x_list=[],
+    x=[],
     figsize=(8,6),
     filename='filename',
-    ymin=-9999,
-    ymax=9999,
+    ymin=None,
+    ymax=None,
+    xmin=None,
+    xmax=None,
     save=False
   ):
     fig, ax = self.get_figax(figsize=figsize)
@@ -239,8 +258,11 @@ class Plotify:
     ax.set_ylabel(ylabel)
     ax.set_xlabel(xlabel)
     ax.set_title(title)
-    if ymin != -9999: ax.set_ylim(ymin=ymin)
-    if ymax != 9999: ax.set_ylim(ymax=ymax)
+    if ymin != None: ax.set_ylim(ymin=ymin)
+    if ymax != None: ax.set_ylim(ymax=ymax)
+
+    if xmin != None: ax.set_xlim(xmin=xmin)
+    if xmax != None: ax.set_xlim(xmax=xmax)
     
     if equal_axis == True:
       plt.axis('equal')
@@ -248,8 +270,8 @@ class Plotify:
     if tickfrequencyone == True:
       ax.xaxis.set_major_locator(ticker.MultipleLocator(1))
 
-    if len(x_list) == 0: plt.plot(x_list, color=self.c_orange)
-    if len(x_list) > 0: plt.plot(x_list, y_list, color=self.c_orange)
+    if len(x) == 0: plt.plot(x, color=self.c_orange)
+    if len(x) > 0: plt.plot(x, y, color=self.c_orange)
     
     if save == True: plt.savefig(('plots/' + filename), facecolor=self.background_color, dpi=180)
 
