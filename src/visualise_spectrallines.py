@@ -6,7 +6,7 @@ import sys
 
 # -------------------------------
 
-from src.plotify import Plotify
+from plotify import Plotify
 plotify = Plotify()
 
 def apply_gaussian_filter(fluxes, sigma):
@@ -28,7 +28,7 @@ wl_gal = [5893, 5175, 6565, 6716, 4861, 4304, 3933.7, 3968] #3727, 4000]
 # -------------------------------
 
 # Load the data and extract the important columns
-spectra = pd.read_pickle('../data/sdss/FinalTable.pkl')
+spectra = pd.read_pickle('data/sdss/FinalTable.pkl')
 
 flux_list = spectra.get_values()[:,0]
 wavelength = spectra.get_values()[:,1]
@@ -74,29 +74,47 @@ print("Lambda_emit = ", 5400 / (1 + qso_z[n]))
 
 
 # Plot quasars
-n = 59
+n = 100
 qso_smoothflux = apply_gaussian_filter(qso_fluxlist[n], sigma=4)
-plt.figure(0, figsize=(14,6))
-#plt.title("Quasars")
-#plt.plot(qso_wavelength[n], qso_fluxlist[n], lw=0.3, color="gray")
-plt.plot(qso_wavelength[n], qso_smoothflux, color="white", ms=1)
-colors = ["#ffc43d", "#7dff3d", "#ff5454", "#dc7cff", "#ff59bf", "#ff5454", "#3dbeff", "#dc7cff"]
+
+_, ax = plotify.plot(
+  x=qso_wavelength[n],
+  y=qso_smoothflux,
+  title="Spectrum of a Quasar",
+  xlabel="Wavelength",
+  ylabel="Fluxes",
+  show_plot=False,
+  xmin=3500,
+  xmax=9500,
+  figsize=(14,8)
+)
+
+colors = plotify.get_colors()
+
+color_list = [
+  colors['cyan'],
+  colors['red'],
+  colors['blue'],
+  colors['purple'],
+  colors['green'],
+  colors['pink'],
+  colors['orange'],
+]
+
+
 for j in range(7):
-    plt.axvline(x=wl_qso[j] * (1 + qso_z[n]), lw=1, color=colors[j])
-    #plt.axvline(x=wl_qso[j], ls='--', lw=1, color=colors[j])
-#plt.grid(which='minor', alpha=0.2)
-#plt.grid(which='major', alpha=0.5)
-plt.xticks(np.arange(2000,10000,500))
-plt.xlabel(r'Wavelength ($\AA$)')
-plt.ylabel(r'Flux ($10^{-17} erg cm^{-2} s^{-1} \AA^{-1}$)', labelpad=10)
-plt.xlim(4500, 10000)
-plt.ylim(5, 20)
-#plt.savefig("../plots/Spectrum_quasar.png", dpi=500)
+  ax.axvline(x=wl_qso[j] * (1 + qso_z[n]), lw=1, color=color_list[j])
+
+plt.xticks(np.arange(3500, 9500, 500))
+# plt.savefig("plots/spectrum_quasar_plotify.png", dpi=200)
+plt.savefig(('plots/spectrum_quasar_plotify'), facecolor=plotify.background_color, dpi=180)
+plt.show()
+
 
 # Plot stars
 n = 2
 star_smoothflux = apply_gaussian_filter(star_fluxlist[n], sigma=4)
-plt.figure(1, figsize=(14,6))
+plt.figure(1, figsize=(12,6))
 #plt.title("Stars")
 #plt.plot(star_wavelength[n], star_fluxlist[n], lw=0.3, color="gray")
 plt.plot(star_wavelength[n], star_smoothflux, color="white", ms=1)
@@ -110,7 +128,7 @@ plt.xlim(4000, 7000)
 plt.ylim(30,120)
 plt.xlabel(r'Wavelength ($\AA$)')
 plt.ylabel(r'Flux ($10^{-17} erg cm^{-2} s^{-1} \AA^{-1}$)', labelpad=10)
-#plt.savefig("../plots/Spectrum_star.png", dpi=500)
+# plt.savefig("../plots/Spectrum_star_plotify.png", dpi=500)
 
 # Plot galaxies
 n = 5
@@ -131,7 +149,7 @@ plt.xlabel(r'Wavelength ($\AA$)')
 plt.ylabel(r'Flux ($10^{-17} erg cm^{-2} s^{-1} \AA^{-1}$)', labelpad=10)
 plt.ylim(0,20)
 plt.xlim(4250, 7000)
-#plt.savefig("../plots/Spectrum_galaxy.png", dpi=500)
+# plt.savefig("../plots/spectrum_galaxy_plotify.png", dpi=500)
 
 
 
@@ -152,8 +170,4 @@ plt.xlim(4000, 4200)
 plt.ylim(30,140)
 plt.xlabel(r'Wavelength ($\AA$)')
 plt.ylabel(r'Flux ($10^{-17} erg cm^{-2} s^{-1} \AA^{-1}$)', labelpad=10)
-#plt.savefig("../plots/spectralline.png", dpi=500)
-
-
-
-plt.show()
+# plt.savefig("../plots/spectralline_plotify.png", dpi=500)
