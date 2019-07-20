@@ -62,7 +62,7 @@ class Plotify:
     )
 
     for patch, color in zip(bplot['boxes'], self.plot_colors):
-        patch.set_facecolor(color)
+      patch.set_facecolor(color)
 
     ax.set_ylabel(ylabel)
     ax.set_title(title)
@@ -89,8 +89,7 @@ class Plotify:
     show_plot=True,
     ax=None
   ):
-    if ax == None:
-      fig, ax = self.get_figax()
+    if ax == None: _, ax = self.get_figax()
 
     ax.set_ylabel(ylabel)
     ax.set_xlabel(xlabel)
@@ -207,7 +206,7 @@ class Plotify:
     rotation=0,
     show=True
   ):
-    fig, ax = self.get_figax()
+    _, ax = self.get_figax()
 
     ax.bar(x_list, height=y_list, width=linewidth, color=self.c_orange)
     ax.set_ylim(ymin=ymin)
