@@ -27,9 +27,7 @@ class Plotify:
 
     self.plot_colors = [self.c_orange, self.c_cyan, self.c_red, self.c_green, self.c_blue]
 
-    rcParams.update({
-        'font.sans-serif': 'Arial'
-    })
+    rcParams.update({'font.sans-serif': 'Arial'})
 
   def get_colors(self):
     colors = {
@@ -39,7 +37,8 @@ class Plotify:
       'blue': self.c_blue,
       'green': self.c_green,
       'pink': self.c_pink,
-      'purple': self.c_purple
+      'purple': self.c_purple,
+      'white': self.c_white
     }
 
     return colors
@@ -110,13 +109,14 @@ class Plotify:
     if len(arrows) > 0:
       for arrow in arrows:
         plt.arrow(
-            x=arrow['x'],
-            y=arrow['y'],
-            dx=arrow['dx'],
-            dy=arrow['dy'],
-            width=arrow['width'],
-            color=arrow['color'],
-            alpha=0.8)
+          x=arrow['x'],
+          y=arrow['y'],
+          dx=arrow['dx'],
+          dy=arrow['dy'],
+          width=arrow['width'],
+          color=arrow['color'],
+          alpha=0.8
+        )
 
     ax.grid(self.use_grid, color=self.grid_color)
     ax.legend(legend_labels, facecolor=self.legend_color)
@@ -145,7 +145,7 @@ class Plotify:
     equal_axis=False,
     show=True
   ):
-    fig, ax = self.get_figax3d()
+    _, ax = self.get_figax3d()
 
     ax.set_xlabel(xlabel)
     ax.set_ylabel(ylabel)
