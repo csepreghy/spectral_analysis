@@ -38,13 +38,12 @@ z = spectra.get_values()[:,7]
 z_err = spectra.get_values()[:,5]
 dec = spectra.get_values()[:,6]
 ra = spectra.get_values()[:,8]
-#print(spectra.iloc[0])
-
 
 # Convert the specclass bytes into strings
 specclass = []
 for i in specclass_bytes:
-    specclass.append(i.decode("utf-8"))
+  specclass.append(i.decode("utf-8"))
+
 specclass = np.array(specclass)
 
 
@@ -73,7 +72,7 @@ print("Lambda_emit = ", 5400 / (1 + qso_z[n]))
 
 
 
-# Plot quasars
+# ------- QUASARS ------- #
 n = 100
 qso_smoothflux = apply_gaussian_filter(qso_fluxlist[n], sigma=4)
 
@@ -82,7 +81,7 @@ _, ax = plotify.plot(
   y=qso_smoothflux,
   title="Spectrum of a Quasar",
   xlabel="Wavelength",
-  ylabel="Fluxes",
+  ylabel=r'Flux ($10^{-17} erg cm^{-2} s^{-1} \AA^{-1}$)',
   show_plot=False,
   xmin=3500,
   xmax=9500,
@@ -99,75 +98,80 @@ color_list = [
   colors['green'],
   colors['pink'],
   colors['orange'],
+  colors['white']
 ]
-
 
 for j in range(7):
   ax.axvline(x=wl_qso[j] * (1 + qso_z[n]), lw=1, color=color_list[j])
 
 plt.xticks(np.arange(3500, 9500, 500))
-# plt.savefig("plots/spectrum_quasar_plotify.png", dpi=200)
-plt.savefig(('plots/spectrum_quasar_plotify'), facecolor=plotify.background_color, dpi=180)
+plt.tight_layout()
+plt.savefig(('plots/spectrum_quasar_plotify.png'), facecolor=plotify.background_color, dpi=180)
 plt.show()
 
-
-# Plot stars
+# ------- STARS ------- #
 n = 2
 star_smoothflux = apply_gaussian_filter(star_fluxlist[n], sigma=4)
-plt.figure(1, figsize=(12,6))
-#plt.title("Stars")
-#plt.plot(star_wavelength[n], star_fluxlist[n], lw=0.3, color="gray")
-plt.plot(star_wavelength[n], star_smoothflux, color="white", ms=1)
-colors = ["#ffc43d", "#7dff3d", "#3dbeff", "#dc7cff", "#ff59bf", "#ff5454"]
+
+_, ax = plotify.plot(
+  x=star_wavelength[n],
+  y=star_smoothflux,
+  title="Spectrum of a Star",
+  xlabel="Wavelength",
+  ylabel=r'Flux ($10^{-17} erg cm^{-2} s^{-1} \AA^{-1}$)',
+  show_plot=False,
+  xmin=3500,
+  xmax=9500,
+  figsize=(14,8)
+)
+
 for j in range(5):
-    plt.axvline(x=wl_star[j] * (1 + star_z[n]), lw=1, color=colors[j])
-    #plt.axvline(x=wl_qso[j], ls='--', lw=1, color=colors[j])
-#plt.grid()
-plt.xticks(np.arange(2000,9000,250))
-plt.xlim(4000, 7000)
-plt.ylim(30,120)
-plt.xlabel(r'Wavelength ($\AA$)')
-plt.ylabel(r'Flux ($10^{-17} erg cm^{-2} s^{-1} \AA^{-1}$)', labelpad=10)
-# plt.savefig("../plots/Spectrum_star_plotify.png", dpi=500)
+  plt.axvline(x=wl_star[j] * (1 + star_z[n]), lw=1, color=color_list[j])
 
-# Plot galaxies
-n = 5
-gal_smoothflux = apply_gaussian_filter(galaxy_fluxlist[n], sigma=3)
-plt.figure(2, figsize=(14,6))
-#plt.title("Galaxies")
-#plt.plot(galaxy_wavelength[n], galaxy_fluxlist[n], lw=0.3, color="#bcbcbc")
-plt.plot(galaxy_wavelength[n], gal_smoothflux, color="white", ms=1)
-#plt.plot(galaxy_wavelength[n], 5 * np.gradient(smooth_flux, galaxy_wavelength[n]) + 30, '--', lw=1)
-#plt.plot(galaxy_wavelength[n], 10 * np.gradient(np.gradient(smooth_flux, galaxy_wavelength[n]), galaxy_wavelength[n]) + 30, '--', lw=1)
-colors = ["#ffc43d", "#7dff3d", "#3dbeff", "#dc7cff", "#ff59bf", "#ff5454", "#3dbeff", "#dc7cff", "C9"]
+plt.xticks(np.arange(3500, 9500, 500))
+plt.tight_layout()
+plt.savefig(('plots/star_quasar_plotify.png'), facecolor=plotify.background_color, dpi=180)
+plt.show()
+
+# ------- GALAXIES ------- #
+n = 100
+
+galaxy_smoothflux = apply_gaussian_filter(galaxy_fluxlist[n], sigma=3)
+
+_, ax = plotify.plot(
+  x=galaxy_wavelength[n],
+  y=galaxy_smoothflux,
+  title="Spectrum of a Galaxy",
+  xlabel="Wavelength",
+  ylabel=r'Flux ($10^{-17} erg cm^{-2} s^{-1} \AA^{-1}$)',
+  show_plot=False,
+  xmin=3500,
+  xmax=9500,
+  figsize=(14,8)
+)
+
 for j in range(8):
-    plt.axvline(x=wl_gal[j] * (1 + galaxy_z[n]), lw=1, color=colors[j])
-    #plt.axvline(x=wl_qso[j], ls='--', lw=1, color=colors[j])
-#plt.grid()
-plt.xticks(np.arange(4000,9000,250))
-plt.xlabel(r'Wavelength ($\AA$)')
-plt.ylabel(r'Flux ($10^{-17} erg cm^{-2} s^{-1} \AA^{-1}$)', labelpad=10)
-plt.ylim(0,20)
-plt.xlim(4250, 7000)
-# plt.savefig("../plots/spectrum_galaxy_plotify.png", dpi=500)
+  plt.axvline(x=wl_gal[j] * (1 + galaxy_z[n]), lw=1, color=color_list[j])
 
+plt.xticks(np.arange(3500,9500,250))
 
+plt.tight_layout()
+plt.savefig(('plots/spectrum_galaxy_plotify.png'), facecolor=plotify.background_color, dpi=180)
+plt.show()
 
-
-# Spectral line
+# ------- SIMPLE EXAMPLE SPECTRAL LINE ------- #
 n = 2
 star_smoothflux = apply_gaussian_filter(star_fluxlist[n], sigma=1.5)
 plt.figure(3, figsize=(14,6))
-#plt.title("Stars")
-#plt.plot(star_wavelength[n], star_fluxlist[n], lw=0.3, color="gray")
+
 plt.plot(star_wavelength[n], star_smoothflux, color="white", ms=1)
-colors = ["#ffc43d", "#7dff3d", "#3dbeff", "#dc7cff", "#ff59bf", "#ff5454"]
+
 plt.axvline(x=wl_star[3] * (1 + star_z[n]), lw=2, color="#3dbeff", zorder=1)
-#plt.axvline(x=wl_qso[j], ls='--', lw=1, color=colors[j])
-#plt.grid()
+
 plt.xticks(np.arange(2000,9000,250))
 plt.xlim(4000, 4200)
 plt.ylim(30,140)
 plt.xlabel(r'Wavelength ($\AA$)')
-plt.ylabel(r'Flux ($10^{-17} erg cm^{-2} s^{-1} \AA^{-1}$)', labelpad=10)
+plt.ylabel(r'Flux ($10^{-17} erg cm^{-2} s^{-1} \AA^{-1}$)')
+
 # plt.savefig("../plots/spectralline_plotify.png", dpi=500)
