@@ -23,8 +23,7 @@ def run_Random_Forest(df):
     X = df.drop(columns={"flux_list", "wavelength", "objid", "ra", "dec", "class", "spectral_lines"})
     y = df["class"]
 
-    X_train, X_test, y_train, y_test = train_test_split(X, y,
-                                                        test_size=0.33, random_state=42)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, stest_size=0.33, random_state=42)
 
 
     kernel = 1.0 * RBF(1.0)#config['kernel_val'])
