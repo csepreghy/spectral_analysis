@@ -3,18 +3,17 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib import style
 import time as time
-from astropy.table import Table
-
-from astroquery.sdss import SDSS
-import astropy.units as u
-from astropy import coordinates as coords
-from astropy.table import Table
-
 import pickle
+
+from astropy.table import Table
+from astropy import coordinates as coords
+import astropy.units as u
+from astroquery.sdss import SDSS
+
 
 
 def get_save_SDSS_from_coordinates(ra, dec):
-    n=0
+    n = 0
 
     df = {}
     df['flux_list'] = []  # ': flux,
@@ -23,7 +22,6 @@ def get_save_SDSS_from_coordinates(ra, dec):
     df['ra'] = []  # ': xid['ra'],
     df['dec'] = []  #: xid['dec'],
     df['objid'] = []  #: xid['objid'],
-    #     df['coordinate'] = []  #: coordinate
     # df['zErr'] = []
     # df['plate']=[]
     # df['fSpecClassN']=[]
@@ -38,57 +36,18 @@ def get_save_SDSS_from_coordinates(ra, dec):
       try:
         pos = coords.SkyCoord((ra[counter]) * u.deg, (dec[counter]) * u.deg, frame='icrs')
         xid = SDSS.query_region(pos, spectro=True)#, radius=5 * u.arcsec)
-        #
-        #         print(xid)
-        #         print(counter)
-        #         print(type(xid))
 
-        #         typ="<class 'NoneType'>"
-        # print("type:",type(xid))
-        # print(counter)
-        # print(len(xid))
-        # print(xid)
-        # print(Table(xid[0]))
         if xid != None:
-          if len(xid) > 1:
-              # print(len(xid))
-              # print(xid[0])
-              # print(xid)
-              xid = Table(xid[0])
-          elif len(xid) == 1:
-            xid = xid
+          if len(xid) > 1: xid = Table(xid[0])
+
+          elif len(xid) == 1: xid = xid
+    
         elif xid == None:
-          # print("here")
-          number_none = 1+ number_none
-          print(counter)
+          number_none = number_none + 1
+          print('Failed to download at: ' counter)
           continue
 
-
-
-        # print("this is first row:", xid[0])
-        # print(type(xid))
-
-        # print(xid)
-
-        #         print(type(xid))
-        #         print(counter)
-
         sp = SDSS.get_spectra(matches=xid)
-        # print(sp)
-
-        # plate_tab = xid["plate"]
-
-        # plate = plate_tab[0]
-        # print(plate)
-        # print("here")
-        # so = SDSS.query_specobj(plate=plate  , fields=['ra', 'dec', 'z', 'zErr'])
-        # fSpecClassN=so['fSpecClassN']
-        # soclass = SDSS.query_specobj(plate=plate , fields=['specClass'][1])
-        # sdf=pd.DataFrame(so)
-        # print(soclass)
-        # fSpecClassN= soclass['specClass'][1]
-        # print(fSpecClassN)
-
 
         df['flux_list'].append(sp[0][1].data['flux'])
         df['wavelength'].append(10. ** sp[0][1].data['loglam'])
@@ -97,7 +56,6 @@ def get_save_SDSS_from_coordinates(ra, dec):
         df['dec'].append(xid['dec'])
         df['objid'].append(xid['objid'])
         # df['plate'].append(plate)
-        # df['coordinate'].append(coordinate)
         # df['zErr'].append(so['zErr'])
         # df['fSpecClassN'].append(so['fSpecClassN'])
 
@@ -107,12 +65,11 @@ def get_save_SDSS_from_coordinates(ra, dec):
         print("Error")
         n = n + 1
 
-    # print(df)
     df = pd.DataFrame(df)
+    print('df.head()', df.head())
     df.to_pickle('data/sdss/Nikki_35001-40000.pkl')
-    print("number of None values for Xid is:", number_none)
 
-coord_list = pd.read_csv("data/lowz.csv")
+coord_list = pd.read_csv("data/sdss/coordinate_list.csv")
 start = time.time()
 
 ra_list = coord_list["ra"].tolist()
@@ -121,12 +78,13 @@ end = time.time()
 tt = end - start
 print("time for listing is:", tt)
 
-start1 = time.time()
-ra = ra_list[40001:45000]
-dec = dec_list[40001:45000]
+start1 = time.clock()
+ra = ra_list[40001:40005]
+dec = dec_list[40001:40005]
 get_save_SDSS_from_coordinates(ra, dec)
-end1 = time.time()
+end1 = time.clock()
 
-tt1 = end1- start1
-length = len(ra) - 1
-print("time for " + str(length) + " stellar objects:", tt1)
+tt1 = end1 - start1
+n_downloads = len(ra) - 1
+print("time for " + str(n_downloads) + " stellar objects:", tt1)
+
