@@ -2,27 +2,32 @@ from astroquery.sdss import SDSS
 import pandas as pd
 import time as time
 
-# lowz=pd.read_csv("../data/lowz.csv")
-# length=len(lowz)
-#
-# print(length)
-def query ():
-  start=time.time()
+def truncate(n):
+  return int(n * 1000) / 1000
 
-  query = "select top 100000  \
-  z, ra, dec, bestObjID, plate , class, zErr  \
-  from specObj \
-  where 1.0 >z   and \
-  z >0 and \
-  zWarning = 0"
+def query():
+  start = time.clock()
+
+  query = "select \
+  spec.z, spec.ra, spec.dec, spec.specObjID, spec.plate, spec.class, spec.subClass, spec.zErr, \
+  spho.petroMag_u, spho.petroMag_g,	spho.petroMag_r,	spho.petroMag_i,	spho.petroMag_z,	spho.petroMagErr_u, spho.petroMagErr_g, spho.petroMagErr_r, spho.petroMagErr_i, spho.petroMagErr_z \
+  from SpecObjAll AS spec\
+  JOIN SpecPhotoAll AS spho ON spec.specObjID = spho.specObjID \
+  where \
+  spec.zWarning = 0"
+
   res = SDSS.query_sql(query)
+  df = res.to_pandas()
+  print('df.head()', df.head())
 
-  df=res.to_pandas()
-  df_lowz=pd.DataFrame(df["ra"])
-  df_lowz["dec"]=df["dec"]
+  df_coordinate_list = pd.DataFrame(df["ra"])
+  df_coordinate_list["dec"]=df["dec"]
 
-  df_lowz.to_csv('data/lowz.csv')
-  end=time.time()
-  df.to_pickle('data/sdss/direct_sql.pkl')
-  tt=end - start
-  print("time consuming:", tt)
+  df_coordinate_list.to_csv('data/sdss/coordinate_list.csv')
+  end = time.clock()
+  df.to_pickle('data/sdss/specobj_specphoto_all.pkl')
+  tt = end - start
+  print("time consuming:", truncate(tt), 's')
+
+
+query()
