@@ -14,10 +14,10 @@ def get_save_SDSS_from_coordinates(coord_list_url, from_sp, to_sp):
   t_start = time.clock()
 
   coord_list = pd.read_csv(coord_list_url)
-  
+
   ra_list = coord_list["ra"].tolist()
   dec_list = coord_list["dec"].tolist()
-  
+
   ra = ra_list[from_sp:to_sp]
   dec = dec_list[from_sp:to_sp]
 
