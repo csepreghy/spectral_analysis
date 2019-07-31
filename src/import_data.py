@@ -10,81 +10,75 @@ from astropy import coordinates as coords
 import astropy.units as u
 from astroquery.sdss import SDSS
 
+def get_save_SDSS_from_coordinates(coord_list_url, from_sp, to_sp):
+  t_start = time.clock()
+
+  coord_list = pd.read_csv(coord_list_url)
+  
+  ra_list = coord_list["ra"].tolist()
+  dec_list = coord_list["dec"].tolist()
+  
+  ra = ra_list[from_sp:to_sp]
+  dec = dec_list[from_sp:to_sp]
+
+  n_errors = 0
+
+  df = {}
+  df['flux_list'] = []
+  df['wavelength'] = []
+  df['z'] = []
+  df['ra'] = []
+  df['dec'] = []
+  df['objid'] = []
+
+  n_coordinates = len(ra) - 1
+  print('n_coordinates', n_coordinates)
+  number_none = 0
+
+  for i in range(n_coordinates):
+    try:
+      pos = coords.SkyCoord((ra[i]) * u.deg, (dec[i]) * u.deg, frame='icrs')
+      xid = SDSS.query_region(pos, spectro=True) # radius=5 * u.arcsec)
+
+      if xid == None:
+        number_none = number_none + 1
+        print('xid is None at:', i)
+        continue
+
+      elif xid != None and len(xid) > 1: xid = Table(xid[0])
+
+      sp = SDSS.get_spectra(matches=xid)
+
+      df['flux_list'].append(sp[0][1].data['flux'])
+      df['wavelength'].append(10. ** sp[0][1].data['loglam'])
+      df['z'].append(xid['z'])
+      df['ra'].append(xid['ra'])
+      df['dec'].append(xid['dec'])
+      df['objid'].append(xid['objid'])
+
+    except:
+      print('Failed to download at:', i)
+      n_errors = n_errors + 1
+
+  df = pd.DataFrame(df)
+  print('df.head()', df.head())
+  df.to_pickle('data/sdss/spectra_' + str(from_sp) + '-' + str(to_sp) + '.pkl')
+
+  t_end = time.clock()
+
+  t_delta = t_end - t_start
+  n_downloads = len(ra) - 1
+  print("time for " + str(n_downloads) + " stellar objects:", t_delta)
 
 
-def get_save_SDSS_from_coordinates(ra, dec):
-    n = 0
+get_save_SDSS_from_coordinates(
+  coord_list_url = "data/sdss/coordinate_list.csv",
+  from_sp = 0,
+  to_sp = 100
+)
 
-    df = {}
-    df['flux_list'] = []  # ': flux,
-    df['wavelength'] = []  #: wavelength,
-    df['z'] = []  #: z,
-    df['ra'] = []  # ': xid['ra'],
-    df['dec'] = []  #: xid['dec'],
-    df['objid'] = []  #: xid['objid'],
-    # df['zErr'] = []
-    # df['plate']=[]
-    # df['fSpecClassN']=[]
+df = pd.read_pickle('data/sdss/Nikki_35001-40000.pkl')
+print(df.head())
 
-    counter = -1
-    length = len(ra) - 1
-    print(length)
-    number_none = 0
-    while counter < int(length):
-      counter += 1
 
-      try:
-        pos = coords.SkyCoord((ra[counter]) * u.deg, (dec[counter]) * u.deg, frame='icrs')
-        xid = SDSS.query_region(pos, spectro=True)#, radius=5 * u.arcsec)
-
-        if xid != None:
-          if len(xid) > 1: xid = Table(xid[0])
-
-          elif len(xid) == 1: xid = xid
-    
-        elif xid == None:
-          number_none = number_none + 1
-          print('Failed to download at: ' counter)
-          continue
-
-        sp = SDSS.get_spectra(matches=xid)
-
-        df['flux_list'].append(sp[0][1].data['flux'])
-        df['wavelength'].append(10. ** sp[0][1].data['loglam'])
-        df['z'].append(xid['z'])
-        df['ra'].append(xid['ra'])
-        df['dec'].append(xid['dec'])
-        df['objid'].append(xid['objid'])
-        # df['plate'].append(plate)
-        # df['zErr'].append(so['zErr'])
-        # df['fSpecClassN'].append(so['fSpecClassN'])
-
-        # print(df)
-
-      except:
-        print("Error")
-        n = n + 1
-
-    df = pd.DataFrame(df)
-    print('df.head()', df.head())
-    df.to_pickle('data/sdss/Nikki_35001-40000.pkl')
-
-coord_list = pd.read_csv("data/sdss/coordinate_list.csv")
-start = time.time()
-
-ra_list = coord_list["ra"].tolist()
-dec_list = coord_list["dec"].tolist()
-end = time.time()
-tt = end - start
-print("time for listing is:", tt)
-
-start1 = time.clock()
-ra = ra_list[40001:40005]
-dec = dec_list[40001:40005]
-get_save_SDSS_from_coordinates(ra, dec)
-end1 = time.clock()
-
-tt1 = end1 - start1
-n_downloads = len(ra) - 1
-print("time for " + str(n_downloads) + " stellar objects:", tt1)
 
