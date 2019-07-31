@@ -24,33 +24,9 @@ style.use('fivethirtyeight')
 from src.plotify import Plotify
 
 plotify = Plotify()
-# with open('data/sdss_coordinates_lowz.txt') as text_file:
-#   coord_list = text_file.read().splitlines()
-#     mystring.replace('\n', ' ').replace('\r', '')
-
-# query()
-
-# coord_list=pd.read_csv("data/lowz.csv")
-# start=time.time()
-# ra_list = coord_list["ra"].tolist()
-# dec_list= coord_list["dec"].tolist()
-# end=time.time()
-# tt=end - start
-# print("time for listing is:", tt)
-
-# start1=time.time()
-# ra=ra_list[40001:45000]
-# dec=dec_list[40001:45000]
-# get_save_SDSS_from_coordinates( ra , dec )
-# end1=time.time()
-
-# tt1 = end1- start1
-# length=len(ra) - 1
-# print("time for "+str(length)+" stellar objects:" , tt1)
 
 # merge(length)
 
-# start = time.time()
 
 # spectra = pd.read_pickle('data/sdss/FinalTable_Andrew(40-45).pkl')
 # df_filtered = filter_sources(df = spectra)

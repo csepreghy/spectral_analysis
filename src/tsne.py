@@ -11,21 +11,17 @@ from matplotlib.lines import Line2D
 import time as time
 from sklearn.preprocessing import StandardScaler
 
-from src.plotify import Plotify
-plotify = Plotify()
-
 # -----------------------------------------
-
-
 # Load the data and extract the important columns
+
 spectra = pd.read_pickle('../COMPLETE_df.pkl')
 full_spectra = pd.read_pickle('../data/sdss/FinalTable_Nikki.pkl')
 
 # -----------------------------------------
 
 def get_PCA(spectra, dimensions, speclines="yes", continuum="yes"):
-
     # Get important columns from data frame
+    
     z = spectra['z'].get_values()
     z_err = spectra['zErr'].get_values()
     flux_list = list(spectra['flux_list'].get_values())
@@ -38,11 +34,11 @@ def get_PCA(spectra, dimensions, speclines="yes", continuum="yes"):
 
     # Input variables
     if speclines == "yes" and continuum == "yes":
-        X = np.hstack((z.reshape(-1,1), z_err.reshape(-1,1), spectral_lines, flux_list))
+      X = np.hstack((z.reshape(-1,1), z_err.reshape(-1,1), spectral_lines, flux_list))
     elif speclines == "yes" and continuum == "no":
-        X = np.hstack((z.reshape(-1, 1), z_err.reshape(-1, 1), spectral_lines))
+      X = np.hstack((z.reshape(-1, 1), z_err.reshape(-1, 1), spectral_lines))
     else:
-        X = np.hstack((z.reshape(-1, 1), z_err.reshape(-1, 1), flux_list))
+      X = np.hstack((z.reshape(-1, 1), z_err.reshape(-1, 1), flux_list))
 
 
     # Make into data frame
@@ -52,22 +48,22 @@ def get_PCA(spectra, dimensions, speclines="yes", continuum="yes"):
     df2 = pd.DataFrame(flux_list, columns=wavelength)
 
     if speclines == "yes" and continuum == "yes":
-        df = pd.concat([df1, df2], axis=1)
+      df = pd.concat([df1, df2], axis=1)
     elif speclines == "yes" and continuum == "no":
-        df = df1
+      df = df1
     else:
-        df = df2
+      df = df2
 
 
     # Make new specclass array, with numbers. QSO = 1, STAR = 2, GALAXY = 3
     classnumber = []
     for j in range(len(df)):
-        if specclass[j] == "GALAXY":
-            classnumber.append(3.0)
-        elif specclass[j] == "STAR":
-            classnumber.append(2.0)
-        elif specclass[j] == "QSO":
-            classnumber.append(1.0)
+      if specclass[j] == "GALAXY":
+        classnumber.append(3.0)
+      elif specclass[j] == "STAR":
+        classnumber.append(2.0)
+      elif specclass[j] == "QSO":
+        classnumber.append(1.0)
 
     df['z'] = z
     df['zErr'] = z_err
@@ -349,7 +345,6 @@ sb.scatterplot(
 #plt.savefig("../plots/TSNE3_ncomponents=2_verbose=0_perplexity=40_niter=1000.png", dpi=300)
 
 # ------- ------- ------- ------- -------
-
 # TSNE: now project into 3 dimensions
 
 time_start = time.time()
@@ -364,11 +359,12 @@ df['tsne-3d-three'] = tsne_results[:,2]
 # Plot in 3D
 ax = plt.figure(figsize=(16,10)).gca(projection='3d')
 ax.scatter(
-    xs=df["tsne-3d-one"],
-    ys=df["tsne-3d-two"],
-    zs=df["tsne-3d-three"],
-    c=df["class_numbers"],
-    cmap='Accent' )
+  xs=df["tsne-3d-one"],
+  ys=df["tsne-3d-two"],
+  zs=df["tsne-3d-three"],
+  c=df["class_numbers"],
+  cmap='Accent'
+)
 ax.set_xlabel('tsne-one')
 ax.set_ylabel('tsne-two')
 ax.set_zlabel('tsne-three')
