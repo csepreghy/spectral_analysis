@@ -3,73 +3,49 @@ import pandas as pd
 import time as time
 
 
-def merge(length):
-    start=time.time()
+def merge(from_sp, to_sp):
+  t_start=time.time()
 
-    with open('data/sdss/Nikki_35001-40000.pkl', 'rb') as f:
-        x = pickle.load(f)
+  df_spectra = pd.read_pickle('data/sdss/spectra_' + str(from_sp) + '-' + str(to_sp) + '.pkl')
+  df_meta_data = pd.read_pickle('data/sdss/meta_table.pkl')
 
-    df=pd.DataFrame(x)
-    # print(x.values)
-    # df_dir.head(1)
 
-    with open('data/sdss/direct_sql.pkl', 'rb') as f1:
-        x1 = pickle.load(f1)
+  # print('df_spectra.head \n', df_spectra)
+  # print('df_meta_data \n', df_meta_data)
 
-    df_dir=pd.DataFrame(x1)
-    # print(x.values)
-    # df.head()
-    # print(len(df_dir))
+  df_meta_data["objid"] = df_meta_data['bestObjID'].astype(int)
+  df_spectra['objid'] = df_spectra['objid'].astype(int)
+  
+  df_spectra.drop_duplicates('objid')
+  df_meta_data.drop_duplicates()
+  
+  df_meta_data = df_meta_data.drop(columns={"specObjID"})
 
-    df_dir["objid"] = df_dir['bestObjID']
-    df_dir = df_dir.drop(columns={"bestObjID"})
+  df_merge = pd.merge(df_spectra, df_meta_data, on=['objid'])
 
-    ra_list = []
-    for i in range(len(df)):
-        ra = df["ra"][i][0]
-        ra_list.append(ra)
-    df["ra"] = ra_list
+  df_merge["dec"] = df_merge['dec_y']
+  df_merge["z"] = df_merge['z_y']
+  df_merge["ra"] = df_merge['ra_y']
+  df_merge = df_merge.drop(columns={'dec_x', 'z_x', 'ra_x', 'dec_y', 'z_y', 'ra_y'})
 
-    dec_list = []
-    for i in range(len(df)):
-        dec = df["dec"][i][0]
-        dec_list.append(dec)
-    df["dec"] = dec_list
+  t_end=time.time()
 
-    z_list = []
-    for i in range(len(df)):
-        z = df["z"][i][0]
-        z_list.append(z)
+  df_merge.to_pickle('data/sdss/spectra-meta-merged_' + str(from_sp) + '-' + str(to_sp) + '.pkl')
 
-    df["z"] = z_list
+  t_delta = t_end - t_start
+  print("time:", t_delta)
 
-    objid_list = []
-    for i in range(len(df)):
-        objid = df["objid"][i][0]
-        objid_list.append(objid)
-    df["objid"] = objid_list
 
-    ws_list = []
-    for i in range(len(df)):
-        ws = pd.Series(df["wavelength"][i])
-        ws_list.append(ws)
-    df["wavelength"] = ws_list
+config = {
+  'from_sp': 0,
+  'to_sp': 5000,
+  'run_merge': True
+}
 
-    fs_list = []
-    for i in range(len(df)):
-        fs = pd.Series(df["flux_list"][i])
-        fs_list.append(fs)
-    df["flux_list"] = fs_list
+if config['run_merge'] == True:
+  merge(config['from_sp'], config['to_sp'])
 
-    df_merge = pd.merge(df, df_dir, on=['objid'])
+df = pd.read_pickle(
+  'data/sdss/spectra-meta-merged_' + str(config['from_sp']) + '-' + str(config['to_sp']) + '.pkl'
+)
 
-    df_merge["dec"] = df_merge['dec_y']
-    df_merge["z"] = df_merge['z_y']
-    df_merge["ra"] = df_merge['ra_y']
-    df_merge = df_merge.drop(columns={'dec_x', 'z_x', 'ra_x', 'dec_y', 'z_y', 'ra_y'})
-
-    end=time.time()
-    df_merge.to_pickle('data/sdss/FinalTable_40-45.pkl')
-
-    tt=end - start
-    print("time:", tt)

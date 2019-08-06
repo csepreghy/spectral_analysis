@@ -10,10 +10,11 @@ from astropy import coordinates as coords
 import astropy.units as u
 from astroquery.sdss import SDSS
 
-def get_save_SDSS_from_coordinates(coord_list_url, from_sp, to_sp):
+def download_spectra(coord_list_url, from_sp, to_sp):
   t_start = time.clock()
 
   coord_list = pd.read_csv(coord_list_url)
+  print('coord_list.head()', coord_list.head())
 
   ra_list = coord_list["ra"].tolist()
   dec_list = coord_list["dec"].tolist()
@@ -31,8 +32,7 @@ def get_save_SDSS_from_coordinates(coord_list_url, from_sp, to_sp):
   df['dec'] = []
   df['objid'] = []
 
-  n_coordinates = len(ra) - 1
-  print('n_coordinates', n_coordinates)
+  n_coordinates = len(ra)
   number_none = 0
 
   for i in range(n_coordinates):
@@ -46,7 +46,7 @@ def get_save_SDSS_from_coordinates(coord_list_url, from_sp, to_sp):
         continue
 
       elif xid != None and len(xid) > 1: xid = Table(xid[0])
-
+      
       sp = SDSS.get_spectra(matches=xid)
 
       df['flux_list'].append(sp[0][1].data['flux'])
@@ -71,14 +71,12 @@ def get_save_SDSS_from_coordinates(coord_list_url, from_sp, to_sp):
   print("time for " + str(n_downloads) + " stellar objects:", t_delta)
 
 
-get_save_SDSS_from_coordinates(
+download_spectra(
   coord_list_url = "data/sdss/coordinate_list.csv",
-  from_sp = 0,
-  to_sp = 100
+  from_sp = 5001,
+  to_sp = 10000
 )
 
-df = pd.read_pickle('data/sdss/Nikki_35001-40000.pkl')
-print(df.head())
-
+# df = pd.read_pickle('data/sdss/spectra_0-5000.pkl')
 
 
