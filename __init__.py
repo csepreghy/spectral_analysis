@@ -25,7 +25,7 @@ from src.plotify import Plotify
 
 plotify = Plotify()
 
-# merge(length)
+# merge()
 
 
 # spectra = pd.read_pickle('data/sdss/FinalTable_Andrew(40-45).pkl')
