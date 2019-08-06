@@ -28,7 +28,7 @@ def merge(from_sp, to_sp):
   df_merge["ra"] = df_merge['ra_y']
   df_merge = df_merge.drop(columns={'dec_x', 'z_x', 'ra_x', 'dec_y', 'z_y', 'ra_y'})
 
-  t_end=time.time()
+  t_end = time.time()
 
   df_merge.to_pickle('data/sdss/spectra-meta-merged_' + str(from_sp) + '-' + str(to_sp) + '.pkl')
 
@@ -37,8 +37,8 @@ def merge(from_sp, to_sp):
 
 
 config = {
-  'from_sp': 0,
-  'to_sp': 5000,
+  'from_sp': 5001,
+  'to_sp': 10000,
   'run_merge': True
 }
 
