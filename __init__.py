@@ -23,13 +23,16 @@ style.use('fivethirtyeight')
 
 from src.plotify import Plotify
 
-plotify = Plotify()
+# 1) Get Coordinates From Query - #
+# 2) Import Data - # 
+# 3) Merge Spectra With Table Containing Other Information - #
+# 4) Run The ML Algorithms
 
-# merge()
 
 
-# spectra = pd.read_pickle('data/sdss/FinalTable_Andrew(40-45).pkl')
-# df_filtered = filter_sources(df = spectra)
+df_spectra = pd.read_pickle('data/sdss/spectra-meta-merged_5001-10000.pkl')
+#df_filtered = filter_sources(df = spectra)
+
 # print('DF Filtered: ')
 # print(df_filtered.head())
 # df_spectral_lines = get_spectrallines(df_filtered)
