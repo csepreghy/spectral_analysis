@@ -9,10 +9,6 @@ from itertools import islice
 
 from plotify import Plotify
 
-# --- Initialize variables --- #
-plotify = Plotify()
-spectra = pd.read_pickle('data/sdss/FinalTable.pkl')
-
 CUTOFF_MIN = 3850
 CUTOFF_MAX = 9100
 
@@ -84,15 +80,12 @@ def create_continuum(df, sigma, downsize):
   
   return df_after_smoothing
 
-spectra = pd.read_pickle('data/sdss/spectra-meta/spectra-meta-merged_5001-10000.pkl')
-continuum_df = create_continuum(df=spectra, sigma=8, downsize=2)
+# spectra = pd.read_pickle('data/sdss/spectra-meta/spectra-meta-merged_5001-10000.pkl')
+# continuum_df = create_continuum(df=spectra, sigma=8, downsize=2)
 
-print('continuum_df', continuum_df)
+# print('continuum_df', continuum_df)
 
-# def merge_lines_and_continuum(df_spectral_lines, df_continuum):
-
-
-plot_one_spectrum(spectra=continuum_df, nth_element=2300, sigma=4, downsize=4, filename=('animation_plot'), save=False, show_plot=True)
+# plot_one_spectrum(spectra=continuum_df, nth_element=2300, sigma=4, downsize=4, filename=('animation_plot'), save=False, show_plot=True)
 
 # 3845 is the max
 
@@ -103,6 +96,8 @@ plot_one_spectrum(spectra=continuum_df, nth_element=2300, sigma=4, downsize=4, f
 # output: (df) filtered df that removes all sources that fall out of the optimal wavelength range
 
 def filter_sources(df):
+  df = df.drop_duplicates(subset='objid')
+  
   rows_after_removal = []
 
   print('Number of rows before filtering: ', str(len(df)))
@@ -195,7 +190,7 @@ def spectrum_cutoff(df):
 # df_after_cutoff = spectrum_cutoff(filtered_df)
 # print('df_after_cutoff', df_after_cutoff)
 
-def check_minmax_values(spectra=spectra, sigma=16, downsize=8):
+def check_minmax_values(spectra, sigma=16, downsize=8):
   min_wavelength_values = []
   max_wavelength_values = []
 
@@ -286,7 +281,7 @@ def merge_lines_and_continuum(spectral_lines, continuum):
 
   # Order the columns in a more sensible way
   df_merge = df_merge[[
-    'objid', 
+    'objid',
     'flux_list',
     'wavelength',
     'spectral_lines',
@@ -296,7 +291,7 @@ def merge_lines_and_continuum(spectral_lines, continuum):
     'dec',
     'plate',
     'class',
-    'subClass'
+    'subClass',
     'petroMagErr_u',
     'petroMagErr_g',
     'petroMagErr_r',
@@ -312,4 +307,9 @@ def merge_lines_and_continuum(spectral_lines, continuum):
 
   return df_merge
 
+
+def drop_duplicates_from_df(df):
+  df = df.drop_duplicates(subset='objid')
+  
+  return df
 
