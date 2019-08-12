@@ -15,15 +15,7 @@ def elemnts_existence(f_list, w_list, wlist):
 
         i =+1
         print(i)
-        # j = 0
-        # # ind=[]
-        # # flux=[]
-        # # WL=[]
-        # while j < len(df["wavelength"]):
-        #     j = j + 1
-        #     # k=0
-        #     # while k < len(ws):
-        #     #     k=k+1
+
         ws = []
         flux = []
         ind = []
@@ -44,7 +36,7 @@ def elemnts_existence(f_list, w_list, wlist):
 
     df_new.to_csv("data/sdssFE/FE.csv")
 
-    #check if these flux values are minimum or maximum then add a column as 1 or one for each of them into the dataframe
+    # check if these flux values are minimum or maximum then add a column as 1 or one for each of them into the dataframe
 
 
 with open('../data/sdss/999.pkl', 'rb') as f:
@@ -58,19 +50,11 @@ waves= pd.DataFrame(df["wavelength"])#].to_dict()
 
 # .to_list()
 for i in range(1): #range(len(waves)):
-    list_waves=list(waves.loc[i][0])
-    list_flux=list(fluxs.loc[i][0])
-    print(i)
+  list_waves=list(waves.loc[i][0])
+  list_flux=list(fluxs.loc[i][0])
+  print(i)
 
-    elemnts_existence(list_flux, list_waves, wlist)
-
-    #
-    # for i in range(len(list_waves)):
-    #     f= list_flux[i]
-    #     print(f)
-    #     w=list_waves[i]
-    #     print(w)
-
+  elemnts_existence(list_flux, list_waves, wlist)
 
 # print(list_waves)
 # print(fluxs.loc[0])
