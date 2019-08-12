@@ -7,7 +7,7 @@ from scipy import ndimage
 import pickle
 from itertools import islice
 
-from src.plotify import Plotify
+from plotify import Plotify
 
 # --- Initialize variables --- #
 plotify = Plotify()
@@ -33,8 +33,8 @@ def plot_one_spectrum(spectra, nth_element, sigma, downsize, filename, save, sho
   print('len(spectrum_y)', len(spectrum_y))
 
   fig, ax = plotify.plot(
-    x_list=spectrum_x,
-    y_list=spectrum_y_downsized,
+    x=spectrum_x,
+    y=spectrum_y_downsized,
     xlabel='Frequencies',
     ylabel='Flux',
     title=spectrum_title,
@@ -59,6 +59,17 @@ def create_continuum(df, sigma, downsize):
     row = {
       'wavelength': wavelengths_downsized,
       'flux_list': fluxes_downsized,
+      'petroMagErr_u': spectrum['petroMagErr_u'],
+      'petroMagErr_g': spectrum['petroMagErr_g'],
+      'petroMagErr_r': spectrum['petroMagErr_r'],
+      'petroMagErr_i': spectrum['petroMagErr_i'],
+      'petroMagErr_z': spectrum['petroMagErr_z'],
+      'petroMag_u': spectrum['petroMag_u'],
+      'petroMag_g': spectrum['petroMag_g'],
+      'petroMag_r': spectrum['petroMag_r'],
+      'petroMag_i': spectrum['petroMag_i'],
+      'petroMag_z': spectrum['petroMag_z'],
+      'subClass': spectrum['subClass'],
       'objid': spectrum['objid'],
       'plate': spectrum['plate'],
       'class': spectrum['class'],
@@ -73,15 +84,15 @@ def create_continuum(df, sigma, downsize):
   
   return df_after_smoothing
 
-# spectra = pd.read_pickle('data/sdss/FinalTable.pkl')
-# continuum_df = create_continuum(df=spectra, sigma=8, downsize=2)
+spectra = pd.read_pickle('data/sdss/spectra-meta/spectra-meta-merged_5001-10000.pkl')
+continuum_df = create_continuum(df=spectra, sigma=8, downsize=2)
 
+print('continuum_df', continuum_df)
 
 # def merge_lines_and_continuum(df_spectral_lines, df_continuum):
 
-# sigmas = [0, 0.5, 1, 2, 3, 4, 6, 8, 10, 12, 16, 20, 26, 34, 42, 64]
 
-plot_one_spectrum(spectra=spectra, nth_element=2019, sigma=0, downsize=4, filename=('animation_plot'), save=True, show_plot=False)
+plot_one_spectrum(spectra=continuum_df, nth_element=2300, sigma=4, downsize=4, filename=('animation_plot'), save=False, show_plot=True)
 
 # 3845 is the max
 
@@ -104,6 +115,17 @@ def filter_sources(df):
       row = {
         'wavelength': spectrum['wavelength'].tolist(),
         'flux_list': spectrum['flux_list'].tolist(),
+        'petroMagErr_u': spectrum['petroMagErr_u'],
+        'petroMagErr_g': spectrum['petroMagErr_g'],
+        'petroMagErr_r': spectrum['petroMagErr_r'],
+        'petroMagErr_i': spectrum['petroMagErr_i'],
+        'petroMagErr_z': spectrum['petroMagErr_z'],
+        'petroMag_u': spectrum['petroMag_u'],
+        'petroMag_g': spectrum['petroMag_g'],
+        'petroMag_r': spectrum['petroMag_r'],
+        'petroMag_i': spectrum['petroMag_i'],
+        'petroMag_z': spectrum['petroMag_z'],
+        'subClass': spectrum['subClass'],
         'objid': spectrum['objid'],
         'plate': spectrum['plate'],
         'class': spectrum['class'],
@@ -128,7 +150,7 @@ def filter_sources(df):
 
 def spectrum_cutoff(df):
   rows_after_cutoff = []
-  for df_index, spectrum in df.iterrows():
+  for _, spectrum in df.iterrows():
     cut_off_wavelengths = []
     cut_off_fluxes = []
 
@@ -144,6 +166,17 @@ def spectrum_cutoff(df):
     row = {
       'wavelength': cut_off_wavelengths,
       'flux_list': cut_off_fluxes,
+      'petroMagErr_u': spectrum['petroMagErr_u'],
+      'petroMagErr_g': spectrum['petroMagErr_g'],
+      'petroMagErr_r': spectrum['petroMagErr_r'],
+      'petroMagErr_i': spectrum['petroMagErr_i'],
+      'petroMagErr_z': spectrum['petroMagErr_z'],
+      'petroMag_u': spectrum['petroMag_u'],
+      'petroMag_g': spectrum['petroMag_g'],
+      'petroMag_r': spectrum['petroMag_r'],
+      'petroMag_i': spectrum['petroMag_i'],
+      'petroMag_z': spectrum['petroMag_z'],
+      'subClass': spectrum['subClass'],
       'objid': spectrum['objid'],
       'plate': spectrum['plate'],
       'class': spectrum['class'],
@@ -226,8 +259,6 @@ def clear_duplicates(df1, df2):
 
 
 def merge_lines_and_continuum(spectral_lines, continuum):
-
-
   """
   # Function to check if the IDs are unique:
   def allUnique(x):
@@ -254,7 +285,30 @@ def merge_lines_and_continuum(spectral_lines, continuum):
   df_merge['class'] = specclass
 
   # Order the columns in a more sensible way
-  df_merge = df_merge[['objid', 'flux_list', 'wavelength', 'spectral_lines', 'z', 'zErr', 'ra', 'dec', 'plate', 'class']]
+  df_merge = df_merge[[
+    'objid', 
+    'flux_list',
+    'wavelength',
+    'spectral_lines',
+    'z',
+    'zErr',
+    'ra',
+    'dec',
+    'plate',
+    'class',
+    'subClass'
+    'petroMagErr_u',
+    'petroMagErr_g',
+    'petroMagErr_r',
+    'petroMagErr_i',
+    'petroMagErr_z',
+    'petroMag_u',
+    'petroMag_g',
+    'petroMag_r',
+    'petroMag_i',
+    'petroMag_z'
+  ]]
+
 
   return df_merge
 
