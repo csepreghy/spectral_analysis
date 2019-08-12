@@ -39,15 +39,15 @@ def run_neural_network(df, config):
 
   columns = []
 
-
-  df = pd.read_pickle('COMPLETE_df.pkl')
-
   df['class'] = pd.Categorical(df['class'])
   dfDummies = pd.get_dummies(df['class'], prefix='category')
   df = pd.concat([df, dfDummies], axis=1)
 
   for column in df.columns:
-    if column not in ['class', 'dec', 'ra', 'plate', 'wavelength', 'objid']:
+    if column not in ['class', 'dec', 'ra', 'plate', 'wavelength', 'objid', 'subClass']:
+    # if column not in ['class', 'dec', 'ra', 'plate', 'wavelength', 'objid', 'subClass',
+    #                   'petroMag_u', 'petroMag_g', 'petroMag_r', 'petroMag_i', 'petroMag_z',
+    #                   'petroMagErr_u', 'petroMagErr_g', 'petroMagErr_r', 'petroMagErr_i', 'petroMagErr_z']:
       columns.append(column)
 
   print('columns', columns)
@@ -58,9 +58,9 @@ def run_neural_network(df, config):
   for _, spectrum in df[columns].iterrows():
     X_row = []
 
-    spectral_lines = spectrum['spectral_lines']
-    for spectral_line in spectral_lines:
-      X_row.append(spectral_line)
+    # spectral_lines = spectrum['spectral_lines']
+    # for spectral_line in spectral_lines:
+    #   X_row.append(spectral_line)
 
     flux_list = spectrum['flux_list']
     for flux in flux_list:
@@ -103,7 +103,6 @@ def run_neural_network(df, config):
   y_train = np.array(y_train)
   y_test = np.array(y_test)
   print('y_train.shape', y_train.shape)
-  print('type(y_train)', type(y_train))
 
   history = model.fit(X_train_std, y_train, validation_data=(X_test_std, y_test), epochs=100, verbose=0)
   end = time.time()
