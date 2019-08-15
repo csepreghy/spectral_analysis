@@ -3,7 +3,6 @@ import sys
 import pickle
 
 from neural_network_classifier import run_neural_network
-# from xboost_classifier import run_xgboost
 from gaussian_classifier import run_gaussian_clf
 
 def create_model(df, config):
@@ -31,6 +30,8 @@ configs = {
   }
 }
 
-df = pd.read_pickle('COMPLETE_df.pkl')
-model = create_model(df, configs['gaussian_clf'])
+df_preprocessed = pd.read_pickle('data/preprocessed_5001-10000.pkl')
+
+# print('df', df)
+model = create_model(df_preprocessed, configs['neural_network'])
  
