@@ -16,10 +16,10 @@ plt.style.use('dark_background')
 
 plt.figure(figsize=(16, 10))
 
-plt2=sns.boxplot(x="class", y="z", data=df)
+plt2 = sns.boxplot(x="class", y="z", data=df)
 plt2.figure.savefig("../plots/boxplot.png")
 
-plt3=df['class'].value_counts().plot(kind='bar')
+plt3 = df['class'].value_counts().plot(kind='bar')
 plt3.figure.savefig("../plots/histogram.png")
 
 # plt4=sns.swarmplot(y=df['z'], x=df['class'])
@@ -29,17 +29,11 @@ plt3.figure.savefig("../plots/histogram.png")
 # plt5=sns.jointplot(x='zErr', y='z', data=df, kind='kde')
 # plt5.savefig("../plots/joinplot.png")
 
-
-plt1=sns.catplot(x="class", y="z", data=df)
+plt1 = sns.catplot(x="class", y="z", data=df)
 plt1.savefig("../plots/catplot.png")
 
-
-
-
-
-
 # Plot miles per gallon against horsepower with other semantics
-plt6=sns.relplot(x="ra", y="dec", hue="class", size="z",sizes=(40, 400)
+plt6 = sns.relplot(x="ra", y="dec", hue="class", size="z",sizes=(40, 400)
                  , alpha=.5, palette="muted",
             height=6, data=df)
 # plt6 =sns.scatterplot(x='ra', y='dec', hue='class',size='z', data=df ) #,style='class'
