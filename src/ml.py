@@ -2,7 +2,7 @@ import pandas as pd
 import sys
 import pickle
 
-from neural_network_classifier import run_neural_network
+from neural_network.neural_network_classifier import run_neural_network
 from gaussian_classifier import run_gaussian_clf
 
 def create_model(df, config):
