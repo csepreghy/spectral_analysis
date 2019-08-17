@@ -6,7 +6,6 @@ from tensorflow.keras.layers import Dense, Dropout, Activation, GlobalAveragePoo
 from tensorflow.keras.models import Sequential, Model
 from tensorflow.keras.utils import to_categorical
 
-
 def create_cnn(input_length):
   model = Sequential()
 
