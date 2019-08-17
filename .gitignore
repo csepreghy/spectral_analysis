@@ -14,5 +14,7 @@ __pycache__
 .idea/*.*
 *.pkl
 */*.pkl
+*.msg
 data/sdss_csv/*.pkl
 .vscode
+logs
