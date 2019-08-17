@@ -6,7 +6,7 @@ import time as time
 def merge(from_sp, to_sp):
   t_start=time.time()
 
-  df_spectra = pd.read_pickle('data/sdss/spectra_' + str(from_sp) + '-' + str(to_sp) + '.pkl')
+  df_spectra = pd.read_pickle('data/sdss/spectra/spectra_' + str(from_sp) + '-' + str(to_sp) + '.pkl')
   df_meta_data = pd.read_pickle('data/sdss/meta_table.pkl')
 
 
@@ -30,15 +30,15 @@ def merge(from_sp, to_sp):
 
   t_end = time.time()
 
-  df_merge.to_pickle('data/sdss/spectra-meta-merged_' + str(from_sp) + '-' + str(to_sp) + '.pkl')
+  df_merge.to_pickle('data/sdss/spectra-meta/spectra-meta-merged_' + str(from_sp) + '-' + str(to_sp) + '.pkl')
 
   t_delta = t_end - t_start
   print("time:", t_delta)
 
 
 config = {
-  'from_sp': 5001,
-  'to_sp': 10000,
+  'from_sp': 60001,
+  'to_sp': 70000,
   'run_merge': True
 }
 
@@ -46,6 +46,8 @@ if config['run_merge'] == True:
   merge(config['from_sp'], config['to_sp'])
 
 df = pd.read_pickle(
-  'data/sdss/spectra-meta-merged_' + str(config['from_sp']) + '-' + str(config['to_sp']) + '.pkl'
+  'data/sdss/spectra-meta/spectra-meta-merged_' + str(config['from_sp']) + '-' + str(config['to_sp']) + '.pkl'
 )
+
+print('df.head()', df.head())
 
