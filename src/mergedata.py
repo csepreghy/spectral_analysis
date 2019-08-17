@@ -7,7 +7,7 @@ from os import listdir
 from os.path import isfile, join
 
 def merge_data(filenames):
-  with open('data/sdss/spectra-meta/'+filenames[0], 'rb') as g:
+  with open('data/sdss/spectra-meta/' + filenames[0], 'rb') as g:
     data = pickle.load(g)
 
   for i in range(1,len(filenames)):
