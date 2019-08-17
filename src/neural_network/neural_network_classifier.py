@@ -12,12 +12,14 @@ from tensorflow import keras
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from tensorflow.keras.optimizers import SGD
-from tensorflow.keras.callbacks import History
+from tensorflow.keras.callbacks import History, TensorBoard, EarlyStopping, ModelCheckpoint
 from tensorflow.keras.layers import Dense, Dropout, Activation, GlobalAveragePooling1D, Flatten, Conv1D, MaxPooling1D, MaxPooling2D, Input, concatenate
 from tensorflow.keras.models import Sequential, Model
 from tensorflow.keras.utils import to_categorical
 
 from .models import create_cnn, create_mlp
+
+from plotify import Plotify
 
 
 # This is a simple feed forward neural network that uses Keras and Tensorflow.
@@ -33,10 +35,8 @@ from .models import create_cnn, create_mlp
 # a binary classifier, but it can be easily changed
 # It also automatically scales the data. This should speed up the process of training
 
-
-def run_neural_network(df, config):
-  scaler = StandardScaler()
-
+def prepare_data(df):
+  print('df', df)
   columns = []
 
   df['class'] = pd.Categorical(df['class'])
@@ -57,15 +57,15 @@ def run_neural_network(df, config):
     X_row = []
 
     # adding the spectral lines
-    
     spectral_lines = spectrum['spectral_lines']
 
+    # spectral lines are sometimes missing
     if type(spectral_lines) == list:
       for spectral_line in spectral_lines:
         X_row.append(spectral_line)
 
     elif math.isnan(spectral_lines):
-      spectral_lines = [0] * 14 # number of spectral lines is 14
+      spectral_lines = [-99] * 14 # number of spectral lines is 14
   
       for spectral_line in spectral_lines:
           X_row.append(spectral_line)
@@ -101,15 +101,23 @@ def run_neural_network(df, config):
       X_row.append(flux)
     
     X_spectra.append(X_row)
+  
+  return X_source_info, X_spectra, y
 
 
+
+def run_neural_network(df, config):
+  n_classes = 3
+  X_source_info, X_spectra, y = prepare_data(df)
+  #meta-data
+  #continuum
   X_train_source_info, X_test_source_info, y_train, y_test = train_test_split(X_source_info, y, test_size=0.2)
-  
-  
   X_train_source_info, X_val_source_info, y_train, y_val = train_test_split(X_train_source_info, y_train, test_size=0.2)
 
   X_train_spectra, X_test_spectra = train_test_split(X_spectra, None, test_size=0.2)
   X_train_spectra, X_val_spectra = train_test_split(X_train_spectra, None, test_size=0.2)
+
+  scaler = StandardScaler()
 
   X_train_source_info = scaler.fit_transform(X_train_source_info)
   X_test_source_info = scaler.transform(X_test_source_info)
@@ -119,79 +127,51 @@ def run_neural_network(df, config):
   X_test_spectra = scaler.transform(X_test_spectra)
   X_val_spectra = scaler.transform(X_val_spectra)
 
-
-  print('X_test_spectra.shape', type(X_test_spectra))
-
   X_train_spectra = np.expand_dims(X_train_spectra, axis=2)
   X_test_spectra = np.expand_dims(X_test_spectra, axis=2)
 
   y_train = np.array(y_train)
   y_test = np.array(y_test)
 
-  print('y_train.shape', y_train.shape)
-  print('y_test.shape', type(y_test))
-
   cnn = create_cnn(input_length=X_train_spectra.shape[1])
   mlp = create_mlp(input_shape=X_train_source_info.shape[1])
   
-  # we only complibe the combined outputs
-  # cnn.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 
-  callbacks_list = [
-    # for saving the best model
-    # keras.callbacks.ModelCheckpoint(
-    #     filepath='best_model.{epoch:02d}-{val_loss:.2f}.h5',
-    #     monitor='val_loss', save_best_only=True),
-    keras.callbacks.EarlyStopping(monitor='val_accuracy', patience=3)
-  ]
 
 
   # combine the output of the two branches
   combined = concatenate([cnn.output, mlp.output])
 
-  # apply a FC layer and then a regression prediction on the combined outputs
+  # apply a fully connected layer for last classification
   final_classifier = Dense(128, activation="relu")(combined)
-  final_classifier = Dense(3, activation="softmax")(final_classifier)
+  final_classifier = Dense(n_classes, activation="softmax")(final_classifier)
   
   model = Model(inputs=[mlp.input, cnn.input], outputs=final_classifier)
 
-  opt = SGD(lr=0.01, momentum=0.9)
   model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 
-  print("[INFO] training model...")
+  tensorboard = TensorBoard(log_dir='logs/{}'.format('cnn-mlp_{}'.format(time.time())))
+  earlystopping = EarlyStopping(monitor='val_accuracy', patience=2)
+  modelcheckpoint = ModelCheckpoint(filepath='best_model_epoch.{epoch:02d}-{val_loss:.2f}.h5', monitor='val_loss', save_best_only=True),
+
+  callbacks_list = [
+    # modelcheckpoint,
+    # earlystopping,
+    tensorboard
+  ]
+
   history = model.fit(x=[X_train_source_info, X_train_spectra],
                       y=y_train,
                       validation_data=([X_test_source_info, X_test_spectra], y_test),
                       epochs=50,
                       callbacks=callbacks_list)
 
-  # # combine the output of the two branches
-  # combined_input = concatenate([model_source_info.output, model_spectra.output])
-
-  # # apply a FC layer and then a regression prediction on the combined outputs
-  # final_classifier = Dense(2, activation="relu")(combined)
-  # final_classifier = Dense(3, activation="softmax")(final_classifier)
-  
-  # # our model will accept the inputs of the two branches and
-  # # then output a single value
-  # model = Model(inputs=[x.input, y.input], outputs=z)
-
-  # opt = SGD(lr=0.01, momentum=0.9)
-  # model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
-
-  # print("[INFO] training model...")
-  # start = time.time()
-
-  # y_train = np.array(y_train)
-  # y_test = np.array(y_test)
-  # print('y_train.shape', y_train.shape)
-
-  # history = model.fit([X_train_source_info, X_train_spectra], y_train, validation_data=([X_test_source_info, X_test_spectra], y_test), epochs=100, verbose=0)
-
 
   # evaluate the model
   _, train_acc = model.evaluate([X_train_source_info, X_train_spectra], y_train, verbose=0)
   _, test_acc = model.evaluate([X_test_source_info, X_test_spectra], y_test, verbose=0)
+
+
   print('Train: %.3f, Test: %.3f' % (train_acc, test_acc))
   # plot loss during training
   plt.subplot(211)
@@ -209,7 +189,6 @@ def run_neural_network(df, config):
   plt.show()
 
   return cnn
-
 
 def train_test_split(X, y, test_size):
   if y is not None and len(X) != len(y): print('X and y does not have the same length')
