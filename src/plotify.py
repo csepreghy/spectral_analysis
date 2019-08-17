@@ -250,8 +250,11 @@ class Plotify:
     ymax=None,
     xmin=None,
     xmax=None,
-    save=False
+    save=False,
+    label='',
+    color='orange'
   ):
+    colors = self.get_colors()
     fig, ax = self.get_figax(figsize=figsize)
 
     ax.set_ylabel(ylabel)
@@ -269,8 +272,8 @@ class Plotify:
     if tickfrequencyone == True:
       ax.xaxis.set_major_locator(ticker.MultipleLocator(1))
 
-    if len(x) == 0: plt.plot(x, color=self.c_orange)
-    if len(x) > 0: plt.plot(x, y, color=self.c_orange)
+    if len(x) == 0: plt.plot(x, color=colors[color], label=label)
+    if len(x) > 0: plt.plot(x, y, color=color[color], label=label)
     
     if save == True: plt.savefig(('plots/' + filename), facecolor=self.background_color, dpi=180)
 
