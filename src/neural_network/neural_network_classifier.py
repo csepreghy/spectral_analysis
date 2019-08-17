@@ -22,7 +22,7 @@ from .models import create_cnn, create_mlp
 from plotify import Plotify
 
 
-# This is a simple feed forward neural network that uses Keras and Tensorflow.
+# This is a mixed input neural network that combines a CNN with an MLP.
 # Inputs:
 #    - df: pandas dataframe with training data
 #    - batch_size: batch size (integer)

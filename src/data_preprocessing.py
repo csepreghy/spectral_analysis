@@ -65,10 +65,10 @@ def create_continuum(df, sigma, downsize):
       'petroMag_r': spectrum['petroMag_r'],
       'petroMag_i': spectrum['petroMag_i'],
       'petroMag_z': spectrum['petroMag_z'],
-      'subClass': spectrum['subClass'],
+      'subClass': str(spectrum['subClass']),
       'objid': spectrum['objid'],
       'plate': spectrum['plate'],
-      'class': spectrum['class'],
+      'class': str(spectrum['class']),
       'zErr': spectrum['zErr'],
       'dec': spectrum['dec'],
       'ra': spectrum['ra'],
@@ -101,8 +101,10 @@ def filter_sources(df):
   rows_after_removal = []
 
   print('Number of rows before filtering: ', str(len(df)))
+  print('df', df.columns)
 
-  for index, spectrum in df.iterrows():
+
+  for index, spectrum in islice(df.iterrows(), 30000):
     min_value = np.amin(spectrum['wavelength'].tolist())
     max_value = np.amax(spectrum['wavelength'].tolist())
 
@@ -121,6 +123,7 @@ def filter_sources(df):
         'petroMag_i': spectrum['petroMag_i'],
         'petroMag_z': spectrum['petroMag_z'],
         'subClass': spectrum['subClass'],
+        'fluxObjID': spectrum['fluxObjID'],
         'objid': spectrum['objid'],
         'plate': spectrum['plate'],
         'class': spectrum['class'],
@@ -129,6 +132,8 @@ def filter_sources(df):
         'ra': spectrum['ra'],
         'z': spectrum['z'],
       }
+
+      # print('row[row]', type(row['class']))
 
       rows_after_removal.append(row)
     
@@ -186,9 +191,6 @@ def spectrum_cutoff(df):
   filtered_df = pd.DataFrame(rows_after_cutoff)
 
   return filtered_df
-
-# df_after_cutoff = spectrum_cutoff(filtered_df)
-# print('df_after_cutoff', df_after_cutoff)
 
 def check_minmax_values(spectra, sigma=16, downsize=8):
   min_wavelength_values = []
