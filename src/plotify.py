@@ -260,11 +260,11 @@ class Plotify:
     ax.set_ylabel(ylabel)
     ax.set_xlabel(xlabel)
     ax.set_title(title)
-    if ymin != None: ax.set_ylim(ymin=ymin)
-    if ymax != None: ax.set_ylim(ymax=ymax)
+    if ymin is not None: ax.set_ylim(ymin=ymin)
+    if ymax is not None: ax.set_ylim(ymax=ymax)
 
-    if xmin != None: ax.set_xlim(xmin=xmin)
-    if xmax != None: ax.set_xlim(xmax=xmax)
+    if xmin is not None: ax.set_xlim(xmin=xmin)
+    if xmax is not None: ax.set_xlim(xmax=xmax)
     
     if equal_axis == True:
       plt.axis('equal')
@@ -273,7 +273,10 @@ class Plotify:
       ax.xaxis.set_major_locator(ticker.MultipleLocator(1))
 
     if len(x) == 0: plt.plot(x, color=colors[color], label=label)
-    if len(x) > 0: plt.plot(x, y, color=color[color], label=label)
+    if len(x) > 0: 
+      print('x', x)
+      print('y', y)
+      plt.plot(x=x, y=y, color=colors[color], label=label)
     
     if save == True: plt.savefig(('plots/' + filename), facecolor=self.background_color, dpi=180)
 
