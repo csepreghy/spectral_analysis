@@ -1,16 +1,19 @@
 import numpy as np
 import pandas as pd
+
 import matplotlib.pyplot as plt
-from matplotlib import style
+
 import time as time
 import datetime
 import math
-
-import tensorflow as tf
-from tensorflow import keras
+import seaborn as sn
 
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import confusion_matrix
+
+import tensorflow as tf
+from tensorflow import keras
 from tensorflow.keras.optimizers import SGD
 from tensorflow.keras.callbacks import History, TensorBoard, EarlyStopping, ModelCheckpoint
 from tensorflow.keras.layers import Dense, Dropout, Activation, GlobalAveragePooling1D, Flatten, Conv1D, MaxPooling1D, MaxPooling2D, Input, concatenate
@@ -34,6 +37,25 @@ from plotify import Plotify
 # It then prepares, trains and saves the model to disk so you can load it later. Currently it is 
 # a binary classifier, but it can be easily changed
 # It also automatically scales the data. This should speed up the process of training
+
+def train_test_split(X, y, test_size):
+  if y is not None and len(X) != len(y): print('X and y does not have the same length')
+  
+  n_test = round(len(X) * test_size)
+  n_train = len(X) - n_test
+  
+  X_test = X[-n_test:]
+  X_train = X[:n_train]
+
+  print('len(X_train', len(X_train))
+
+  if y is not None:
+    y_test = y[-n_test:]
+    y_train = y[:n_train]
+
+  if y is not None: return X_train, X_test, y_train, y_test
+  
+  else: return X_train, X_test
 
 def prepare_data(df):
   print('df', df)
@@ -124,11 +146,11 @@ def run_neural_network(df, config):
   X_val_source_info = scaler.transform(X_val_source_info)
 
   X_train_spectra = scaler.fit_transform(X_train_spectra)
-  X_test_spectra = scaler.transform(X_test_spectra)
+  X_test_spectra_std = scaler.transform(X_test_spectra)
   X_val_spectra = scaler.transform(X_val_spectra)
 
   X_train_spectra = np.expand_dims(X_train_spectra, axis=2)
-  X_test_spectra = np.expand_dims(X_test_spectra, axis=2)
+  X_test_spectra_std = np.expand_dims(X_test_spectra_std, axis=2)
 
   y_train = np.array(y_train)
   y_test = np.array(y_test)
@@ -136,8 +158,6 @@ def run_neural_network(df, config):
   cnn = create_cnn(input_length=X_train_spectra.shape[1])
   mlp = create_mlp(input_shape=X_train_source_info.shape[1])
   
-
-
 
   # combine the output of the two branches
   combined = concatenate([cnn.output, mlp.output])
@@ -151,73 +171,112 @@ def run_neural_network(df, config):
   model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 
   tensorboard = TensorBoard(log_dir='logs/{}'.format('cnn-mlp_{}'.format(time.time())))
-  earlystopping = EarlyStopping(monitor='val_accuracy', patience=2)
+  earlystopping = EarlyStopping(monitor='val_accuracy', patience=1)
   modelcheckpoint = ModelCheckpoint(filepath='best_model_epoch.{epoch:02d}-{val_loss:.2f}.h5', monitor='val_loss', save_best_only=True),
 
   callbacks_list = [
     # modelcheckpoint,
-    # earlystopping,
+    earlystopping,
     tensorboard
   ]
 
   history = model.fit(x=[X_train_source_info, X_train_spectra],
                       y=y_train,
-                      validation_data=([X_test_source_info, X_test_spectra], y_test),
-                      epochs=50,
+                      validation_data=([X_test_source_info, X_test_spectra_std], y_test),
+                      epochs=2,
                       callbacks=callbacks_list)
 
 
   # evaluate the model
   _, train_acc = model.evaluate([X_train_source_info, X_train_spectra], y_train, verbose=0)
-  _, test_acc = model.evaluate([X_test_source_info, X_test_spectra], y_test, verbose=0)
-
+  _, test_acc = model.evaluate([X_test_source_info, X_test_spectra_std], y_test, verbose=0)
 
   print('Train: %.3f, Test: %.3f' % (train_acc, test_acc))
-  # plot loss during training
-  plt.subplot(211)
-  plt.title('Loss')
-  plt.plot(history.history['loss'], label='train')
-  plt.plot(history.history['val_loss'], label='test')
-  plt.legend()
-  # plot accuracy during training
-  plt.subplot(212)
-  plt.title('Accuracy')
 
-  plt.plot(history.history['accuracy'], label='train')
-  plt.plot(history.history['val_accuracy'], label='test')
-  plt.legend()
-  plt.show()
+  get_incorrect_predictions(
+    X_test=[X_test_source_info, X_test_spectra_std],
+    X_test_spectra=X_test_spectra,
+    model=model,
+    y_test=y_test,
+    df=df
+  )
+  
+  evaluate_model(
+    model=model,
+    X_test=[X_test_source_info, X_test_spectra_std],
+    y_test=y_test
+  )
 
+    
   return cnn
 
-def train_test_split(X, y, test_size):
-  if y is not None and len(X) != len(y): print('X and y does not have the same length')
+def get_incorrect_predictions(model, X_test, X_test_spectra, y_test, df):
+  # incorrects = np.nonzero(model.predict(X_test).reshape((-1,)) != y_test)
+  classes = ['galaxy', 'quasar', 'star']
+  predictions = model.predict(X_test).argmax(axis=1)
+  y_test = y_test.argmax(axis=1)
+  indices = [i for i,v in enumerate(predictions) if predictions[i] != y_test[i]]
   
-  n_test = round(len(X) * test_size)
-  n_train = len(X) - n_test
+  wrong_predictions = []
+  for i in indices:
+    wrong_prediction = {
+      'spectrum': X_test_spectra[i],
+      'predicted': classes[predictions[i]],
+      'target_class': classes[y_test[predictions[i]]]
+    }
   
-  X_test = X[-n_test:]
-  X_train = X[:n_train]
-
-  print('len(X_train', len(X_train))
-
-  # print('type(X_test', type(X_test))
-
-  if y is not None:
-    y_test = y[-n_test:]
-    y_train = y[:n_train]
-
-  if y is not None:
-    return X_train, X_test, y_train, y_test
+    wrong_predictions.append(wrong_prediction)
   
-  else:
-    return X_train, X_test
+  nth_prediction = 2
+
+  plotify = Plotify()
+
+  spectrum_y = wrong_predictions[nth_prediction]['spectrum']
+  spectrum_x = df[['wavelength'][0]][0]
+
+  print('len(spectrum_y', len(spectrum_y))
+  print('len(spectrum_x', len(spectrum_x))
+
+  fig, ax = plotify.plot(
+    x=spectrum_x,
+    y=spectrum_y,
+    xlabel='Frequencies',
+    ylabel='Flux',
+    title='title',
+    figsize=(12, 8),
+    show_plot=True,
+    filename=('filename'),
+    save=False,
+    color='orange',
+    ymin=-5,
+    ymax=12,
+    xmin=3800,
+    xmax=9100,
+  )
+  
+  plt.plot(x=spectrum_x, y=spectrum_y)
+  plt.show();
+
+def evaluate_model(model, X_test, y_test):
+  classes = ['galaxy', 'quasar', 'star']
+  y_pred = model.predict(X_test)
+  matrix = confusion_matrix(y_test.argmax(axis=1), y_pred.argmax(axis=1))
+
+  df_cm = pd.DataFrame(matrix,
+                       index=[i for i in classes],
+                       columns=[i for i in classes])
+
+  fig, ax = plt.subplots(figsize=(10,7))
+  sn.heatmap(df_cm, annot=True, annot_kws={"size": 15}, fmt='g')
+  ax.set_ylabel('Predicted Class', color='black')
+  ax.set_xlabel('Target Class', color='black')
+  ax.set_title('Confusion Matrix')
+  plt.show()
+
   
 def summarize_results():
   print('hello')
-
-def evaluate_model():
-  print('hello')
+  
 
 
 # def run_cnn(df, config)
