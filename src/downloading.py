@@ -10,73 +10,114 @@ from astropy import coordinates as coords
 import astropy.units as u
 from astroquery.sdss import SDSS
 
-def download_spectra(coord_list_url, from_sp, to_sp):
-  t_start = time.clock()
+def download_spectra(coord_list_url, from_sp, to_sp, save=False):
+	"""
+	download_spectra()
 
-  coord_list = pd.read_csv(coord_list_url)
-  print('coord_list.head()', coord_list.head())
+	Downloads SDSS spectra in a specified range based on a list of coordinates
 
-  ra_list = coord_list["ra"].tolist()
-  dec_list = coord_list["dec"].tolist()
+	Parameters
+	----------
+	coord_list_url: string
+		The path for the CSV file that contains the list of coordinates 
+		that was downloaded using SQL, which provides coordinates for spectra
+		to download. Contains 500,000 rows
+	
+	from_sp : int
+		The index from which to download spectra. This enables us to download in
+		batches and save the spectral data in batches 
+	to_sp : int
+		The index which specifies the upper limit until which to download spectra.
+	save : boolean
+		When True, save the resulting DataFrame into a pickle
+		When False, don't save
 
-  ra = ra_list[from_sp:to_sp]
-  dec = dec_list[from_sp:to_sp]
+	Returns
+	-------
+	df: pandas.DataFrame
+		The DataFrame that contains all downloaded spectral data.
+		
+		columns:	'flux_list',
+					'wavelength',
+					'z',
+					'ra',
+					'dec',
+					'objid'
+	"""
+	t_start = time.clock()
+	coord_list = pd.read_csv(coord_list_url)
+	print(f'coord_list = {coord_list}')
 
-  n_errors = 0
+	ra_list = coord_list["ra"].tolist()
+	dec_list = coord_list["dec"].tolist()
 
-  df = {}
-  df['flux_list'] = []
-  df['wavelength'] = []
-  df['z'] = []
-  df['ra'] = []
-  df['dec'] = []
-  df['objid'] = []
+	ra = ra_list[from_sp:to_sp]
+	dec = dec_list[from_sp:to_sp]
 
-  n_coordinates = len(ra)
-  number_none = 0
+	n_errors = 0
 
-  for i in range(n_coordinates):
-    try:
-      pos = coords.SkyCoord((ra[i]) * u.deg, (dec[i]) * u.deg, frame='icrs')
-      xid = SDSS.query_region(pos, spectro=True) # radius=5 * u.arcsec)
+	df = {}
+	df['flux_list'] = []
+	df['wavelength'] = []
+	df['z'] = []
+	df['ra'] = []
+	df['dec'] = []
+	df['objid'] = []
 
-      if xid == None:
-        number_none = number_none + 1
-        print('xid is None at:', i)
-        continue
+	n_coordinates = len(ra)
+	number_none = 0
 
-      elif xid != None and len(xid) > 1: xid = Table(xid[0])
-      
-      sp = SDSS.get_spectra(matches=xid)
+	for i in range(n_coordinates):
+		try:
+			pos = coords.SkyCoord((ra[i]) * u.deg, (dec[i]) * u.deg, frame='icrs')
+			xid = SDSS.query_region(pos, spectro=True) # radius=5 * u.arcsec)
 
-      df['flux_list'].append(sp[0][1].data['flux'])
-      df['wavelength'].append(10. ** sp[0][1].data['loglam'])
-      df['z'].append(xid['z'])
-      df['ra'].append(xid['ra'])
-      df['dec'].append(xid['dec'])
-      df['objid'].append(xid['objid'])
+			if xid == None:
+				number_none = number_none + 1
+				print('xid is None at:', i)
+				continue
 
-    except:
-      print('Failed to download at:', i)
-      n_errors = n_errors + 1
+			elif xid != None and len(xid) > 1: xid = Table(xid[0])
+			
+			sp = SDSS.get_spectra(matches=xid)
 
-  df = pd.DataFrame(df)
-  print('df.head()', df.head())
-  df.to_pickle('data/sdss/spectra_' + str(from_sp) + '-' + str(to_sp) + '.pkl')
+			df['flux_list'].append(sp[0][1].data['flux'])
+			df['wavelength'].append(10. ** sp[0][1].data['loglam'])
+			df['z'].append(xid['z'])
+			df['ra'].append(xid['ra'])
+			df['dec'].append(xid['dec'])
+			df['objid'].append(xid['objid'])
 
-  t_end = time.clock()
+		except:
+			print('Failed to download at:', i)
+			n_errors = n_errors + 1
 
-  t_delta = t_end - t_start
-  n_downloads = len(ra) - 1
-  print("time for " + str(n_downloads) + " stellar objects:", t_delta)
+	df = pd.DataFrame(df)
+	print('df.head()', df.head())
+	if save:
+		df.to_pickle('data/sdss/spectra_' + str(from_sp) + '-' + str(to_sp) + '.pkl')
+
+	t_end = time.clock()
+
+	t_delta = t_end - t_start
+	n_downloads = len(ra) - 1
+	print("time for " + str(n_downloads) + " stellar objects:", t_delta)
+	
+	return df
 
 
-download_spectra(
-  coord_list_url = "data/sdss/coordinate_list.csv",
-  from_sp = 5001,
-  to_sp = 10000
-)
+def main():
+	"""
+	main()
+	
+	Runs a test batch download to test whether the download() works properly.
+	"""
 
-# df = pd.read_pickle('data/sdss/spectra_0-5000.pkl')
+	download_spectra(coord_list_url = "data/sdss/coordinate_list.csv",
+  				 from_sp = 5001,
+  				 to_sp = 5010,
+				 save=False)
 
 
+if __name__ == '__main__':
+  	main()
