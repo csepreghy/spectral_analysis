@@ -9,6 +9,8 @@ from itertools import islice
 
 from plotify import Plotify
 
+plotify = Plotify()
+
 CUTOFF_MIN = 3850
 CUTOFF_MAX = 9100
 
@@ -28,18 +30,17 @@ def plot_one_spectrum(spectra, nth_element, sigma, downsize, filename, save, sho
   spectrum_x = spectrum_x[::downsize]
   print('len(spectrum_y)', len(spectrum_y))
 
-  fig, ax = plotify.plot(
-    x=spectrum_x,
-    y=spectrum_y_downsized,
-    xlabel='Frequencies',
-    ylabel='Flux',
-    title=spectrum_title,
-    figsize=(12, 8),
-    show_plot=show_plot,
-    filename=filename,
-    ymin=np.amin(spectrum_y) - 4,
-    ymax=np.amax(spectrum_y) + 4,
-    save=save
+  fig, ax = plotify.plot(x=spectrum_x,
+                         y=spectrum_y_downsized,
+                         xlabel='Frequencies',
+                         ylabel='Flux',
+                         title=spectrum_title,
+                         figsize=(12, 8),
+                         show_plot=show_plot,
+                         filename=filename,
+                         ymin=np.amin(spectrum_y) - 4,
+                         ymax=np.amax(spectrum_y) + 4,
+                         save=save
   )
 
 def create_continuum(df, sigma, downsize):
