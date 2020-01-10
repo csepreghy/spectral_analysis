@@ -3,9 +3,9 @@ import pandas as pd
 import time as time
 
 
-def merge(from_sp, to_sp, save=False):
+def merge_with_metatable(from_sp, to_sp, save=False):
 	"""
-	merge()
+	merge_with_metatable()
 
 	Parameters
 	----------
@@ -76,12 +76,17 @@ def merge(from_sp, to_sp, save=False):
 	return df_merged
 
 def main():
+	"""
+	main()
+	
+	Runs a test batch to test whether the merge() works properly.
+	"""
 	print('merge_tables.py -- __main__')
 
 	from_sp = '10001'
 	to_sp = '20000'
 
-	merge(from_sp, to_sp)
+	merge_with_metatable(from_sp, to_sp)
 
 	df = pd.read_pickle('data/sdss/spectra-meta/spectra-meta-merged_' + from_sp + '-' + to_sp + '.pkl')
 
