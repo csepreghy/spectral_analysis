@@ -8,7 +8,7 @@ import datetime
 import math
 import seaborn as sn
 
-from sklearn.model_selection import train_test_split
+# from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import confusion_matrix
 
@@ -277,6 +277,3 @@ def evaluate_model(model, X_test, y_test):
 def summarize_results():
   print('hello')
   
-
-
-# def run_cnn(df, config)
