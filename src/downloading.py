@@ -102,7 +102,7 @@ def download_spectra(coord_list_url, from_sp, to_sp, save=False):
 	t_delta = t_end - t_start
 	n_downloads = len(ra) - 1
 	print("time for " + str(n_downloads) + " stellar objects:", t_delta)
-	
+
 	return df
 
 
@@ -114,9 +114,9 @@ def main():
 	"""
 
 	download_spectra(coord_list_url = "data/sdss/coordinate_list.csv",
-  				 from_sp = 5001,
-  				 to_sp = 5010,
-				 save=False)
+  				 	 from_sp = 5001,
+  					 to_sp = 5010,
+					 save=False)
 
 
 if __name__ == '__main__':
