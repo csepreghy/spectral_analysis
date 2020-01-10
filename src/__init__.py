@@ -3,22 +3,14 @@ import time as time
 import numpy as np
 import matplotlib.pyplot as plt
 
+from src.downloading import download_spectra
 from data_preprocessing import filter_sources, spectrum_cutoff, create_continuum, merge_lines_and_continuum
+from src.merge_tables import merge
+
 from get_spectrallines import get_spectrallines
 
-from sklearn.preprocessing import StandardScaler
-from sklearn.model_selection import train_test_split
-from sklearn.datasets.samples_generator import make_blobs
-
-from tensorflow.keras.layers import Dense
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.optimizers import SGD
-from tensorflow.keras.utils import to_categorical
-
-from plotify import Plotify
-
 # 1) Get coordinates from query - #
-# 2) Import data - # 
+# 2) Download data - # 
 # 3) Merge spectra with table containing other information - #
 # 4) Filter Out Spectra with not enough values - #
 # 5) Merge all data - #
@@ -27,7 +19,14 @@ from plotify import Plotify
 # 8) Merge spectral lines with the continuum to one table
 # 9) Run the ML algorithms - #
 
+# ----------------------------------------------- #
+# -------------- 2) Download Data --------------- #
+# ----------------------------------------------- #
 
+df_raw_specrta = download_spectra(coord_list_url = "data/sdss/coordinate_list.csv",
+								  from_sp = 5001,
+								  to_sp = 5010,
+								  save=False)
 
 df_spectra = pd.read_pickle('data/sdss/spectra-meta/spectra-meta-merged_10001-20000.pkl')
 print(f'df_spectra = {df_spectra}')
@@ -53,9 +52,9 @@ print(f'df_spectra = {df_spectra}')
 # print(df_cutoff.columns)
 # print(df_cutoff)
 
-def create_df_continuum():
+def get_df_continuum():
 	"""
-	create_df_continuum()
+	get_df_continuum()
 
 	A wrapper for craete_continuum in order to better structure the __init__.py
 	
@@ -112,7 +111,7 @@ def create_df_continuum():
 
 
 def main():
-	create_df_continuum()
+	get_df_continuum()
 
 
 if __name__ == '__main__':
