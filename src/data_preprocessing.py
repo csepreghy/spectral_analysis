@@ -134,7 +134,7 @@ def filter_sources(df):
         'z': spectrum['z'],
       }
 
-      # print('row[row]', type(row['class']))
+      print('row[class]', row['class'])
 
       rows_after_removal.append(row)
     
@@ -220,8 +220,8 @@ def check_minmax_values(spectra, sigma=16, downsize=8):
   )
 
   plotify.plot(
-    y_list=max_wavelength_values,
-    x_list=range(len(max_wavelength_values)),
+    y=max_wavelength_values,
+    x=range(len(max_wavelength_values)),
     title='Maximum Wavelength Values',
     ymin=6000,
     ymax=14000,
