@@ -323,7 +323,7 @@ ax.legend(handles=legend_elements)
 
 
 
-# ------- ------- TSNE ------- -------
+# ------- ------- TSNE ------- ------- #
 
 # Project into 2 dimensions
 time_start = time.time()
