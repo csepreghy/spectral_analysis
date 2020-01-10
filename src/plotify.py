@@ -72,7 +72,7 @@ class Plotify:
 
     plt.show()
 
-  def scatter_plot(
+  def scatter(
     self,
     x_list,
     y_list,
@@ -84,7 +84,7 @@ class Plotify:
     legend_labels=(''),
     arrows=[],
     equal_axis=False,
-    tickfrequencyone=True,
+    tickfrequencyone=False,
     show_plot=True,
     ax=None
   ):
@@ -96,15 +96,24 @@ class Plotify:
     if tickfrequencyone == True:
       ax.xaxis.set_major_locator(ticker.MultipleLocator(1))
 
-    for i, x in enumerate(x_list):
-      ax.scatter(
-        x,
-        y_list[i],
-        linewidths=linewidth,
-        alpha=alpha,
-        c=self.plot_colors[i],
-        edgecolor='#333333'
-      )
+    print(f'x.shape = {x_list.shape}')
+
+    if len(x_list.shape) == 1:
+      ax.scatter(x_list,
+                 y_list,
+                 linewidths=linewidth, 
+                 alpha=alpha,
+                 c=self.c_orange,
+                 edgecolor='#333333')
+
+    elif len(x_list.shape) > 1:
+      for i, x in enumerate(x_list):
+        ax.scatter(x,
+                   y_list[i],
+                   linewidths=linewidth,
+                   alpha=alpha,
+                   c=self.plot_colors[i],
+                   edgecolor='#333333')
 
     if len(arrows) > 0:
       for arrow in arrows:
@@ -235,6 +244,7 @@ class Plotify:
 
   def plot(
     self,
+    x,
     y,
     ylabel='Y label',
     xlabel='X label',
@@ -243,28 +253,25 @@ class Plotify:
     use_x_list_as_xticks=True,
     tickfrequencyone=False,
     equal_axis=False,
-    x=[],
     figsize=(8,6),
     filename='filename',
     ymin=None,
     ymax=None,
     xmin=None,
     xmax=None,
-    save=False,
-    label='',
-    color='orange'
+    save=False
   ):
-    colors = self.get_colors()
     fig, ax = self.get_figax(figsize=figsize)
 
     ax.set_ylabel(ylabel)
     ax.set_xlabel(xlabel)
-    ax.set_title(title)
-    if ymin is not None: ax.set_ylim(ymin=ymin)
-    if ymax is not None: ax.set_ylim(ymax=ymax)
+    ax.set_title(title, pad=20)
 
-    if xmin is not None: ax.set_xlim(xmin=xmin)
-    if xmax is not None: ax.set_xlim(xmax=xmax)
+    if ymin != None: ax.set_ylim(ymin=ymin)
+    if ymax != None: ax.set_ylim(ymax=ymax)
+
+    if xmin != None: ax.set_xlim(xmin=xmin)
+    if xmax != None: ax.set_xlim(xmax=xmax)
     
     if equal_axis == True:
       plt.axis('equal')
@@ -272,20 +279,16 @@ class Plotify:
     if tickfrequencyone == True:
       ax.xaxis.set_major_locator(ticker.MultipleLocator(1))
 
-    if len(x) == 0: plt.plot(x, color=colors[color], label=label)
-    if len(x) > 0: 
-      print('x', x)
-      print('y', y)
-      plt.plot(x=x, y=y, color=colors[color], label=label)
+    if len(x) == 0: plt.plot(x, color=self.c_orange)
+    if len(x) > 0: plt.plot(x, y, color=self.c_orange)
     
     if save == True: plt.savefig(('plots/' + filename), facecolor=self.background_color, dpi=180)
 
-    if show_plot == True:
-      plt.show()
+    if show_plot == True: plt.show()
 
     return fig, ax
 
-  def get_figax(self, is3d=False, figsize=(8, 6)):
+  def get_figax(self, is3d=False, figsize=(8, 6), use_grid=True):
     fig, ax = plt.subplots(figsize=figsize)
     fig.patch.set_facecolor(self.background_color)
 
@@ -293,7 +296,7 @@ class Plotify:
     ax.tick_params(colors=self.c_white)
     ax.xaxis.label.set_color(self.c_white)
     ax.yaxis.label.set_color(self.c_white)
-    ax.grid(self.use_grid, color=self.grid_color)
+    ax.grid(use_grid, color=self.grid_color)
 
     return fig, ax
 
