@@ -1,4 +1,3 @@
-from __future__ import division
 import numpy as np
 
 qso = ['Lya_em', 'C4_ab', 'C4_ab', 'Lyb_ab', 'MgII_em', 'Hgamma_em', 'Hbeta_em', 'OIII_em', 'OIII_em', 'Halpha_em']
