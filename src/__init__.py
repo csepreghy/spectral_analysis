@@ -3,33 +3,50 @@ import time as time
 import numpy as np
 import matplotlib.pyplot as plt
 
+from src.sdss_direct_query import get_coordinates_from_query
 from src.downloading import download_spectra
 from data_preprocessing import filter_sources, spectrum_cutoff, create_continuum, merge_lines_and_continuum
-from src.merge_tables import merge
+from src.merge_tables import merge_with_metatable
 
 from get_spectrallines import get_spectrallines
 
-# 1) Get coordinates from query - #
-# 2) Download data - # 
-# 3) Merge spectra with table containing other information - #
-# 4) Filter Out Spectra with not enough values - #
-# 5) Merge all data - #
-# 6) Get spectral lines - #
+# 1) Get coordinates from query ------------------------------------------- #
+# 2) Download data -------------------------------------------------------- # 
+# 3) Merge spectra with table containing meta information ----------------- #
+# 4) Filter Out Spectra with not enough values -----------------------------#
+# 5) Merge all data ------------------------------------------------------- #
+# 6) Get spectral lines --------------------------------------------------- #
 # 7) Cut off values from the sides to have the same range for all spectra - #
-# 8) Merge spectral lines with the continuum to one table
-# 9) Run the ML algorithms - #
+# 8) Merge spectral lines with the continuum to one table ----------------- #
+# 9) Run the ML algorithms ------------------------------------------------ #
 
-# ----------------------------------------------- #
-# -------------- 2) Download Data --------------- #
-# ----------------------------------------------- #
+from_sp = 2000
+to_sp = 2020
 
-df_raw_specrta = download_spectra(coord_list_url = "data/sdss/coordinate_list.csv",
-								  from_sp = 5001,
-								  to_sp = 5010,
+# --------------------------------------------------------------------- #
+# -------------------- 1) Get cordinates from query ------------------- #
+# --------------------------------------------------------------------- #
+
+get_coordinates_from_query(save_metatable=False, save_coordinates=False)
+
+# --------------------------------------------------------------------- #
+# -------------------------- 2) Download Data ------------------------- #
+# --------------------------------------------------------------------- #
+
+df_raw_specrta = download_spectra(coord_list_url="data/sdss/coordinate_list.csv",
+								  from_sp=from_sp,
+								  to_sp=to_sp,
 								  save=False)
 
-df_spectra = pd.read_pickle('data/sdss/spectra-meta/spectra-meta-merged_10001-20000.pkl')
-print(f'df_spectra = {df_spectra}')
+# --------------------------------------------------------------------- #
+# ------ 3) Merge spectra with table containing meta information ------ #
+# --------------------------------------------------------------------- #
+
+df_merged = merge_with_metatable(from_sp=str(from_sp), to_sp=str(to_sp), save=False)
+
+# --------------------------------------------------------------------- #
+# ------------ 4) Filter Out Spectra with not enough values ----------- #
+# --------------------------------------------------------------------- #
 
 # df_filtered = filter_sources(df = df_spectra)
 # df_filtered.to_pickle('data/spectra-meta-filtered_0-70k.pkl')
@@ -45,7 +62,7 @@ print(f'df_spectra = {df_spectra}')
 # print(df_spectral_lines.head())
 
 # df_spectral_lines.to_pickle('data/spectral_lines_df_0-70k.pkl')
-# #s df_spectral_lines = pd.read_pickle('spectral_lines_df_5001-10000.pkl')
+# df_spectral_lines = pd.read_pickle('spectral_lines_df_5001-10000.pkl')
 
 # df_cutoff = spectrum_cutoff(df = df_filtered)
 # print('DF Cutoff: ')
