@@ -48,14 +48,9 @@ df_merged = merge_with_metatable(from_sp=str(from_sp), to_sp=str(to_sp), save=Fa
 # ------------ 4) Filter Out Spectra with not enough values ----------- #
 # --------------------------------------------------------------------- #
 
-# df_filtered = filter_sources(df = df_spectra)
-# df_filtered.to_pickle('data/spectra-meta-filtered_0-70k.pkl')
-# df_filtered.to_msgpack('data/spectra-meta-filtered_0-70k.msg')
-# df_filtered = pd.read_msgpack('data/spectra-meta-filtered_0-70k.msg')
 
-# print('DF Filtered: ')
-# print(df_filtered.columns)
-# print(df_filtered.head())
+filtered_df = filter_sources(df=df_merged, save=False)
+
 
 # df_spectral_lines = get_spectrallines(df_filtered)
 # print('Spectral Lines')

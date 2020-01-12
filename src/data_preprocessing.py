@@ -88,110 +88,117 @@ def create_continuum(df, sigma, downsize):
 
 # plot_one_spectrum(spectra=continuum_df, nth_element=2300, sigma=4, downsize=4, filename=('animation_plot'), save=False, show_plot=True)
 
-# 3845 is the max
+def filter_sources(df, save=False):
+	"""
+	filter_sources()
 
-# FUNCTION DESCROPTION:
-#
-# name: filter_sources
-# input: (df) all sources with columns = [class, dec, flux_list, objid, plate, ra, wavelength, z, zErr]
-# output: (df) filtered df that removes all sources that fall out of the optimal wavelength range
+	Takes all spectra as a DataFrame and removes all sources that fall out of the optimal wavelength range
+	and therefore don't have enough values for classification
 
-def filter_sources(df):
-  df = df.drop_duplicates(subset='objid')
-  
-  rows_after_removal = []
+	Parameters
+	---------
+	df : pandas.DataFrame
+		All unfiltered spectra that is already merged with the metatable
+	
+	save : boolean
+		When True, saves the filtered DataFrame into a pickle file
+		When False, doesn't save
 
-  print('Number of rows before filtering: ', str(len(df)))
-  print('df', df.columns)
+	Returns
+	-------
+	df_filtered : pandas.DataFrame
+	"""
+
+	df = df.drop_duplicates(subset='objid')
+	
+	rows_after_removal = []
+
+	print('Number of rows before filtering: ', str(len(df)))
+	print('df', df.columns)
 
 
-  for index, spectrum in islice(df.iterrows(), 30000):
-    min_value = np.amin(spectrum['wavelength'].tolist())
-    max_value = np.amax(spectrum['wavelength'].tolist())
+	for index, spectrum in islice(df.iterrows(), 30000):
+		min_value = np.amin(spectrum['wavelength'].tolist())
+		max_value = np.amax(spectrum['wavelength'].tolist())
 
-    if min_value < CUTOFF_MIN and max_value > CUTOFF_MAX:
-      row = {
-        'wavelength': spectrum['wavelength'].tolist(),
-        'flux_list': spectrum['flux_list'].tolist(),
-        'petroMagErr_u': spectrum['petroMagErr_u'],
-        'petroMagErr_g': spectrum['petroMagErr_g'],
-        'petroMagErr_r': spectrum['petroMagErr_r'],
-        'petroMagErr_i': spectrum['petroMagErr_i'],
-        'petroMagErr_z': spectrum['petroMagErr_z'],
-        'petroMag_u': spectrum['petroMag_u'],
-        'petroMag_g': spectrum['petroMag_g'],
-        'petroMag_r': spectrum['petroMag_r'],
-        'petroMag_i': spectrum['petroMag_i'],
-        'petroMag_z': spectrum['petroMag_z'],
-        'subClass': spectrum['subClass'],
-        'fluxObjID': spectrum['fluxObjID'],
-        'objid': spectrum['objid'],
-        'plate': spectrum['plate'],
-        'class': spectrum['class'],
-        'zErr': spectrum['zErr'],
-        'dec': spectrum['dec'],
-        'ra': spectrum['ra'],
-        'z': spectrum['z'],
-      }
+		if min_value < CUTOFF_MIN and max_value > CUTOFF_MAX:
+			row = {'wavelength': spectrum['wavelength'].tolist(),
+				   'flux_list': spectrum['flux_list'].tolist(),
+				   'petroMagErr_u': spectrum['petroMagErr_u'],
+				   'petroMagErr_g': spectrum['petroMagErr_g'],
+				   'petroMagErr_r': spectrum['petroMagErr_r'],
+				   'petroMagErr_i': spectrum['petroMagErr_i'],
+				   'petroMagErr_z': spectrum['petroMagErr_z'],
+				   'petroMag_u': spectrum['petroMag_u'],
+				   'petroMag_g': spectrum['petroMag_g'],
+				   'petroMag_r': spectrum['petroMag_r'],
+				   'petroMag_i': spectrum['petroMag_i'],
+				   'petroMag_z': spectrum['petroMag_z'],
+				   'subClass': spectrum['subClass'],
+				   'fluxObjID': spectrum['fluxObjID'],
+				   'objid': spectrum['objid'],
+				   'plate': spectrum['plate'],
+				   'class': spectrum['class'],
+				   'zErr': spectrum['zErr'],
+				   'dec': spectrum['dec'],
+				   'ra': spectrum['ra'],
+				   'z': spectrum['z']}
 
-      print('row[class]', row['class'])
+		print('row[class]', row['class'])
 
-      rows_after_removal.append(row)
-    
-  filtered_df = pd.DataFrame(rows_after_removal)
-  print('Number of rows after filtering: ', str(len(filtered_df)))
+		rows_after_removal.append(row)
+		
+	filtered_df = pd.DataFrame(rows_after_removal)
+	print('Number of rows after filtering: ', str(len(filtered_df)))
 
-  return filtered_df
-
-# filtered_df = filter_sources(df=spectra)
-# filtered_df.to_pickle('filtered_df.pkl')
-
-#with open('filtered_df.pkl', 'rb') as f:
-#  filtered_df = pickle.load(f)
+	if save:
+		filtered_df.to_pickle('filtered_df.pkl')
+		# df_filtered.to_msgpack('data/spectra-meta-filtered_0-70k.msg')
+		# df_filtered = pd.read_msgpack('data/spectra-meta-filtered_0-70k.msg')
+	
+	return filtered_df
 
 def spectrum_cutoff(df):
-  rows_after_cutoff = []
-  for _, spectrum in df.iterrows():
-    cut_off_wavelengths = []
-    cut_off_fluxes = []
+	rows_after_cutoff = []
+	for _, spectrum in df.iterrows():
+		cut_off_wavelengths = []
+		cut_off_fluxes = []
 
-    wavelengths = spectrum['wavelength']
-    fluxes = spectrum['flux_list']
-  
+		wavelengths = spectrum['wavelength']
+		fluxes = spectrum['flux_list']
+	
 
-    for wavelength, flux in zip(wavelengths, fluxes):
-      if wavelength > CUTOFF_MIN and wavelength < CUTOFF_MAX:
-        cut_off_wavelengths.append(wavelength)
-        cut_off_fluxes.append(flux)
+		for wavelength, flux in zip(wavelengths, fluxes):
+			if wavelength > CUTOFF_MIN and wavelength < CUTOFF_MAX:
+				cut_off_wavelengths.append(wavelength)
+				cut_off_fluxes.append(flux)
 
-    row = {
-      'wavelength': cut_off_wavelengths,
-      'flux_list': cut_off_fluxes,
-      'petroMagErr_u': spectrum['petroMagErr_u'],
-      'petroMagErr_g': spectrum['petroMagErr_g'],
-      'petroMagErr_r': spectrum['petroMagErr_r'],
-      'petroMagErr_i': spectrum['petroMagErr_i'],
-      'petroMagErr_z': spectrum['petroMagErr_z'],
-      'petroMag_u': spectrum['petroMag_u'],
-      'petroMag_g': spectrum['petroMag_g'],
-      'petroMag_r': spectrum['petroMag_r'],
-      'petroMag_i': spectrum['petroMag_i'],
-      'petroMag_z': spectrum['petroMag_z'],
-      'subClass': spectrum['subClass'],
-      'objid': spectrum['objid'],
-      'plate': spectrum['plate'],
-      'class': spectrum['class'],
-      'zErr': spectrum['zErr'],
-      'dec': spectrum['dec'],
-      'ra': spectrum['ra'],
-      'z': spectrum['z'],
-    }
+			row = {'wavelength': cut_off_wavelengths,
+				   'flux_list': cut_off_fluxes,
+				   'petroMagErr_u': spectrum['petroMagErr_u'],
+				   'petroMagErr_g': spectrum['petroMagErr_g'],
+			       'petroMagErr_r': spectrum['petroMagErr_r'],
+				   'petroMagErr_i': spectrum['petroMagErr_i'],
+				   'petroMagErr_z': spectrum['petroMagErr_z'],
+				   'petroMag_u': spectrum['petroMag_u'],
+				   'petroMag_g': spectrum['petroMag_g'],
+				   'petroMag_r': spectrum['petroMag_r'],
+				   'petroMag_i': spectrum['petroMag_i'],
+				   'petroMag_z': spectrum['petroMag_z'],
+				   'subClass': spectrum['subClass'],
+				   'objid': spectrum['objid'],
+				   'plate': spectrum['plate'],
+				   'class': spectrum['class'],
+				   'zErr': spectrum['zErr'],
+				   'dec': spectrum['dec'],
+				   'ra': spectrum['ra'],
+				   'z': spectrum['z']}
 
-    rows_after_cutoff.append(row)
-  
-  filtered_df = pd.DataFrame(rows_after_cutoff)
+		rows_after_cutoff.append(row)
+	
+	filtered_df = pd.DataFrame(rows_after_cutoff)
 
-  return filtered_df
+	return filtered_df
 
 def check_minmax_values(spectra, sigma=16, downsize=8):
   min_wavelength_values = []
@@ -209,8 +216,8 @@ def check_minmax_values(spectra, sigma=16, downsize=8):
   print('min_wavelength_values', min_wavelength_values)
 
   plotify.plot(
-    y_list=min_wavelength_values,
-    x_list=range(len(min_wavelength_values)),
+    y=min_wavelength_values,
+    x=range(len(min_wavelength_values)),
     title='Minimum Wavelength Values',
     ymin=3400,
     ymax=6500,
@@ -231,88 +238,96 @@ def check_minmax_values(spectra, sigma=16, downsize=8):
   )
 
 def clear_duplicates(df1, df2):
+	# Get the IDs from both data frames
+	id_1 = df1['objid'].get_values()
+	id_2 = df2['objid'].get_values()
 
-  # Get the IDs from both data frames
-  id_1 = df1['objid'].get_values()
-  id_2 = df2['objid'].get_values()
+	# Make a list with the duplicate IDs
+	u, c = np.unique(id_1, return_counts=True)
+	dup = u[c > 1]
 
-  # Make a list with the duplicate IDs
-  u, c = np.unique(id_1, return_counts=True)
-  dup = u[c > 1]
+	# Get the indices
+	indices = []
+	for n in dup:
+		indices.append(list(id_1).index(n))
 
-  # Get the indices
-  indices = []
-  for n in dup:
-    indices.append(list(id_1).index(n))
+	# Drop double IDs
+	df1_new = df1.drop(indices)
+	df2_new = df2.drop(indices)
 
-  # Drop double IDs
-  df1_new = df1.drop(indices)
-  df2_new = df2.drop(indices)
-
-  # Reset index
-  df1_new = df1_new.reset_index()
-  df2_new = df2_new.reset_index()
-
-  return df1_new, df2_new
-
+	# Reset index
+	df1_new = df1_new.reset_index()
+	df2_new = df2_new.reset_index()
+	
+	return df1_new, df2_new
 
 def merge_lines_and_continuum(spectral_lines, continuum):
-  """
-  # Function to check if the IDs are unique:
-  def allUnique(x):
-    seen = set()
-    return not any(i in seen or seen.add(i) for i in x)
-  """
+	"""
+	# Function to check if the IDs are unique:
+	def allUnique(x):
+		seen = set()
+		return not any(i in seen or seen.add(i) for i in x)
+	"""
 
-  # First round clearing for duplicates
-  spectral_lines2, continuum2 = clear_duplicates(spectral_lines, continuum)
+	# First round clearing for duplicates
+	spectral_lines2, continuum2 = clear_duplicates(spectral_lines, continuum)
 
-  # Second round clearing for triple duplicates
-  spectral_lines3, continuum3 = clear_duplicates(spectral_lines2, continuum2)
+	# Second round clearing for triple duplicates
+	spectral_lines3, continuum3 = clear_duplicates(spectral_lines2, continuum2)
 
-  # Merge the spectral lines and continuum table on objID
-  df_merge = continuum3.merge(spectral_lines3, on='objid')
+	# Merge the spectral lines and continuum table on objID
+	df_merge = continuum3.merge(spectral_lines3, on='objid')
 
-  # Convert the specclass bytes into strings
-  specclass_bytes = df_merge['class'].get_values()
-  specclass = []
-  for i in specclass_bytes:
-    specclass.append(i.decode("utf-8"))
-  specclass = np.array(specclass)
+	# Convert the specclass bytes into strings
+	specclass_bytes = df_merge['class'].get_values()
+	specclass = []
+	for i in specclass_bytes:
+		specclass.append(i.decode("utf-8"))
+		
+	specclass = np.array(specclass)
 
-  df_merge['class'] = specclass
+	df_merge['class'] = specclass
 
-  # Order the columns in a more sensible way
-  df_merge = df_merge[[
-    'objid',
-    'flux_list',
-    'wavelength',
-    'spectral_lines',
-    'z',
-    'zErr',
-    'ra',
-    'dec',
-    'plate',
-    'class',
-    'subClass',
-    'petroMagErr_u',
-    'petroMagErr_g',
-    'petroMagErr_r',
-    'petroMagErr_i',
-    'petroMagErr_z',
-    'petroMag_u',
-    'petroMag_g',
-    'petroMag_r',
-    'petroMag_i',
-    'petroMag_z'
-  ]]
+	# Order the columns in a more sensible way
+	df_merge = df_merge[[
+		'objid',
+		'flux_list',
+		'wavelength',
+		'spectral_lines',
+		'z',
+		'zErr',
+		'ra',
+		'dec',
+		'plate',
+		'class',
+		'subClass',
+		'petroMagErr_u',
+		'petroMagErr_g',
+		'petroMagErr_r',
+		'petroMagErr_i',
+		'petroMagErr_z',
+		'petroMag_u',
+		'petroMag_g',
+		'petroMag_r',
+		'petroMag_i',
+		'petroMag_z'
+	]]
 
 
   return df_merge
 
 
-def drop_duplicates_from_df(df):
-  df = df.drop_duplicates(subset='objid')
-  
-  return df
+def main():
+	"""
+	main()
+	
+	Runs a test batch to test whether the functions filter_sources() works properly.
+	"""
 
+	df_spectra = pd.read_pickle('data/sdss/spectra-meta/spectra-meta-merged_5001-10000.pkl')
+	filtered_df = filter_sources(df=df_spectra, save=False)
+	print(f'filtered_df = {filtered_df}')
+
+
+if __name__ == '__main__':
+	main()
