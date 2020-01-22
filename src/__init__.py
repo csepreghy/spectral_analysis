@@ -3,127 +3,99 @@ import time as time
 import numpy as np
 import matplotlib.pyplot as plt
 
-from src.sdss_direct_query import get_coordinates_from_query
-from src.downloading import download_spectra
+from sdss_direct_query import get_coordinates_from_query
+from downloading import download_spectra
 from data_preprocessing import filter_sources, spectrum_cutoff, create_continuum, merge_lines_and_continuum
-from src.merge_tables import merge_with_metatable
+from merge_tables import merge_with_metatable
 
 from get_spectrallines import get_spectrallines
 
 # 1) Get coordinates from query ------------------------------------------- #
 # 2) Download data -------------------------------------------------------- # 
 # 3) Merge spectra with table containing meta information ----------------- #
-# 4) Filter Out Spectra with not enough values -----------------------------#
-# 5) Merge all data ------------------------------------------------------- #
-# 6) Get spectral lines --------------------------------------------------- #
-# 7) Cut off values from the sides to have the same range for all spectra - #
+# 4) Filter Out Spectra with not enough values ---------------------------- #
+# 5) Cut off values from the sides to have the same range for all spectra - #
+# 6) Create Continuum that has Gaussian smoothing ------------------------- #
+# 7) Get spectral lines --------------------------------------------------- #
 # 8) Merge spectral lines with the continuum to one table ----------------- #
-# 9) Run the ML algorithms ------------------------------------------------ #
-
-from_sp = 2000
-to_sp = 2020
-
-# --------------------------------------------------------------------- #
-# -------------------- 1) Get cordinates from query ------------------- #
-# --------------------------------------------------------------------- #
-
-get_coordinates_from_query(save_metatable=False, save_coordinates=False)
-
-# --------------------------------------------------------------------- #
-# -------------------------- 2) Download Data ------------------------- #
-# --------------------------------------------------------------------- #
-
-df_raw_specrta = download_spectra(coord_list_url="data/sdss/coordinate_list.csv",
-								  from_sp=from_sp,
-								  to_sp=to_sp,
-								  save=False)
-
-# --------------------------------------------------------------------- #
-# ------ 3) Merge spectra with table containing meta information ------ #
-# --------------------------------------------------------------------- #
-
-df_merged = merge_with_metatable(from_sp=str(from_sp), to_sp=str(to_sp), save=False)
-
-# --------------------------------------------------------------------- #
-# ------------ 4) Filter Out Spectra with not enough values ----------- #
-# --------------------------------------------------------------------- #
+# 9) Merge all data ------------------------------------------------------- #
+# 10) Run the ML algorithms ----------------------------------------------- #
 
 
-filtered_df = filter_sources(df=df_merged, save=False)
+def main():
+	from_sp = 1000
+	to_sp = 2020
 
+# --------------------------------------------------------------------------- #
+# ----------------------- 1) Get cordinates from query ---------------------- #
+# --------------------------------------------------------------------------- #
 
-# df_spectral_lines = get_spectrallines(df_filtered)
-# print('Spectral Lines')
-# print(df_spectral_lines.head())
+	#get_coordinates_from_query(save_metatable=False, save_coordinates=False)
 
-# df_spectral_lines.to_pickle('data/spectral_lines_df_0-70k.pkl')
-# df_spectral_lines = pd.read_pickle('spectral_lines_df_5001-10000.pkl')
+# --------------------------------------------------------------------------- #
+# ----------------------------- 2) Download Data ---------------------------- #
+# --------------------------------------------------------------------------- #
 
-# df_cutoff = spectrum_cutoff(df = df_filtered)
-# print('DF Cutoff: ')
-# print(df_cutoff.columns)
-# print(df_cutoff)
+	df_raw_spectra = download_spectra(coord_list_url="data/sdss/coordinate_list.csv",
+	 								  from_sp=from_sp,
+	 								  to_sp=to_sp,
+	 								  save=True)
 
-def get_df_continuum():
-	"""
-	get_df_continuum()
+# --------------------------------------------------------------------------- #
+# --------- 3) Merge spectra with table containing meta information --------- #
+# --------------------------------------------------------------------------- #
 
-	A wrapper for craete_continuum in order to better structure the __init__.py
+	df_merged = merge_with_metatable(from_sp=str(from_sp), to_sp=str(to_sp), save=False)
+
+# --------------------------------------------------------------------------- #
+# --------------- 4) Filter Out Spectra with not enough values -------------- #
+# --------------------------------------------------------------------------- #
+
+	df_filtered = filter_sources(df=df_merged, save=False)
+
+# --------------------------------------------------------------------------- #
+# - 5) Cut off values from the sides to have the same range for all spectra - #
+# --------------------------------------------------------------------------- #
 	
-	Makes Use Of
-	------------
-	create_continuum() --imported from src/data_preprocessing.py
-	
-	Returns
-	-------
-	out: DataFrame()
-		A pandas dataframe that has the flux_list which went through Gaussian smoothing
-		and a downsizing with the factor tunable here.
-	"""
-	df_continuum = create_continuum(df = df_cutoff, sigma=8, downsize=8)
-	df_continuum.to_pickle('data/continuum_df_0-70k.pkl')
-	# df_continuum = pd.read_pickle('data/continuum_df_5001-10000.pkl')
-	print('DF Continuun: ')
-	print(df_continuum.columns)
-	print(df_continuum)
+	df_cutoff = spectrum_cutoff(df=df_filtered)
 
-# df_preprocessed = merge_lines_and_continuum(df_spectral_lines, df_continuum)
-# df_preprocessed.to_pickle('data/preprocessed_0-70k.pkl')
-# # df_preprocessed = pd.read_pickle('data/preprocessed_5001-10000.pkl')
+# --------------------------------------------------------------------------- #
+# ------------- 6) Create Continuum that has Gaussian smoothing ------------- #
+# --------------------------------------------------------------------------- #
+
+	df_continuum = create_continuum(df=df_cutoff, sigma=8, downsize=8, save=False)
+	
+# --------------------------------------------------------------------------- #
+# ------------------------- 7) Get spectral lines --------------------------- #
+# --------------------------------------------------------------------------- #
+
+	df_spectral_lines = get_spectrallines(df=df_filtered,
+										  from_sp=from_sp,
+										  to_sp=to_sp,
+										  save=True)
+
+# --------------------------------------------------------------------------- #
+# --------- 8) Merge spectral lines with the continuum to one table --------- #
+# --------------------------------------------------------------------------- #
+
+	df_preprocessed = merge_lines_and_continuum(df_spectral_lines, df_continuum)
+
+# ---------------------------------------------------------------------------- #
+# ---------------------------- 9) Merge all data ----------------------------- #
+# ---------------------------------------------------------------------------- #
 
 # print('DF Preprocessed (Final)')
 # print(df_preprocessed.columns)
 # print(df_preprocessed.head())
 
-# model = create_model(df_preprocessed, configs['neural_network'])
+# ---------------------------------------------------------------------------- #
+# ------------------------- 10) Run the ML algorithms ------------------------ #
+# ---------------------------------------------------------------------------- #
 
-# df_continuum = pd.read_pickle('continuum_df.pkl')
-# df_spectral_lines = pd.read_pickle('spectral_lines_df.pkl')
-
-# spectra = pd.read_pickle('data/alldatamerged.pkl')
-# df_filtered = filter_sources(df=spectra)
-# print('DF Filtered: ')
-# print(df_filtered.head())
-
-# """
-# df_spectral_lines = get_spectrallines(df_filtered)
-# print('Spectral Lines')
-# print(df_spectral_lines.head())
-# df_spectral_lines.to_pickle('spectral_lines2_df.pkl')
-# """
-# df_cutoff = spectrum_cutoff(df=df_filtered)
-# df_continuum = create_continuum(df=df_cutoff, sigma=16, downsize=8)
-# df_continuum.to_pickle('continuum_df.pkl')
+	model = create_model(df_preprocessed, configs['neural_network'])
 
 
-# df_complete = merge_lines_and_continuum(df_spectral_lines, df_continuum)
-# print("DF Complete: ")
-# print(df_complete.head())
-# df_complete.to_pickle('COMPLETE_df.pkl')
 
-
-def main():
-	get_df_continuum()
 
 
 if __name__ == '__main__':
