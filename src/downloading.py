@@ -95,7 +95,7 @@ def download_spectra(coord_list_url, from_sp, to_sp, save=False):
 	df = pd.DataFrame(df)
 	print('df.head()', df.head())
 	if save:
-		df.to_pickle('data/sdss/spectra_' + str(from_sp) + '-' + str(to_sp) + '.pkl')
+		df.to_pickle('data/sdss/spectra/spectra_' + str(from_sp) + '-' + str(to_sp) + '.pkl')
 
 	t_end = time.clock()
 
