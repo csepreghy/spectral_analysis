@@ -36,16 +36,16 @@ def main():
 # ----------------------------- 2) Download Data ---------------------------- #
 # --------------------------------------------------------------------------- #
 
-	df_raw_spectra = download_spectra(coord_list_url="data/sdss/coordinate_list.csv",
-	 								  from_sp=from_sp,
-	 								  to_sp=to_sp,
-	 								  save=True)
+	# df_raw_spectra = download_spectra(coord_list_url="data/sdss/coordinate_list.csv",
+	#  								  from_sp=from_sp,
+	#  								  to_sp=to_sp,
+	#  								  save=True)
 
 # --------------------------------------------------------------------------- #
 # --------- 3) Merge spectra with table containing meta information --------- #
 # --------------------------------------------------------------------------- #
 
-	df_merged = merge_with_metatable(from_sp=str(from_sp), to_sp=str(to_sp), save=False)
+	df_merged = merge_with_metatable(from_sp=str(from_sp), to_sp=str(to_sp), save=True)
 
 # --------------------------------------------------------------------------- #
 # --------------- 4) Filter Out Spectra with not enough values -------------- #
@@ -63,7 +63,7 @@ def main():
 # ------------- 6) Create Continuum that has Gaussian smoothing ------------- #
 # --------------------------------------------------------------------------- #
 
-	df_continuum = create_continuum(df=df_cutoff, sigma=8, downsize=8, save=False)
+	df_continuum = create_continuum(df=df_cutoff, sp_index_range=(from_sp, to_sp), sigma=8, downsize=8, save=False)
 	
 # --------------------------------------------------------------------------- #
 # ------------------------- 7) Get spectral lines --------------------------- #
@@ -91,11 +91,6 @@ def main():
 # ---------------------------------------------------------------------------- #
 # ------------------------- 10) Run the ML algorithms ------------------------ #
 # ---------------------------------------------------------------------------- #
-
-	model = create_model(df_preprocessed, configs['neural_network'])
-
-
-
 
 
 if __name__ == '__main__':
