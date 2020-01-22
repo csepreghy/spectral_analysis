@@ -5,6 +5,7 @@ from skimage import io, filters, feature
 import sys
 from bisect import bisect_left
 import time as time
+from tqdm.auto import tqdm
 
 # -------------------------------
 # Functions
@@ -297,8 +298,7 @@ def get_spectrallines(df, from_sp, to_sp, save):
 
 	# Loop over all the sources in the data file: get for each one the vector with spectral lines
 	m = 0
-	for n in range(len(df)):
-		# print(f'n = {n}')
+	for n in tqdm(range(len(df))):
 		try:
 			vector = spectrallines_1source(np.array(flux_list[n]), np.array(wavelength[n]), z[n])
 			speclines_vector.append(vector)
