@@ -43,43 +43,86 @@ def plot_one_spectrum(spectra, nth_element, sigma, downsize, filename, save, sho
                          save=save
   )
 
-def create_continuum(df, sigma, downsize):
-  rows_after_smoothing = []
+def create_continuum(df, sp_index_range, sigma, downsize, save):
+	"""
+	create_continuum()
 
-  for index, spectrum in df.iterrows():
-    wavelengths = spectrum['wavelength']
-    fluxes = np.array(spectrum['flux_list'])
-    fluxes_filtered = apply_gaussian_filter(fluxes=fluxes, sigma=sigma)
-    fluxes_downsized = fluxes_filtered[::downsize]
-    wavelengths_downsized = wavelengths[::downsize]
-  
-    row = {
-      'wavelength': wavelengths_downsized,
-      'flux_list': fluxes_downsized,
-      'petroMagErr_u': spectrum['petroMagErr_u'],
-      'petroMagErr_g': spectrum['petroMagErr_g'],
-      'petroMagErr_r': spectrum['petroMagErr_r'],
-      'petroMagErr_i': spectrum['petroMagErr_i'],
-      'petroMagErr_z': spectrum['petroMagErr_z'],
-      'petroMag_u': spectrum['petroMag_u'],
-      'petroMag_g': spectrum['petroMag_g'],
-      'petroMag_r': spectrum['petroMag_r'],
-      'petroMag_i': spectrum['petroMag_i'],
-      'petroMag_z': spectrum['petroMag_z'],
-      'subClass': str(spectrum['subClass']),
-      'objid': spectrum['objid'],
-      'plate': spectrum['plate'],
-      'class': str(spectrum['class']),
-      'zErr': spectrum['zErr'],
-      'dec': spectrum['dec'],
-      'ra': spectrum['ra'],
-      'z': spectrum['z'],
-    }
+	Takes all spectra as a DataFrame and from the flux_list it applies gaussian smoothing to get dampen
+	fluctuations of the spectrum and to reduce noise in data. Then it reduces the number of datapoints
+	in the spectrum by a fraction given as a parameter. This helps in dimensionality reduction for the 
+	ML algorithms.
 
-    rows_after_smoothing.append(row)
-    df_after_smoothing = pd.DataFrame(rows_after_smoothing)
+	Parameters
+	----------
+	df : pandas.DataFrame
+		All unfiltered spectra that is already merged with the metatable
+	
+	sp_index_range : (number, number)
+		The upper and lower bound of the indexes that show from which index to which index the function
+		should consider spectra. Only used for filenames in saving
+
+	sigma : number
+		The sigma to use for applying Gaussian smoothing to the spectrum. Typical values range from 2 to 32.
+
+	downsize : number
+		The fraction to which to reduce the number of datapoints in the spectrum continuum. This helps
+		in dimensionality reduction for the ML algorithms.
+
+	save : boolean
+		When True, saves the filtered DataFrame into a pickle file
+		When False, doesn't save
+
+	Returns
+	-------
+	df_continuum : pandas.DataFrame
+	"""
+
+	rows_after_smoothing = []
+
+	for index, spectrum in df.iterrows():
+		wavelengths = spectrum['wavelength']
+		fluxes = np.array(spectrum['flux_list'])
+		fluxes_filtered = apply_gaussian_filter(fluxes=fluxes, sigma=sigma)
+		fluxes_downsized = fluxes_filtered[::downsize]
+		wavelengths_downsized = wavelengths[::downsize]
+	
+		row = {
+			'wavelength': wavelengths_downsized,
+			'flux_list': fluxes_downsized,
+			'petroMagErr_u': spectrum['petroMagErr_u'],
+			'petroMagErr_g': spectrum['petroMagErr_g'],
+			'petroMagErr_r': spectrum['petroMagErr_r'],
+			'petroMagErr_i': spectrum['petroMagErr_i'],
+			'petroMagErr_z': spectrum['petroMagErr_z'],
+			'petroMag_u': spectrum['petroMag_u'],
+			'petroMag_g': spectrum['petroMag_g'],
+			'petroMag_r': spectrum['petroMag_r'],
+			'petroMag_i': spectrum['petroMag_i'],
+			'petroMag_z': spectrum['petroMag_z'],
+			'subClass': str(spectrum['subClass']),
+			'objid': spectrum['objid'],
+			'plate': spectrum['plate'],
+			'class': str(spectrum['class']),
+			'zErr': spectrum['zErr'],
+			'dec': spectrum['dec'],
+			'ra': spectrum['ra'],
+			'z': spectrum['z'],
+		}
+
+		rows_after_smoothing.append(row)
+    
+	df_continuum = pd.DataFrame(rows_after_smoothing)
+
+	if save:
+		filename = 'data/sdss/continuum' + str(sp_index_range[0]) + '_' + str(sp_index_range[1]) + '.pkl'
+		df_continuum.to_pickle(filename)
+	
+	print('DF Continuun: ')
+	print(df_continuum.columns)
+	print(df_continuum)
+	print(f'Length of df_continuum = {len(df_continuum)}')
   
-  return df_after_smoothing
+	return df_continuum
 
 # spectra = pd.read_pickle('data/sdss/spectra-meta/spectra-meta-merged_5001-10000.pkl')
 # continuum_df = create_continuum(df=spectra, sigma=8, downsize=2)
@@ -167,7 +210,6 @@ def spectrum_cutoff(df):
 		wavelengths = spectrum['wavelength']
 		fluxes = spectrum['flux_list']
 	
-
 		for wavelength, flux in zip(wavelengths, fluxes):
 			if wavelength > CUTOFF_MIN and wavelength < CUTOFF_MAX:
 				cut_off_wavelengths.append(wavelength)
@@ -197,6 +239,11 @@ def spectrum_cutoff(df):
 		rows_after_cutoff.append(row)
 	
 	filtered_df = pd.DataFrame(rows_after_cutoff)
+	
+	print('DF After Cutoff:')
+	print(filtered_df.columns)
+	print(filtered_df)
+	print(f'Length of filtered_df = {len(filtered_df)}')
 
 	return filtered_df
 
@@ -314,7 +361,7 @@ def merge_lines_and_continuum(spectral_lines, continuum):
 	]]
 
 
-  return df_merge
+	return df_merge
 
 
 def main():
