@@ -103,6 +103,11 @@ def download_spectra(coord_list_url, from_sp, to_sp, save=False):
 	n_downloads = len(ra) - 1
 	print("time for " + str(n_downloads) + " stellar objects:", t_delta)
 
+	print('DF After Downloading:')
+	print(df.columns)
+	print(df)
+	print(f'Length of df = {len(df)}')
+
 	return df
 
 
