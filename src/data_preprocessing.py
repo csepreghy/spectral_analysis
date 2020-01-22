@@ -6,6 +6,7 @@ from skimage import io, filters, feature
 from scipy import ndimage
 import pickle
 from itertools import islice
+from tqdm.auto import tqdm
 
 from plotify import Plotify
 
@@ -79,7 +80,7 @@ def create_continuum(df, sp_index_range, sigma, downsize, save):
 
 	rows_after_smoothing = []
 
-	for index, spectrum in df.iterrows():
+	for index, spectrum in tqdm(df.iterrows(), total=df.shape[0]):
 		wavelengths = spectrum['wavelength']
 		fluxes = np.array(spectrum['flux_list'])
 		fluxes_filtered = apply_gaussian_filter(fluxes=fluxes, sigma=sigma)
@@ -159,8 +160,7 @@ def filter_sources(df, save=False):
 	print('Number of rows before filtering: ', str(len(df)))
 	print('df', df.columns)
 
-
-	for index, spectrum in islice(df.iterrows(), 30000):
+	for index, spectrum in df.iterrows():
 		min_value = np.amin(spectrum['wavelength'].tolist())
 		max_value = np.amax(spectrum['wavelength'].tolist())
 
@@ -187,8 +187,6 @@ def filter_sources(df, save=False):
 				   'ra': spectrum['ra'],
 				   'z': spectrum['z']}
 
-		print('row[class]', row['class'])
-
 		rows_after_removal.append(row)
 		
 	filtered_df = pd.DataFrame(rows_after_removal)
@@ -202,50 +200,22 @@ def filter_sources(df, save=False):
 	return filtered_df
 
 def spectrum_cutoff(df):
-	rows_after_cutoff = []
-	for _, spectrum in df.iterrows():
-		cut_off_wavelengths = []
-		cut_off_fluxes = []
+	for index, spectrum in tqdm(df.iterrows(), total=df.shape[0]):
+		wavelengths = np.array(spectrum['wavelength'])
+		fluxes = np.array(spectrum['flux_list'])
 
-		wavelengths = spectrum['wavelength']
-		fluxes = spectrum['flux_list']
-	
-		for wavelength, flux in zip(wavelengths, fluxes):
-			if wavelength > CUTOFF_MIN and wavelength < CUTOFF_MAX:
-				cut_off_wavelengths.append(wavelength)
-				cut_off_fluxes.append(flux)
+		fluxes = fluxes[(wavelengths > CUTOFF_MIN) & (wavelengths < CUTOFF_MAX)]
+		wavelengths = wavelengths[(wavelengths > CUTOFF_MIN) & (wavelengths < CUTOFF_MAX)]
 
-			row = {'wavelength': cut_off_wavelengths,
-				   'flux_list': cut_off_fluxes,
-				   'petroMagErr_u': spectrum['petroMagErr_u'],
-				   'petroMagErr_g': spectrum['petroMagErr_g'],
-			       'petroMagErr_r': spectrum['petroMagErr_r'],
-				   'petroMagErr_i': spectrum['petroMagErr_i'],
-				   'petroMagErr_z': spectrum['petroMagErr_z'],
-				   'petroMag_u': spectrum['petroMag_u'],
-				   'petroMag_g': spectrum['petroMag_g'],
-				   'petroMag_r': spectrum['petroMag_r'],
-				   'petroMag_i': spectrum['petroMag_i'],
-				   'petroMag_z': spectrum['petroMag_z'],
-				   'subClass': spectrum['subClass'],
-				   'objid': spectrum['objid'],
-				   'plate': spectrum['plate'],
-				   'class': spectrum['class'],
-				   'zErr': spectrum['zErr'],
-				   'dec': spectrum['dec'],
-				   'ra': spectrum['ra'],
-				   'z': spectrum['z']}
-
-		rows_after_cutoff.append(row)
-	
-	filtered_df = pd.DataFrame(rows_after_cutoff)
-	
+		df.loc[index, 'wavelength'] = [[wavelengths]]
+		df.loc[index, 'flux_list'] = [[fluxes]]
+		
 	print('DF After Cutoff:')
-	print(filtered_df.columns)
-	print(filtered_df)
-	print(f'Length of filtered_df = {len(filtered_df)}')
+	print(df.columns)
+	print(df.head())
+	print(f'Length of filtered_df = {len(df)}')
 
-	return filtered_df
+	return df
 
 def check_minmax_values(spectra, sigma=16, downsize=8):
   min_wavelength_values = []
@@ -315,6 +285,8 @@ def merge_lines_and_continuum(spectral_lines, continuum):
 		seen = set()
 		return not any(i in seen or seen.add(i) for i in x)
 	"""
+	
+	print(f'continuum = {continuum}')
 
 	# First round clearing for duplicates
 	spectral_lines2, continuum2 = clear_duplicates(spectral_lines, continuum)
@@ -326,14 +298,14 @@ def merge_lines_and_continuum(spectral_lines, continuum):
 	df_merge = continuum3.merge(spectral_lines3, on='objid')
 
 	# Convert the specclass bytes into strings
-	specclass_bytes = df_merge['class'].get_values()
-	specclass = []
-	for i in specclass_bytes:
-		specclass.append(i.decode("utf-8"))
+	# specclass_bytes = df_merge['class'].get_values()
+	# specclass = []
+	# for i in specclass_bytes:
+	# 	specclass.append(i.decode("utf-8"))
 		
-	specclass = np.array(specclass)
+	# specclass = np.array(specclass)
 
-	df_merge['class'] = specclass
+	# df_merge['class'] = specclass
 
 	# Order the columns in a more sensible way
 	df_merge = df_merge[[
@@ -360,7 +332,6 @@ def merge_lines_and_continuum(spectral_lines, continuum):
 		'petroMag_z'
 	]]
 
-
 	return df_merge
 
 
@@ -371,8 +342,9 @@ def main():
 	Runs a test batch to test whether the functions filter_sources() works properly.
 	"""
 
-	df_spectra = pd.read_pickle('data/sdss/spectra-meta/spectra-meta-merged_5001-10000.pkl')
+	df_spectra = pd.read_pickle('data/sdss/spectra-meta/spectra-meta_1000-2020.pkl')
 	filtered_df = filter_sources(df=df_spectra, save=False)
+	df_cutoff = spectrum_cutoff(filtered_df)
 	print(f'filtered_df = {filtered_df}')
 
 
