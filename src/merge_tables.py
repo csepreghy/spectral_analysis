@@ -71,7 +71,7 @@ def merge_with_metatable(from_sp, to_sp, save=False):
 	df_merged = df_merged.drop(columns={'dec_x', 'z_x', 'ra_x', 'dec_y', 'z_y', 'ra_y'})
 
 	if save:
-		df_merged.to_pickle('data/sdss/spectra-meta/spectra-meta-merged_' + from_sp + '-' + to_sp + '.pkl')
+		df_merged.to_pickle('data/sdss/spectra-meta/spectra-meta_' + from_sp + '-' + to_sp + '.pkl')
 
 	return df_merged
 
