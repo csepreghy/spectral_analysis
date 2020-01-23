@@ -23,8 +23,8 @@ from get_spectrallines import get_spectrallines
 
 
 def main():
-	from_sp = 1000
-	to_sp = 2020
+	from_sp = 80001
+	to_sp 	= 90000
 
 # --------------------------------------------------------------------------- #
 # ----------------------- 1) Get cordinates from query ---------------------- #
@@ -37,48 +37,55 @@ def main():
 # --------------------------------------------------------------------------- #
 
 	# df_raw_spectra = download_spectra(coord_list_url="data/sdss/coordinate_list.csv",
-	#  								  from_sp=from_sp,
-	#  								  to_sp=to_sp,
-	#  								  save=True)
+	# 								  from_sp=from_sp,
+	# 								  to_sp=to_sp,
+	# 								  save=False)
 
 # --------------------------------------------------------------------------- #
 # --------- 3) Merge spectra with table containing meta information --------- #
 # --------------------------------------------------------------------------- #
 
-	df_merged = merge_with_metatable(from_sp=str(from_sp), to_sp=str(to_sp), save=True)
+	df_merged = merge_with_metatable(from_sp=str(from_sp), 
+									 to_sp=str(to_sp),
+									 save=False,
+									 df=None)
+	
+	print(f'df_merged = {df_merged}')
 
 # --------------------------------------------------------------------------- #
 # --------------- 4) Filter Out Spectra with not enough values -------------- #
 # --------------------------------------------------------------------------- #
 
-	df_filtered = filter_sources(df=df_merged, save=False)
+	# df_merged = pd.read_pickle('data/sdss/spectra-meta/spectra-meta_10001-20000.pkl')
+	# df_filtered = filter_sources(df=df_merged, save=False)
 
 # --------------------------------------------------------------------------- #
 # - 5) Cut off values from the sides to have the same range for all spectra - #
 # --------------------------------------------------------------------------- #
 	
-	df_cutoff = spectrum_cutoff(df=df_filtered)
+	# df_cutoff = spectrum_cutoff(df=df_filtered)
 
 # --------------------------------------------------------------------------- #
 # ------------- 6) Create Continuum that has Gaussian smoothing ------------- #
 # --------------------------------------------------------------------------- #
 
-	df_continuum = create_continuum(df=df_cutoff, sp_index_range=(from_sp, to_sp), sigma=8, downsize=8, save=False)
+	# df_continuum = create_continuum(df=df_cutoff, sp_index_range=(from_sp, to_sp), sigma=8, downsize=8, save=False)
 	
 # --------------------------------------------------------------------------- #
 # ------------------------- 7) Get spectral lines --------------------------- #
 # --------------------------------------------------------------------------- #
 
-	df_spectral_lines = get_spectrallines(df=df_filtered,
-										  from_sp=from_sp,
-										  to_sp=to_sp,
-										  save=True)
+	# df_filtered = pd.read_pickle('data/sdss/spectra-meta/spectra-meta-0-70k.pkl')
+	# df_spectral_lines = get_spectrallines(df=df_filtered,
+	# 									  from_sp=from_sp,
+	# 									  to_sp=to_sp,
+	# 									  save=True)
 
 # --------------------------------------------------------------------------- #
 # --------- 8) Merge spectral lines with the continuum to one table --------- #
 # --------------------------------------------------------------------------- #
 
-	df_preprocessed = merge_lines_and_continuum(df_spectral_lines, df_continuum)
+	# df_preprocessed = merge_lines_and_continuum(df_spectral_lines, df_continuum)
 
 # ---------------------------------------------------------------------------- #
 # ---------------------------- 9) Merge all data ----------------------------- #

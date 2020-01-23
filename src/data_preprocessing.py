@@ -153,7 +153,11 @@ def filter_sources(df, save=False):
 	df_filtered : pandas.DataFrame
 	"""
 
-	df = df.drop_duplicates(subset='objid')
+	print(f'df.shape[0] = {df.shape[0]}')
+	duplicates = df[df.duplicated(subset=['objid', 'z'])]
+	df = df.drop_duplicates(subset=['objid', 'z'])
+	print(f'duplicates = {duplicates}')
+	print(f'df.shape[0] = {df.shape[0]}')
 	
 	rows_after_removal = []
 
