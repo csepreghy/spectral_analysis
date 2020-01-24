@@ -161,10 +161,10 @@ def filter_sources(df, save=False):
 	
 	rows_after_removal = []
 
-	print('Number of rows before filtering: ', str(len(df)))
+	print('Number of rows before filtering: ', str(df.shape[0]))
 	print('df', df.columns)
 
-	for index, spectrum in df.iterrows():
+	for index, spectrum in tqdm(df.iterrows(), total=df.shape[0]):
 		min_value = np.amin(spectrum['wavelength'].tolist())
 		max_value = np.amax(spectrum['wavelength'].tolist())
 
