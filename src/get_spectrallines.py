@@ -425,7 +425,7 @@ def main():
 	speclines_name = ['MgII_em', 'OII_em', 'CAIIH_ab', 'CAIIK_ab', 'Hdelta_ab', 'Gband_ab',
 					  'Hgamma_em', 'Hbeta_em', 'OIII_em', 'OIII_em', 'Mg_ab', 'NaI_ab', 'Halpha_em', 'S2_em']
 
-	df_filtered = pd.read_pickle('data/sdss/spectra-meta/spectra-meta-merged_0-5000.pkl')
+	df_filtered = pd.read_pickle('data/sdss/spectra-meta/spectra-meta_0-5000.pkl')
 	df_spectral_lines = get_spectrallines(df_filtered, 0, 5000, True)
 
 if __name__ == "__main__":
