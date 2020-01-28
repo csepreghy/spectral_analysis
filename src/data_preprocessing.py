@@ -80,7 +80,7 @@ def create_continuum(df, sp_index_range, sigma, downsize, save):
 
 	rows_after_smoothing = []
 
-	for index, spectrum in tqdm(df.iterrows(), total=df.shape[0]):
+	for index, spectrum in tqdm(df.iterrows(), total=df.shape[0], desc='Create Continuum: '):
 		wavelengths = spectrum['wavelength']
 		fluxes = np.array(spectrum['flux_list'])
 		fluxes_filtered = apply_gaussian_filter(fluxes=fluxes, sigma=sigma)
@@ -164,7 +164,7 @@ def filter_sources(df, save=False):
 	print('Number of rows before filtering: ', str(df.shape[0]))
 	print('df', df.columns)
 
-	for index, spectrum in tqdm(df.iterrows(), total=df.shape[0]):
+	for index, spectrum in tqdm(df.iterrows(), total=df.shape[0], desc='Filtering Sources: '):
 		min_value = np.amin(spectrum['wavelength'].tolist())
 		max_value = np.amax(spectrum['wavelength'].tolist())
 
@@ -204,7 +204,7 @@ def filter_sources(df, save=False):
 	return filtered_df
 
 def spectrum_cutoff(df):
-	for index, spectrum in tqdm(df.iterrows(), total=df.shape[0]):
+	for index, spectrum in tqdm(df.iterrows(), total=df.shape[0], desc='Spectrum Cutoff: '):
 		wavelengths = np.array(spectrum['wavelength'])
 		fluxes = np.array(spectrum['flux_list'])
 
