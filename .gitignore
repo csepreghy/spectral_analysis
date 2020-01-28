@@ -17,4 +17,5 @@ __pycache__
 *.msg
 data/sdss_csv/*.pkl
 .vscode
+other
 logs
