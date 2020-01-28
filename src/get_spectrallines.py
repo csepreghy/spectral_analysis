@@ -272,10 +272,10 @@ def get_spectrallines(df, from_sp, to_sp, save):
 	"""
 
 	# Extract the important columns: flux list, wavelength list, objID, z
-	flux_list = df['flux_list'].get_values()
-	wavelength = df['wavelength'].get_values()
-	objid = df['objid'].get_values()
-	z = df['z'].get_values()
+	flux_list = df['flux_list'].to_numpy()
+	wavelength = df['wavelength'].to_numpy()
+	objid = df['objid'].to_numpy()
+	z = df['z'].to_numpy()
 
 	"""
 	# ------ Temporarily: get class ------
@@ -298,7 +298,7 @@ def get_spectrallines(df, from_sp, to_sp, save):
 
 	# Loop over all the sources in the data file: get for each one the vector with spectral lines
 	m = 0
-	for n in tqdm(range(len(df))):
+	for n in tqdm(range(len(df)), desc='Computing Spectral Lines: '):
 		try:
 			vector = spectrallines_1source(np.array(flux_list[n]), np.array(wavelength[n]), z[n])
 			speclines_vector.append(vector)
