@@ -2,7 +2,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from tensorflow.keras.optimizers import SGD
 from tensorflow.keras.callbacks import History
-from tensorflow.keras.layers import Dense, Dropout, Activation, GlobalAveragePooling1D, Flatten, Conv1D, MaxPooling1D, MaxPooling2D, Input
+from tensorflow.keras.layers import Dense, Dropout, Activation, Flatten, Conv1D, MaxPooling1D, Input
 from tensorflow.keras.models import Sequential, Model
 from tensorflow.keras.utils import to_categorical
 
