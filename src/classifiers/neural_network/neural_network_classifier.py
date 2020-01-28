@@ -16,13 +16,13 @@ import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras.optimizers import SGD
 from tensorflow.keras.callbacks import History, TensorBoard, EarlyStopping, ModelCheckpoint
-from tensorflow.keras.layers import Dense, Dropout, Activation, GlobalAveragePooling1D, Flatten, Conv1D, MaxPooling1D, MaxPooling2D, Input, concatenate
+from tensorflow.keras.layers import Dense, Activation, Input, concatenate
 from tensorflow.keras.models import Sequential, Model
 from tensorflow.keras.utils import to_categorical
 
-from .models import create_cnn, create_mlp
+from models import create_cnn, create_mlp
 
-from plotify import Plotify
+from ..plotify import Plotify
 
 
 # This is a mixed input neural network that combines a CNN with an MLP.
@@ -58,7 +58,7 @@ def train_test_split(X, y, test_size):
 	else: return X_train, X_test
 
 def prepare_data(df):
-	print('df', df.columns)
+	print('df', type(df['class'][0]))
 	columns = []
 
 	df['class'] = pd.Categorical(df['class'])
@@ -105,6 +105,7 @@ def prepare_data(df):
 		X_row.append(spectrum['petroMagErr_i'])
 		X_row.append(spectrum['petroMagErr_z'])
 
+		print(f'spectrum.columns = {spectrum}')
 		category_GALAXY = spectrum['category_GALAXY']
 		category_QSO = spectrum['category_QSO']
 		category_STAR = spectrum['category_STAR']
@@ -128,11 +129,11 @@ def prepare_data(df):
 
 
 
-def run_neural_network(df, config):
+def run_neural_network(df):
 	n_classes = 3
 	X_source_info, X_spectra, y = prepare_data(df)
-	#meta-data
-	#continuum
+	# meta-data
+	# continuum
 	X_train_source_info, X_test_source_info, y_train, y_test = train_test_split(X_source_info, y, test_size=0.2)
 	X_train_source_info, X_val_source_info, y_train, y_val = train_test_split(X_train_source_info, y_train, test_size=0.2)
 
@@ -192,19 +193,16 @@ def run_neural_network(df, config):
 
 	print('Train: %.3f, Test: %.3f' % (train_acc, test_acc))
 
-	get_incorrect_predictions(
-		X_test=[X_test_source_info, X_test_spectra_std],
-		X_test_spectra=X_test_spectra,
-		model=model,
-		y_test=y_test,
-		df=df
-	)
+	get_incorrect_predictions(X_test=[X_test_source_info, X_test_spectra_std],
+							  X_test_spectra=X_test_spectra,
+							  model=model,
+							  y_test=y_test,
+							  df=df)
   
 	evaluate_model(
 		model=model,
 		X_test=[X_test_source_info, X_test_spectra_std],
-		y_test=y_test
-	)
+		y_test=y_test)
 
     
 	return cnn
@@ -234,23 +232,21 @@ def get_incorrect_predictions(model, X_test, X_test_spectra, y_test, df):
 	print('len(spectrum_y', len(spectrum_y))
 	print('len(spectrum_x', len(spectrum_x))
 
-	fig, ax = plotify.plot(
-		x=spectrum_x,
-		y=spectrum_y,
-		xlabel='Frequencies',
-		ylabel='Flux',
-		title='title',
-		figsize=(12, 8),
-		show_plot=True,
-		filename=('filename'),
-		save=False,
-		color='orange',
-		ymin=-5,
-		ymax=12,
-		xmin=3800,
-		xmax=9100,
-	)
-	
+	fig, ax = plotify.plot(x=spectrum_x,
+						   y=spectrum_y,
+						   xlabel='Frequencies',
+						   ylabel='Flux',
+						   title='title',
+  						   figsize=(12, 8),
+    					   show_plot=True,
+    					   filename=('filename'),
+    					   save=False,
+    					   color='orange',
+    					   ymin=-5,
+    					   ymax=12,
+    					   xmin=3800,
+    					   xmax=9100)
+
 	plt.plot(x=spectrum_x, y=spectrum_y)
 	plt.show()
 
@@ -260,8 +256,8 @@ def evaluate_model(model, X_test, y_test):
 	matrix = confusion_matrix(y_test.argmax(axis=1), y_pred.argmax(axis=1))
 
 	df_cm = pd.DataFrame(matrix,
-						index=[i for i in classes],
-						columns=[i for i in classes])
+						 index=[i for i in classes],
+						 columns=[i for i in classes])
 
 	fig, ax = plt.subplots(figsize=(10,7))
 	sn.heatmap(df_cm, annot=True, annot_kws={"size": 15}, fmt='g')
@@ -272,5 +268,11 @@ def evaluate_model(model, X_test, y_test):
 
   
 def summarize_results():
-  print('hello')
+	print('hello')
   
+def main():
+	df_preprocessed = pd.read_pickle('data/sdss/preprocessed/0-50_preprocessed.pkl')
+	model = run_neural_network(df_preprocessed)
+
+if __name__ == "__main__":
+	main()
