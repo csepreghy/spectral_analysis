@@ -30,7 +30,7 @@ configs = {
 	}
 }
 
-df_preprocessed = pd.read_pickle('data/sdss/spectra-meta/spectra-meta-0-70k.pkl')
+df_preprocessed = pd.read_pickle('data/sdss/preprocessed/0-50_preprocessed.pkl')
 
 print('df', df_preprocessed)
 model = create_model(df_preprocessed, configs['neural_network'])
