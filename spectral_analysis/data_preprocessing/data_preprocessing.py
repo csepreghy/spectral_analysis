@@ -8,7 +8,7 @@ import pickle
 from itertools import islice
 from tqdm.auto import tqdm
 
-from plotify import Plotify
+from src.plotify import Plotify
 
 plotify = Plotify()
 
@@ -283,23 +283,23 @@ def clear_duplicates(df1, df2):
 	return df1_new, df2_new
 
 def merge_lines_and_continuum(spectral_lines, continuum):
-	"""
-	# Function to check if the IDs are unique:
-	def allUnique(x):
-		seen = set()
-		return not any(i in seen or seen.add(i) for i in x)
-	"""
-	
-	print(f'continuum = {continuum}')
+    """
+    # Function to check if the IDs are unique:
+    def allUnique(x):
+        seen = set()
+        return not any(i in seen or seen.add(i) for i in x)
+    """
 
-	# First round clearing for duplicates
-	spectral_lines2, continuum2 = clear_duplicates(spectral_lines, continuum)
+    print(f'continuum = {continuum}')
 
-	# Second round clearing for triple duplicates
-	spectral_lines3, continuum3 = clear_duplicates(spectral_lines2, continuum2)
+    # First round clearing for duplicates
+    spectral_lines2, continuum2 = clear_duplicates(spectral_lines, continuum)
 
-	# Merge the spectral lines and continuum table on objID
-	df_merge = continuum3.merge(spectral_lines3, on='objid')
+    # Second round clearing for triple duplicates
+    spectral_lines3, continuum3 = clear_duplicates(spectral_lines2, continuum2)
+
+    # Merge the spectral lines and continuum table on objID
+    df_merge = continuum3.merge(spectral_lines3, on='objid')
 
 	# Convert the specclass bytes into strings
 	# specclass_bytes = df_merge['class'].get_values()
@@ -312,44 +312,108 @@ def merge_lines_and_continuum(spectral_lines, continuum):
 	# df_merge['class'] = specclass
 
 	# Order the columns in a more sensible way
-	df_merge = df_merge[[
-		'objid',
-		'flux_list',
-		'wavelength',
-		'spectral_lines',
-		'z',
-		'zErr',
-		'ra',
-		'dec',
-		'plate',
-		'class',
-		'subClass',
-		'petroMagErr_u',
-		'petroMagErr_g',
-		'petroMagErr_r',
-		'petroMagErr_i',
-		'petroMagErr_z',
-		'petroMag_u',
-		'petroMag_g',
-		'petroMag_r',
-		'petroMag_i',
-		'petroMag_z'
-	]]
+    df_merge = df_merge[['objid',
+                         'flux_list',
+                         'wavelength',
+                         'spectral_lines',
+                         'z',
+                         'zErr',
+                         'ra',
+                         'dec',
+                         'plate',
+                         'class',
+                         'subClass',
+                         'petroMagErr_u',
+                         'petroMagErr_g',
+                         'petroMagErr_r',
+                         'petroMagErr_i',
+                         'petroMagErr_z',
+                         'petroMag_u',
+                         'petroMag_g',
+                         'petroMag_r',
+                         'petroMag_i',
+                         'petroMag_z']]
 
-	return df_merge
+    return df_merge
+
+def remove_bytes_from_class(df):
+    classes = df['class'].to_numpy()
+    classes = [x.replace('b\'', '').replace('\'', '') for x in classes]
+    df['class'] = classes
+    df.to_pickle('data/sdss/preprocessed/0-50_preprocessed_2.pkl')
+
+def remove_nested_lists(df):
+    """
+    remove_nested_lists()
+
+    Takes a dataframe which has two columns with the form [[wavelengths]] and
+    [[flux_list]] and removes one of the square brackets. The double brackets
+    were a not-so-elegant workaround for a problem in spectrum_cutoff()
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        All spectra with the double nested lists [[]]
+    
+    Returns
+    -------
+
+    df : pandas.DataFrame
+        The same DataFrame as the input except the double brackets removed
+    """
+    flux_lists = df['flux_list'].to_numpy()
+    wavelengths = df['wavelength'].to_numpy()
+
+    modified_flux_list = []
+    modified_wavelengths = []
+
+    print(flux_lists)
+
+    for flux in tqdm(flux_lists):
+        modified_flux_list.append(list(flux[0]))
+
+    for wavelength in tqdm(wavelengths):
+        modified_wavelengths.append(list(flux[0]))
+
+    new_df = pd.DataFrame({'flux_list': modified_flux_list,
+                           'wavelength': modified_wavelengths})
+    
+    df = df.drop(columns={'flux_list', 'wavelength'})
+
+    for column in df.columns:
+        new_df[column] = df[column]
+
+    print(f'{new_df}')
+
+    return new_df
+
+    # df_fluxes = pd.DataFrame({
+    #     'flux_list': new_flux_list,
+    #     'objid': df['objid'].head()
+    # })
+
+    # new_df = df.drop(columns={'flux_list'})
+    # new_df.merge(df_fluxes, on='objid')
+
+    # print(f"new_df = {new_df['flux_list']}")
+    
 
 
 def main():
-	"""
-	main()
-	
-	Runs a test batch to test whether the functions filter_sources() works properly.
-	"""
+    """
+    main()
 
-	df_spectra = pd.read_pickle('data/sdss/spectra-meta/spectra-meta_1000-2020.pkl')
-	filtered_df = filter_sources(df=df_spectra, save=False)
-	df_cutoff = spectrum_cutoff(filtered_df)
-	print(f'filtered_df = {filtered_df}')
+    Runs a test batch to test whether the functions filter_sources() works properly.
+    """
+
+    df_preprocessed = pd.read_pickle('data/sdss/preprocessed/0-50_preprocessed.pkl')
+    df = remove_nested_lists(df_preprocessed)
+    df.to_pickle('data/sdss/preprocessed/0-50_preprocessed_2.pkl')
+
+    # df_spectra = pd.read_pickle('data/sdss/spectra-meta/spectra-meta_1000-2020.pkl')
+    # filtered_df = filter_sources(df=df_spectra, save=False)
+    # df_cutoff = spectrum_cutoff(filtered_df)
+    # print(f'filtered_df = {filtered_df}')
 
 
 if __name__ == '__main__':

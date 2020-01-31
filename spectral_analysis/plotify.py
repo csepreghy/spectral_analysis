@@ -4,7 +4,6 @@ import matplotlib.ticker as ticker
 import matplotlib.pyplot as plt
 import numpy as np
 
-
 class Plotify:
   def __init__(self):
     # Basic configuration
@@ -48,17 +47,15 @@ class Plotify:
     fig.patch.set_facecolor(self.background_color)
     ax.set_facecolor(self.background_color)
 
-    bplot = ax.boxplot(
-      data,
-      vert=True,
-      patch_artist=True,
-      labels=labels,
-      boxprops=dict(facecolor=self.c_white, color=self.c_white),
-      capprops=dict(color=self.c_white),
-      whiskerprops=dict(color=self.c_white),
-      flierprops=dict(markeredgecolor=self.c_white),
-      medianprops=dict(color=self.c_white)
-    )
+    bplot = ax.boxplot(data,
+					   vert=True,
+					   patch_artist=True,
+					   labels=labels,
+					   boxprops=dict(facecolor=self.c_white, color=self.c_white),
+					   capprops=dict(color=self.c_white),
+					   whiskerprops=dict(color=self.c_white),
+					   flierprops=dict(markeredgecolor=self.c_white),
+					   medianprops=dict(color=self.c_white))
 
     for patch, color in zip(bplot['boxes'], self.plot_colors):
       patch.set_facecolor(color)
@@ -317,3 +314,9 @@ class Plotify:
     ax.grid(self.use_grid, color=self.grid_color)
 
     return fig, ax
+
+def main():
+  print("plotify main")
+
+if __name__ == "__main__":
+    main()

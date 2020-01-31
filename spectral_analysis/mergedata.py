@@ -8,8 +8,8 @@ from os.path import isfile, join
 from tqdm.auto import tqdm
 
 def merge_data(filenames):
-	with open('data/sdss/spectra-meta/0-50/' + filenames[0], 'rb') as g:
-		data = pickle.load(g)
+    with open('data/sdss/spectra-meta/0-50/' + filenames[0], 'rb') as g:
+        data = pickle.load(g)
 
 	for i in tqdm(range(len(filenames))):
 		with open('data/sdss/spectra-meta/0-50/' + filenames[i], 'rb') as f:

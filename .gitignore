@@ -12,10 +12,12 @@ __pycache__
 .DS_Store
 .idea
 .idea/*.*
-*.pkl
-*/*.pkl
-*.msg
-data/sdss_csv/*.pkl
 .vscode
 other
 logs
+
+# Data files #
+*.pkl
+*/*.pkl
+*.msg
+*.parquet
