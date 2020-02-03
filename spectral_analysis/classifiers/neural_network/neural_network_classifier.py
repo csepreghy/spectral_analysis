@@ -42,6 +42,26 @@ plotify = Plotify()
 # a binary classifier, but it can be easily changed
 # It also automatically scales the data. This should speed up the process of training
 
+def get_list_from_string():
+    """
+    get_list_from_string()
+
+    Takes a list of strings each of which contains a list of numbers and converts
+    it to a list of lists
+
+    Parameters
+    ----------
+    strlist : list([str, str, ...])
+        list of strings, each string containing a list of numbers separated by
+        commas
+
+    Returns
+    -------
+    converted_list : list([[], [], ...])
+    """
+
+    [float(x) for x in helloka[0].split(',')]
+
 def train_test_split(X, y, test_size):
     if y is not None and len(X) != len(y): assert('X and y does not have the same length')
 

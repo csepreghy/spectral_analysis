@@ -8,7 +8,10 @@ import pickle
 from itertools import islice
 from tqdm.auto import tqdm
 
-from src.plotify import Plotify
+from spectral_analysis.plotify import Plotify
+
+import pathlib
+import os
 
 plotify = Plotify()
 
@@ -20,29 +23,29 @@ def apply_gaussian_filter(fluxes, sigma):
 
 
 def plot_one_spectrum(spectra, nth_element, sigma, downsize, filename, save, show_plot):
-  gaussian_sigma = sigma
-  spectrum_x = spectra.iloc[nth_element]['wavelength']
-  spectrum_y = spectra.iloc[nth_element]['flux_list']
-  spectrum_title = 'Spectrum with guassian smoothing, sigma = ' + str(gaussian_sigma)
-  filename = filename + str(gaussian_sigma) + '.png'
+    gaussian_sigma = sigma
+    spectrum_x = spectra.iloc[nth_element]['wavelength']
+    spectrum_y = spectra.iloc[nth_element]['flux_list']
+    spectrum_title = 'Spectrum with guassian smoothing, sigma = ' + str(gaussian_sigma)
+    filename = filename + str(gaussian_sigma) + '.png'
 
-  spectrum_y_filtered = apply_gaussian_filter(spectrum_y, sigma=gaussian_sigma)
-  spectrum_y_downsized = spectrum_y_filtered[::downsize]
-  spectrum_x = spectrum_x[::downsize]
-  print('len(spectrum_y)', len(spectrum_y))
+    spectrum_y_filtered = apply_gaussian_filter(spectrum_y, sigma=gaussian_sigma)
+    spectrum_y_downsized = spectrum_y_filtered[::downsize]
+    spectrum_x = spectrum_x[::downsize]
+    print('len(spectrum_y)', len(spectrum_y))
 
-  fig, ax = plotify.plot(x=spectrum_x,
-                         y=spectrum_y_downsized,
-                         xlabel='Frequencies',
-                         ylabel='Flux',
-                         title=spectrum_title,
-                         figsize=(12, 8),
-                         show_plot=show_plot,
-                         filename=filename,
-                         ymin=np.amin(spectrum_y) - 4,
-                         ymax=np.amax(spectrum_y) + 4,
-                         save=save
-  )
+    fig, ax = plotify.plot(x=spectrum_x,
+                            y=spectrum_y_downsized,
+                            xlabel='Frequencies',
+                            ylabel='Flux',
+                            title=spectrum_title,
+                            figsize=(12, 8),
+                            show_plot=show_plot,
+                            filename=filename,
+                            ymin=np.amin(spectrum_y) - 4,
+                            ymax=np.amax(spectrum_y) + 4,
+                            save=save
+    )
 
 def create_continuum(df, sp_index_range, sigma, downsize, save):
 	"""
@@ -342,7 +345,24 @@ def remove_bytes_from_class(df):
     df['class'] = classes
     df.to_pickle('data/sdss/preprocessed/0-50_preprocessed_2.pkl')
 
-def remove_nested_lists(df):
+def expand_list(df, list_column, new_column): 
+    lens_of_lists = df[list_column].apply(len)
+    origin_rows = range(df.shape[0])
+    destination_rows = np.repeat(origin_rows, lens_of_lists)
+    non_list_cols = (
+      [idx for idx, col in enumerate(df.columns)
+       if col != list_column]
+    )
+    expanded_df = df.iloc[destination_rows, non_list_cols].copy()
+    expanded_df[new_column] = (
+      [item for items in df[list_column] for item in items]
+      )
+    expanded_df.reset_index(inplace=True, drop=True)
+    return expanded_df
+
+
+
+def remove_nested_lists(df, filename):
     """
     remove_nested_lists()
 
@@ -361,31 +381,49 @@ def remove_nested_lists(df):
     df : pandas.DataFrame
         The same DataFrame as the input except the double brackets removed
     """
+
+    data_path = '/Users/csepreghyandras/the_universe/projects/spectral-analysis/data/sdss/preprocessed/'
+
     flux_lists = df['flux_list'].to_numpy()
     wavelengths = df['wavelength'].to_numpy()
 
     modified_flux_list = []
     modified_wavelengths = []
 
-    print(flux_lists)
-
     for flux in tqdm(flux_lists):
-        modified_flux_list.append(list(flux[0]))
+        modified_flux_list.append(flux[0])
 
     for wavelength in tqdm(wavelengths):
-        modified_wavelengths.append(list(flux[0]))
+        modified_wavelengths.append(wavelength[0])
 
-    new_df = pd.DataFrame({'flux_list': modified_flux_list,
-                           'wavelength': modified_wavelengths})
-    
+    # new_df = pd.DataFrame({'flux_list': modified_flux_list})
+
     df = df.drop(columns={'flux_list', 'wavelength'})
 
-    for column in df.columns:
-        new_df[column] = df[column]
+    flux_column_list = []
+    for flux_column in range(len(flux_lists[0][0])):
+        flux_column_list.append('flux_' + str(flux_column))
+    
+    wavelength_df = pd.DataFrame({'wavelengths': modified_wavelengths[0]})
+    print(f'wavelength_df = {wavelength_df}') 
+    
+    flux_df = pd.DataFrame({'objid': df['objid']})
+    flux_df[flux_column_list] = pd.DataFrame(modified_flux_list)
 
-    print(f'{new_df}')
 
-    return new_df
+    store = pd.HDFStore(data_path + filename)
+    store.put('spectral_data', df, format='fixed', data_columns=True)
+    store.put('fluxes', flux_df, format='fixed', data_columns=True)
+    store.put('wavelengths', wavelength_df)
+
+    print(store.keys())
+
+    print(f'store = {store}')
+
+    df_kaki = store.get('spectral_data')
+    print(f'df_kaki = {df_kaki}')
+
+    store.close()
 
     # df_fluxes = pd.DataFrame({
     #     'flux_list': new_flux_list,
@@ -405,11 +443,24 @@ def main():
 
     Runs a test batch to test whether the functions filter_sources() works properly.
     """
+    
+    # df_preprocessed = pd.read_pickle('data/sdss/preprocessed/0-50_preprocessed.pkl')
+    # remove_nested_lists(df_preprocessed, '0-50_preprocessed.h5')
 
-    df_preprocessed = pd.read_pickle('data/sdss/preprocessed/0-50_preprocessed.pkl')
-    df = remove_nested_lists(df_preprocessed)
-    df.to_pickle('data/sdss/preprocessed/0-50_preprocessed_2.pkl')
+    hello = pd.read_hdf('/Users/csepreghyandras/the_universe/projects/spectral-analysis/data/sdss/preprocessed/0-50_preprocessed.h5',
+                        'fluxes')
+    
+    print(f'hello = {hello}')
 
+    # df.to_pickle('data/sdss/preprocessed/0-50_preprocessed_2.pkl')
+
+    # df.to_hdf(path_or_buf='data/sdss/preprocessed/0-50_preprocessed.h5',
+    #           key='data',
+    #           mode='w')
+
+    # df_h5 = pd.read_hdf('data/sdss/preprocessed/0-50_preprocessed.h5', key='data')
+    # print(f'df_h5 = {df_h5}')
+    
     # df_spectra = pd.read_pickle('data/sdss/spectra-meta/spectra-meta_1000-2020.pkl')
     # filtered_df = filter_sources(df=df_spectra, save=False)
     # df_cutoff = spectrum_cutoff(filtered_df)
