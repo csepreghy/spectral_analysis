@@ -21,3 +21,4 @@ logs
 */*.pkl
 *.msg
 *.parquet
+*.h5
