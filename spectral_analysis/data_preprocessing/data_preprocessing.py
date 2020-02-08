@@ -360,15 +360,15 @@ def expand_list(df, list_column, new_column):
     expanded_df.reset_index(inplace=True, drop=True)
     return expanded_df
 
-
-
 def remove_nested_lists(df, filename):
     """
     remove_nested_lists()
 
     Takes a dataframe which has two columns with the form [[wavelengths]] and
     [[flux_list]] and removes one of the square brackets. The double brackets
-    were a not-so-elegant workaround for a problem in spectrum_cutoff()
+    were a not-so-elegant workaround for a problem in spectrum_cutoff(). Then
+    it saves everything into an hdf5 file into 3 tables.
+        - spectral_data: all 
 
     Parameters
     ----------
@@ -418,11 +418,6 @@ def remove_nested_lists(df, filename):
 
     print(store.keys())
 
-    print(f'store = {store}')
-
-    df_kaki = store.get('spectral_data')
-    print(f'df_kaki = {df_kaki}')
-
     store.close()
 
     # df_fluxes = pd.DataFrame({
@@ -435,7 +430,17 @@ def remove_nested_lists(df, filename):
 
     # print(f"new_df = {new_df['flux_list']}")
     
+def get_fluxes_from_h5_file(filename):
+    """
 
+    """
+    filepath = '/Users/csepreghyandras/the_universe/projects/spectral-analysis/data/' + filename
+    flux_df = pd.read_hdf(filepath, key='fluxes')
+
+    fluxes = flux_df.values
+    print(f'fluxes = {type(fluxes[0])}')
+
+    return flux_df
 
 def main():
     """
@@ -443,14 +448,11 @@ def main():
 
     Runs a test batch to test whether the functions filter_sources() works properly.
     """
-    
+
     # df_preprocessed = pd.read_pickle('data/sdss/preprocessed/0-50_preprocessed.pkl')
     # remove_nested_lists(df_preprocessed, '0-50_preprocessed.h5')
 
-    hello = pd.read_hdf('/Users/csepreghyandras/the_universe/projects/spectral-analysis/data/sdss/preprocessed/0-50_preprocessed.h5',
-                        'fluxes')
-    
-    print(f'hello = {hello}')
+    df = get_fluxes_from_h5(filename='/sdss/preprocessed/0-50_preprocessed.h5')
 
     # df.to_pickle('data/sdss/preprocessed/0-50_preprocessed_2.pkl')
 
