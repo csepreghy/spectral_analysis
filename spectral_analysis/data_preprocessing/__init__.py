@@ -3,12 +3,10 @@ import time as time
 import numpy as np
 import matplotlib.pyplot as plt
 
-from sdss_direct_query import get_coordinates_from_query
-from downloading import download_spectra
-from data_preprocessing import filter_sources, spectrum_cutoff, create_continuum, merge_lines_and_continuum
-from merge_tables import merge_with_metatable
 
-from get_spectrallines import get_spectrallines
+from spectral_analysis.data_preprocessing.data_preprocessing import filter_sources, spectrum_cutoff, create_continuum, merge_lines_and_continuum
+from spectral_analysis.data_preprocessing.merge_tables import merge_with_metatable
+from spectral_analysis.data_preprocessing.get_spectrallines import get_spectrallines
 
 # 4) Filter Out Spectra with not enough values ---------------------------- #
 # 5) Cut off values from the sides to have the same range for all spectra - #
