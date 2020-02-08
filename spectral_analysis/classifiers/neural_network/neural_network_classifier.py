@@ -20,14 +20,15 @@ from tensorflow.keras.layers import Dense, Activation, Input, concatenate
 from tensorflow.keras.models import Sequential, Model
 from tensorflow.keras.utils import to_categorical
 
-from models import create_cnn, create_mlp
-import sys
+import time
 
-# sys.path.append("/Users/csepreghyandras/the_universe/projects/spectral-analysis")
-print('\n'.join(sys.path))
-from src.plotify import Plotify
+from kerastuner.tuners import RandomSearch
+from kerastuner.engine.hyperparameters import HyperParameters
 
-plotify = Plotify()
+from spectral_analysis.classifiers.neural_network.models import build_models, HyperSpaceModel
+from spectral_analysis.plotify import Plotify
+
+LOG_DIR = f"{int(time.time())}"
 
 # This is a mixed input neural network that combines a CNN with an MLP.
 # Inputs:
@@ -81,25 +82,22 @@ def train_test_split(X, y, test_size):
 
     else: return X_train, X_test
 
-def prepare_data(df):
+def prepare_data(df_spectral_data, df_fluxes):
     columns = []
 
-    df['class'] = pd.Categorical(df['class'])
-    df_dummies = pd.get_dummies(df['class'], prefix='category')
-    df = pd.concat([df, df_dummies], axis=1)
-    df_spectra = df[['flux_list']]
-    print(f'df_spectra = {df_spectra}')
-    df_source_info = df.drop(columns={'flux_list'})
+    df_spectral_data['class'] = pd.Categorical(df_spectral_data['class'])
+    df_dummies = pd.get_dummies(df_spectral_data['class'], prefix='category')
+    df_spectral_data = pd.concat([df_spectral_data, df_dummies], axis=1)
 
-    for column in df_source_info.columns:
+    for column in df_spectral_data.columns:
         if column not in ['class', 'dec', 'ra', 'plate', 'wavelength', 'objid', 'subClass']:
             columns.append(column)
 
     X_source_info = []
-    X_spectra = []
+    X_fluxes = df_fluxes.values
     y = []
 
-    for index, spectrum in df_source_info[columns].iterrows():
+    for index, spectrum in df_spectral_data[columns].iterrows():
         X_row = []
 
         # adding the spectral lines
@@ -138,27 +136,28 @@ def prepare_data(df):
         X_source_info.append(X_row)
         y.append(y_row)
 
-    for _, spectrum in df_spectra.iterrows():
-        X_row = []
-        
-        flux_list = spectrum['flux_list']
-        
-        for flux in flux_list:
-            X_row.append(flux)
-        
-        X_spectra.append(X_row)
 
-    return X_source_info, X_spectra, y
+    # for _, spectrum in df_spectra.iterrows():
+    #     X_row = []
+        
+    #     flux_list = spectrum['flux_list']
+        
+    #     for flux in flux_list:
+    #         X_row.append(flux)
+        
+    #     X_spectra.append(X_row)
 
-def run_neural_network(df):
+    return X_source_info, X_fluxes, y
+
+def run_neural_network(df_spectral_data, df_fluxes):
     n_classes = 3
-    X_source_info, X_spectra, y = prepare_data(df)
+    X_source_info, X_fluxes, y = prepare_data(df_spectral_data, df_fluxes)
     # meta-data
     # continuum
     X_train_source_info, X_test_source_info, y_train, y_test = train_test_split(X_source_info, y, test_size=0.2)
     X_train_source_info, X_val_source_info, y_train, y_val = train_test_split(X_train_source_info, y_train, test_size=0.2)
 
-    X_train_spectra, X_test_spectra = train_test_split(X_spectra, None, test_size=0.2)
+    X_train_spectra, X_test_spectra = train_test_split(X_fluxes, None, test_size=0.2)
     X_train_spectra, X_val_spectra = train_test_split(X_train_spectra, None, test_size=0.2)
 
     scaler = StandardScaler()
@@ -177,33 +176,44 @@ def run_neural_network(df):
     y_train = np.array(y_train)
     y_test = np.array(y_test)
 
-    cnn = create_cnn(input_length=X_train_spectra.shape[1])
-    mlp = create_mlp(input_shape=X_train_source_info.shape[1])
+    # Keras Tuner
+
+    input_shapes = {'fluxes': X_train_spectra.shape[1], 
+                    'source_info': X_train_source_info.shape[1]}
+
+    hypermodel = HyperSpaceModel(n_classes=n_classes, input_shapes=input_shapes)
+
+    tuner = RandomSearch(hypermodel,
+                         objective='val_accuracy',
+                         max_trials=10,
+                         executions_per_trial=2,
+                         directory=LOG_DIR)
+    
+    tuner.search(x=[X_train_source_info, X_train_spectra],
+                 y=y_train,
+                 epochs=2,
+                 batch_size=64,
+                 validation_data=(X_test_spectra_std, y_test))
+    
+    # cnn, mlp = build_models(input_shapes=input_shapes)
 
     # combine the output of the two branches
-    combined = concatenate([cnn.output, mlp.output])
 
-    # apply a fully connected layer for last classification
-    final_classifier = Dense(128, activation="relu")(combined)
-    final_classifier = Dense(n_classes, activation="softmax")(final_classifier)
 
-    model = Model(inputs=[mlp.input, cnn.input], outputs=final_classifier)
-
-    model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 
     tensorboard = TensorBoard(log_dir='logs/{}'.format('cnn-mlp_{}'.format(time.time())))
     earlystopping = EarlyStopping(monitor='val_accuracy', patience=1)
     modelcheckpoint = ModelCheckpoint(filepath='best_model_epoch.{epoch:02d}-{val_loss:.2f}.h5', monitor='val_loss', save_best_only=True),
 
     callbacks_list = [#modelcheckpoint,
-                        earlystopping,
-                        tensorboard]
+                      #earlystopping,
+                      tensorboard]
 
-    history = model.fit(x=[X_train_source_info, X_train_spectra],
-                        y=y_train,
-                        validation_data=([X_test_source_info, X_test_spectra_std], y_test),
-                        epochs=2,
-                        callbacks=callbacks_list)
+    # history = model.fit(x=[X_train_source_info, X_train_spectra],
+    #                     y=y_train,
+    #                     validation_data=([X_test_source_info, X_test_spectra_std], y_test),
+    #                     epochs=2,
+    #                     callbacks=callbacks_list)
 
 
     # evaluate the model
@@ -212,15 +222,15 @@ def run_neural_network(df):
 
     print('Train: %.3f, Test: %.3f' % (train_acc, test_acc))
 
-    get_incorrect_predictions(X_test=[X_test_source_info, X_test_spectra_std],
-                                X_test_spectra=X_test_spectra,
-                                model=model,
-                                y_test=y_test,
-                                df=df)
+    # get_incorrect_predictions(X_test=[X_test_source_info, X_test_spectra_std],
+    #                             X_test_spectra=X_test_spectra,
+    #                             model=model,
+    #                             y_test=y_test,
+    #                             df=df)
 
     evaluate_model(model=model,
-                    X_test=[X_test_source_info, X_test_spectra_std],
-                    y_test=y_test)
+                   X_test=[X_test_source_info, X_test_spectra_std],
+                   y_test=y_test)
 
     
     return cnn
@@ -289,8 +299,12 @@ def summarize_results():
 	print('hello')
   
 def main():
-	df_preprocessed = pd.read_pickle('data/sdss/preprocessed/0-50_preprocessed.pkl')
-	model = run_neural_network(df_preprocessed)
+    df_fluxes = pd.read_hdf('data/sdss/preprocessed/0-50_preprocessed.h5', key='fluxes')
+    df_spectral_data = pd.read_hdf('data/sdss/preprocessed/0-50_preprocessed.h5', key='spectral_data')
+    
+    print(f'df_spectral_data = {df_spectral_data}')
+
+    model = run_neural_network(df_spectral_data, df_fluxes)
 
 if __name__ == "__main__":
 	main()
