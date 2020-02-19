@@ -188,7 +188,7 @@ def run_neural_network(df_spectral_data, df_fluxes):
                          max_trials=10,
                          executions_per_trial=2,
                          directory=LOG_DIR)
-    
+  
     tuner.search(x=[X_train_source_info, X_train_spectra],
                  y=y_train,
                  epochs=2,

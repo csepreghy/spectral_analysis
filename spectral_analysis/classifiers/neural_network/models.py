@@ -35,8 +35,6 @@ def build_cnn(hp, input_length):
 
     return model
 
-
-
 def build_mlp(input_shape):
   model = Sequential()
 
