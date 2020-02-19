@@ -22,30 +22,48 @@ def apply_gaussian_filter(fluxes, sigma):
   return filters.gaussian(image=fluxes, sigma=sigma)
 
 
-def plot_one_spectrum(spectra, nth_element, sigma, downsize, filename, save, show_plot):
-    gaussian_sigma = sigma
-    spectrum_x = spectra.iloc[nth_element]['wavelength']
-    spectrum_y = spectra.iloc[nth_element]['flux_list']
-    spectrum_title = 'Spectrum with guassian smoothing, sigma = ' + str(gaussian_sigma)
-    filename = filename + str(gaussian_sigma) + '.png'
+def plot_spectrum(fluxes, wavelengths, save=False, filename=None):
+    """
+    plot_spectrum()
 
-    spectrum_y_filtered = apply_gaussian_filter(spectrum_y, sigma=gaussian_sigma)
-    spectrum_y_downsized = spectrum_y_filtered[::downsize]
-    spectrum_x = spectrum_x[::downsize]
-    print('len(spectrum_y)', len(spectrum_y))
+    Takes a set of fluxes and their corresponding wavelengths and plots them with an option
+    to save the resulting plot.
 
-    fig, ax = plotify.plot(x=spectrum_x,
-                            y=spectrum_y_downsized,
-                            xlabel='Frequencies',
-                            ylabel='Flux',
-                            title=spectrum_title,
-                            figsize=(12, 8),
-                            show_plot=show_plot,
-                            filename=filename,
-                            ymin=np.amin(spectrum_y) - 4,
-                            ymax=np.amax(spectrum_y) + 4,
-                            save=save
-    )
+    Parameters
+    ----------
+    fluxes : numpy.ndarray
+        A list of fluxes that will be ploted
+    
+    wavelengths : numpy.ndarray
+        A list of wavelengths that correspond to the fluxes
+    
+    save : boolean (optional)
+        When True, saves plot
+        When False, does not save plot
+    
+    filename : str (optional)
+        The name of the file that will be saved.
+    """
+
+    spectrum_title = 'Spectrum'
+    
+    if filename is not None: filename = filename + '.png'
+    else: filename = ''
+
+    print('len(wavelengths)', len(wavelengths))
+    print('len(fluxes)', len(fluxes))
+
+    fig, ax = plotify.plot(x=wavelengths,
+                           y=fluxes,
+                           xlabel='Frequencies',
+                           ylabel='Flux',
+                           title=spectrum_title,
+                           figsize=(12, 8),
+                           show_plot=True,
+                           filename=filename,
+                           ymin=np.amin(fluxes) - 4,
+                           ymax=np.amax(fluxes) + 4,
+                           save=save)
 
 def create_continuum(df, sp_index_range, sigma, downsize, save):
 	"""
@@ -375,6 +393,9 @@ def remove_nested_lists(df, filename):
     df : pandas.DataFrame
         All spectra with the double nested lists [[]]
     
+    filename : str
+        filename that will be saved in HDF5
+    
     Returns
     -------
 
@@ -430,7 +451,7 @@ def remove_nested_lists(df, filename):
 
     # print(f"new_df = {new_df['flux_list']}")
     
-def get_fluxes_from_h5_file(filename):
+def get_fluxes_from_h5(filename):
     """
 
     """
@@ -440,7 +461,19 @@ def get_fluxes_from_h5_file(filename):
     fluxes = flux_df.values
     print(f'fluxes = {type(fluxes[0])}')
 
-    return flux_df
+    return fluxes
+
+def get_wavelengths_from_h5(filename):
+    """
+
+    """
+    filepath = '/Users/csepreghyandras/the_universe/projects/spectral-analysis/data/' + filename
+    wavelengths_df = pd.read_hdf(filepath, key='wavelengths')
+
+    wavelengths = wavelengths_df.values
+    print(f'wavelengths = {type(wavelengths[0])}')
+
+    return wavelengths
 
 def main():
     """
@@ -452,7 +485,13 @@ def main():
     # df_preprocessed = pd.read_pickle('data/sdss/preprocessed/0-50_preprocessed.pkl')
     # remove_nested_lists(df_preprocessed, '0-50_preprocessed.h5')
 
-    df = get_fluxes_from_h5(filename='/sdss/preprocessed/0-50_preprocessed.h5')
+    fluxes = get_fluxes_from_h5(filename='/sdss/preprocessed/0-50k_original_fluxes.h5')
+    wavelengths = get_wavelengths_from_h5(filename='/sdss/preprocessed/0-50k_original_fluxes.h5')
+
+
+    print(f'fluxes[24][0:3736] = {fluxes[24][1:3737]}')
+    plot_spectrum(fluxes[24][1:3737], wavelengths)
+    
 
     # df.to_pickle('data/sdss/preprocessed/0-50_preprocessed_2.pkl')
 
