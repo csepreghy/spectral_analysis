@@ -251,6 +251,7 @@ class Plotify:
     tickfrequencyone=False,
     equal_axis=False,
     figsize=(8,6),
+    linewidth=1,
     filename='filename',
     ymin=None,
     ymax=None,
@@ -276,8 +277,8 @@ class Plotify:
     if tickfrequencyone == True:
       ax.xaxis.set_major_locator(ticker.MultipleLocator(1))
 
-    if len(x) == 0: plt.plot(x, color=self.c_orange)
-    if len(x) > 0: plt.plot(x, y, color=self.c_orange)
+    if len(x) == 0: plt.plot(x, color=self.c_orange, linewidth=linewidth)
+    if len(x) > 0: plt.plot(x, y, color=self.c_orange, linewidth=linewidth)
     
     if save == True: plt.savefig(('plots/' + filename), facecolor=self.background_color, dpi=180)
 
