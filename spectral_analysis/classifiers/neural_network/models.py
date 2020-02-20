@@ -61,7 +61,7 @@ class CNNModel:
     def _fit(self, X_train, y_train, X_test, y_test):
         tuner = RandomSearch(self._build_model,
                              objective='val_accuracy',
-                             max_trials=2,
+                             max_trials=10,
                              executions_per_trial=1,
                              directory=LOG_DIR)
     
@@ -74,24 +74,24 @@ class CNNModel:
     def _build_model(self, hp):
         model = Sequential()
 
-        print(f'hp = {hp}')
-
-        model.add(Conv1D(filters=hp.Int('conv_filters', min_value=32, max_value=512, step=32),
-                         kernel_size=hp.Int('kernel_size', min_value=2, max_value=32, step=2),
+        model.add(Conv1D(filters=hp.Choice('conv_filters_input_layer', values=[16, 32, 64, 128, 256, 512]),
+                         kernel_size=hp.Choice('kernel_size_input_layer', values=[2, 3, 4, 8, 16]),
                          activation='relu',
                          input_shape=(self.input_length, 1)))
 
-        for i in range(hp.Int('n_layers', 1, 4)):
-            model.add(Conv1D(filters=hp.Int(f'conv_{i}_filters', min_value=32, max_value=512, step=32),
-                             kernel_size=hp.Int(f'conv_{i}_filters_kernel_size', 2, 16),
+        for i in range(hp.Int('n_cnn_layers', 1, 4)):
+            model.add(Conv1D(filters=hp.Choice(f'conv_{i}_filters', values=[16, 32, 64, 128, 256, 512]),
+                             kernel_size=hp.Choice(f'conv_{i}_filters_kernel_size', values=[2, 3, 4, 8, 16]),
                              activation='relu'))
                                 
-        model.add(Dropout(0.5))
+        # model.add(Dropout(0.5))
         # model.add(MaxPooling1D(pool_size=2))
         model.add(Flatten())
-        model.add(Dense(128, activation='relu'))
-        model.add(Dense(3, activation='softmax'))
 
+        for i in range(hp.Int('n_dense_layers', 1, 4)):
+            model.add(Dense(hp.Choice(f'dense_{i}_filters', values=[16, 32, 64, 128, 256, 512]), activation='relu'))
+
+        model.add(Dense(3, activation='softmax'))
         model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 
         return model
