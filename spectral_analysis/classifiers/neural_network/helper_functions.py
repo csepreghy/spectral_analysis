@@ -93,18 +93,12 @@ def evaluate_model(model, X_test, y_test):
 	ax.set_xlabel('Target Class', color='black')
 	ax.set_title('Confusion Matrix')
 	plt.show()
-
   
 def summarize_results():
 	print('hello')
-  
-def main():
-    df_fluxes = pd.read_hdf('data/sdss/preprocessed/0-50_gaussian.h5', key='fluxes').head(5000)
-    df_source_info = pd.read_hdf('data/sdss/preprocessed/0-50_gaussian.h5', key='spectral_data').head(5000)
-    
-    print(f'df_source_info = {df_source_info}')
 
-    model = run_neural_network(df_source_info, df_fluxes)
+def main():
+    print('helper_functions main()')
 
 if __name__ == "__main__":
 	main()
