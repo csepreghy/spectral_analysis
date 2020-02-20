@@ -405,8 +405,8 @@ def remove_nested_lists(df, filename):
 
     data_path = '/Users/csepreghyandras/the_universe/projects/spectral-analysis/data/sdss/preprocessed/'
 
-    flux_lists = df['flux_list'].to_numpy()
-    wavelengths = df['wavelength'].to_numpy()
+    flux_lists = df['flux_list'].head().to_numpy()
+    wavelengths = df['wavelength'].head().to_numpy()
 
     modified_flux_list = []
     modified_wavelengths = []
@@ -429,8 +429,11 @@ def remove_nested_lists(df, filename):
     print(f'wavelength_df = {wavelength_df}') 
     
     flux_df = pd.DataFrame({'objid': df['objid']})
-    flux_df[flux_column_list] = pd.DataFrame(modified_flux_list)
+    flux_df[flux_column_list] = pd.DataFrame(modified_flux_list, index=None, columns=flux_column_list)
 
+    print(f'modified_flux_list = {modified_flux_list}')
+    print(f'flux_column_list = {flux_column_list}')
+    print(f'flux_df.values = {flux_df}')
 
     store = pd.HDFStore(data_path + filename)
     store.put('spectral_data', df, format='fixed', data_columns=True)
@@ -440,16 +443,6 @@ def remove_nested_lists(df, filename):
     print(store.keys())
 
     store.close()
-
-    # df_fluxes = pd.DataFrame({
-    #     'flux_list': new_flux_list,
-    #     'objid': df['objid'].head()
-    # })
-
-    # new_df = df.drop(columns={'flux_list'})
-    # new_df.merge(df_fluxes, on='objid')
-
-    # print(f"new_df = {new_df['flux_list']}")
     
 def get_fluxes_from_h5(filename):
     """
