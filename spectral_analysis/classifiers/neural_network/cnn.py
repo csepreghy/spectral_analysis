@@ -6,26 +6,24 @@ from sklearn.preprocessing import StandardScaler
 
 from tensorflow.keras.optimizers import SGD
 from tensorflow.keras.callbacks import History
-from tensorflow.keras.layers import Dense, Dropout, Activation, Flatten, Conv1D, MaxPooling1D, Input, concatenate
+from tensorflow.keras.layers import Dense, Dropout, Activation, Flatten, Conv1D, MaxPooling1D, Input
 from tensorflow.keras.models import Sequential, Model
 from tensorflow.keras.utils import to_categorical
 
 from kerastuner.tuners import RandomSearch
 from kerastuner.engine.hyperparameters import HyperParameters
-from kerastuner import HyperModel
 
 import time
 
 LOG_DIR = f"{int(time.time())}"
 
-class CNNModel:
+class CNN:
     def __init__(self, df_fluxes):
         print('NeuralNetworkModel init')
         self.input_length = len(df_fluxes.columns) - 1
         print(f'self.input_length = {self.input_length}')
 
     def _prepare_data(self, df_source_info, df_fluxes):
-        n_classes = 3
         columns = []
 
         df_source_info['class'] = pd.Categorical(df_source_info['class'])
@@ -38,12 +36,11 @@ class CNNModel:
                 columns.append(column)
 
         X = np.delete(df_fluxes.values, 0, axis=1)
-        print(f'X_fluxes = {X}')
         y = []
 
         print(f'df_source_info = {df_source_info}')
 
-        for index, spectrum in df_source_info[columns].iterrows():
+        for _, spectrum in df_source_info[columns].iterrows():
             category_GALAXY = spectrum["category_GALAXY"]
             category_QSO = spectrum["category_QSO"]
             category_STAR = spectrum["category_STAR"]
@@ -84,7 +81,7 @@ class CNNModel:
                              kernel_size=hp.Choice(f'conv_{i}_filters_kernel_size', values=[2, 3, 4, 8, 16]),
                              activation='relu'))
                                 
-        # model.add(Dropout(0.5))
+        model.add(Dropout(0.5))
         # model.add(MaxPooling1D(pool_size=2))
         model.add(Flatten())
 
@@ -116,38 +113,15 @@ class CNNModel:
 
         self._fit(X_train, y_train, X_test, y_test)
 
-def build_mlp(input_shape):
-  model = Sequential()
-
-  model.add(Dense(256, input_dim=input_shape, activation='relu', kernel_initializer='he_uniform'))
-  model.add(Dense(256, input_dim=256, activation='relu', kernel_initializer='he_uniform'))
-
-  return model
-
-def build_models(hp, input_shapes, n_classes):
-    cnn = build_cnn(input_length=input_shapes['fluxes'], hp=hp)
-    mlp = build_mlp(input_shape=input_shapes['source_info'])
+def main():
+    df_fluxes = pd.read_hdf('data/sdss/preprocessed/0-50_gaussian.h5', key='fluxes')
+    df_source_info = pd.read_hdf('data/sdss/preprocessed/0-50_gaussian.h5', key='spectral_data')
     
-    combined = concatenate([cnn.output, mlp.output])
+    df_fluxes = df_fluxes.head(10000)
+    df_source_info = df_source_info.head(10000)
 
-    final_classifier = Dense(128, activation="relu")(combined)
-    final_classifier = Dense(n_classes, activation="softmax")(final_classifier)
-    
-    model = Model(inputs=[mlp.input, cnn.input], outputs=final_classifier)
-    model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
-    
-    
-    return model
+    cnn = CNN(df_fluxes)
+    cnn.run(df_source_info, df_fluxes)
 
-class HyperSpaceModel(HyperModel):
-    def __init__(self, n_classes, input_shape):
-        self.n_classes = n_classes
-        self.input_shape = input_shape
-
-    def build(self, hp):
-        cnn = build_cnn(input_length=self.input_shape, hp=hp)
-        
-
-        model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
-        
-        return model
+if __name__ == "__main__":
+    main()

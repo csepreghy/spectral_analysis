@@ -361,7 +361,8 @@ def remove_bytes_from_class(df):
     classes = df['class'].to_numpy()
     classes = [x.replace('b\'', '').replace('\'', '') for x in classes]
     df['class'] = classes
-    df.to_pickle('data/sdss/preprocessed/0-50_preprocessed_2.pkl')
+
+    return df
 
 def expand_list(df, list_column, new_column): 
     lens_of_lists = df[list_column].apply(len)
