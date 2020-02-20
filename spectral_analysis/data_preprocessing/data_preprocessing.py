@@ -22,7 +22,7 @@ def apply_gaussian_filter(fluxes, sigma):
   return filters.gaussian(image=fluxes, sigma=sigma)
 
 
-def plot_spectrum(fluxes, wavelengths, save=False, filename=None):
+def plot_spectrum(fluxes, save=False, filename=None):
     """
     plot_spectrum()
 
@@ -33,9 +33,6 @@ def plot_spectrum(fluxes, wavelengths, save=False, filename=None):
     ----------
     fluxes : numpy.ndarray
         A list of fluxes that will be ploted
-    
-    wavelengths : numpy.ndarray
-        A list of wavelengths that correspond to the fluxes
     
     save : boolean (optional)
         When True, saves plot
@@ -49,6 +46,8 @@ def plot_spectrum(fluxes, wavelengths, save=False, filename=None):
     
     if filename is not None: filename = filename + '.png'
     else: filename = ''
+
+    wavelengths = get_wavelengths_from_h5(filename='/sdss/preprocessed/0-50k_original_fluxes.h5')
 
     print('len(wavelengths)', len(wavelengths))
     print('len(fluxes)', len(fluxes))
