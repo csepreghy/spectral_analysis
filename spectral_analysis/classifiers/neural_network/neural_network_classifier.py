@@ -291,6 +291,9 @@ def main():
     df_fluxes = pd.read_hdf('data/sdss/preprocessed/0-50k_original_fluxes.h5', key='fluxes')
     df_source_info = pd.read_hdf('data/sdss/preprocessed/0-50k_original_fluxes.h5', key='spectral_data')
     
+    df_fluxes = df_fluxes.head(10000)
+    df_source_info = df_source_info.head(10000)
+
     cnn = CNNModel(df_fluxes)
     cnn.run(df_source_info, df_fluxes)
 
