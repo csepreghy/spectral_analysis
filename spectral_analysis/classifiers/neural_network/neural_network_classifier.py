@@ -25,7 +25,7 @@ import time
 from kerastuner.tuners import RandomSearch
 from kerastuner.engine.hyperparameters import HyperParameters
 
-from spectral_analysis.classifiers.neural_network.models import build_models, HyperSpaceModel
+from spectral_analysis.classifiers.neural_network.models import build_models, HyperSpaceModel, CNNModel
 from spectral_analysis.plotify import Plotify
 
 LOG_DIR = f"{int(time.time())}"
@@ -136,27 +136,16 @@ def prepare_data(df_spectral_data, df_fluxes):
         X_source_info.append(X_row)
         y.append(y_row)
 
-
-    # for _, spectrum in df_spectra.iterrows():
-    #     X_row = []
-        
-    #     flux_list = spectrum['flux_list']
-        
-    #     for flux in flux_list:
-    #         X_row.append(flux)
-        
-    #     X_spectra.append(X_row)
-
     return X_source_info, X_fluxes, y
 
 def run_neural_network(df_spectral_data, df_fluxes):
     n_classes = 3
     X_source_info, X_fluxes, y = prepare_data(df_spectral_data, df_fluxes)
-    # meta-data
     # continuum
     X_train_source_info, X_test_source_info, y_train, y_test = train_test_split(X_source_info, y, test_size=0.2)
     X_train_source_info, X_val_source_info, y_train, y_val = train_test_split(X_train_source_info, y_train, test_size=0.2)
 
+    # meta-data
     X_train_spectra, X_test_spectra = train_test_split(X_fluxes, None, test_size=0.2)
     X_train_spectra, X_val_spectra = train_test_split(X_train_spectra, None, test_size=0.2)
 
@@ -233,7 +222,7 @@ def run_neural_network(df_spectral_data, df_fluxes):
                    y_test=y_test)
 
     
-    return cnn
+    return
 
 def get_incorrect_predictions(model, X_test, X_test_spectra, y_test, df):
 	# incorrects = np.nonzero(model.predict(X_test).reshape((-1,)) != y_test)
@@ -299,12 +288,14 @@ def summarize_results():
 	print('hello')
   
 def main():
-    df_fluxes = pd.read_hdf('data/sdss/preprocessed/0-50_preprocessed.h5', key='fluxes')
-    df_spectral_data = pd.read_hdf('data/sdss/preprocessed/0-50_preprocessed.h5', key='spectral_data')
+    df_fluxes = pd.read_hdf('data/sdss/preprocessed/0-50k_original_fluxes.h5', key='fluxes')
+    df_source_info = pd.read_hdf('data/sdss/preprocessed/0-50k_original_fluxes.h5', key='spectral_data')
     
-    print(f'df_spectral_data = {df_spectral_data}')
+    cnn = CNNModel(df_fluxes)
+    cnn.run(df_source_info, df_fluxes)
 
-    model = run_neural_network(df_spectral_data, df_fluxes)
+
+    # model = run_neural_network(df_spectral_data, df_fluxes)
 
 if __name__ == "__main__":
 	main()
