@@ -68,7 +68,6 @@ class MixedInputModel():
         for _, spectrum in df_source_info[columns].iterrows():
             X_row = []
 
-            # adding the spectral lines
             try:
                 spectral_lines = spectrum['spectral_lines']
 
@@ -205,6 +204,8 @@ class MixedInputModel():
         evaluate_model(model=model,
                        X_test=[X_test_source_info, X_test_spectra_std],
                        y_test=y_test)
+
+        return model
 
 def main():
     df_fluxes = pd.read_hdf('data/sdss/preprocessed/0-50_gaussian.h5', key='fluxes').head(5000)
