@@ -20,15 +20,9 @@ from tensorflow.keras.layers import Dense, Activation, Input, concatenate
 from tensorflow.keras.models import Sequential, Model
 from tensorflow.keras.utils import to_categorical
 
-import time
-
-from kerastuner.tuners import RandomSearch
-from kerastuner.engine.hyperparameters import HyperParameters
-
-from spectral_analysis.classifiers.neural_network.models import build_models, HyperSpaceModel, CNNModel
+from spectral_analysis.classifiers.neural_network.models import build_models
 from spectral_analysis.plotify import Plotify
-
-LOG_DIR = f"{int(time.time())}"
+from spectral_analysis.data_preprocessing.data_preprocessing import remove_bytes_from_class
 
 # This is a mixed input neural network that combines a CNN with an MLP.
 # Inputs:
@@ -43,25 +37,6 @@ LOG_DIR = f"{int(time.time())}"
 # a binary classifier, but it can be easily changed
 # It also automatically scales the data. This should speed up the process of training
 
-def get_list_from_string():
-    """
-    get_list_from_string()
-
-    Takes a list of strings each of which contains a list of numbers and converts
-    it to a list of lists
-
-    Parameters
-    ----------
-    strlist : list([str, str, ...])
-        list of strings, each string containing a list of numbers separated by
-        commas
-
-    Returns
-    -------
-    converted_list : list([[], [], ...])
-    """
-
-    [float(x) for x in helloka[0].split(',')]
 
 def train_test_split(X, y, test_size):
     if y is not None and len(X) != len(y): assert('X and y does not have the same length')
@@ -82,14 +57,17 @@ def train_test_split(X, y, test_size):
 
     else: return X_train, X_test
 
-def prepare_data(df_spectral_data, df_fluxes):
+def prepare_data(df_source_info, df_fluxes):
     columns = []
 
-    df_spectral_data['class'] = pd.Categorical(df_spectral_data['class'])
-    df_dummies = pd.get_dummies(df_spectral_data['class'], prefix='category')
-    df_spectral_data = pd.concat([df_spectral_data, df_dummies], axis=1)
+    if "b'" in df_source_info['class'][0]:
+        df_source_info = remove_bytes_from_class(df_source_info)
 
-    for column in df_spectral_data.columns:
+    df_source_info['class'] = pd.Categorical(df_source_info['class'])
+    df_dummies = pd.get_dummies(df_source_info['class'], prefix='category')
+    df_source_info = pd.concat([df_source_info, df_dummies], axis=1)
+
+    for column in df_source_info.columns:
         if column not in ['class', 'dec', 'ra', 'plate', 'wavelength', 'objid', 'subClass']:
             columns.append(column)
 
@@ -97,22 +75,25 @@ def prepare_data(df_spectral_data, df_fluxes):
     X_fluxes = df_fluxes.values
     y = []
 
-    for index, spectrum in df_spectral_data[columns].iterrows():
+    for _, spectrum in df_source_info[columns].iterrows():
         X_row = []
 
         # adding the spectral lines
-        spectral_lines = spectrum['spectral_lines']
+        try:
+            spectral_lines = spectrum['spectral_lines']
 
-        # spectral lines are sometimes missing
-        if type(spectral_lines) == list:
+            if type(spectral_lines) == list:
+                for spectral_line in spectral_lines:
+                    X_row.append(spectral_line)
+
+            elif math.isnan(spectral_lines):
+                spectral_lines = [-99] * 14 # number of spectral lines is 14
+
             for spectral_line in spectral_lines:
                 X_row.append(spectral_line)
 
-        elif math.isnan(spectral_lines):
-            spectral_lines = [-99] * 14 # number of spectral lines is 14
-
-        for spectral_line in spectral_lines:
-            X_row.append(spectral_line)
+        except:
+            print('No spectral lines found')
 
         X_row.append(spectrum['z'])
         X_row.append(spectrum['zErr'])
@@ -127,6 +108,8 @@ def prepare_data(df_spectral_data, df_fluxes):
         X_row.append(spectrum['petroMagErr_i'])
         X_row.append(spectrum['petroMagErr_z'])
 
+
+
         category_GALAXY = spectrum['category_GALAXY']
         category_QSO = spectrum['category_QSO']
         category_STAR = spectrum['category_STAR']
@@ -138,14 +121,14 @@ def prepare_data(df_spectral_data, df_fluxes):
 
     return X_source_info, X_fluxes, y
 
-def run_neural_network(df_spectral_data, df_fluxes):
+def run_neural_network(df_source_info, df_fluxes):
     n_classes = 3
-    X_source_info, X_fluxes, y = prepare_data(df_spectral_data, df_fluxes)
+    X_source_info, X_fluxes, y = prepare_data(df_source_info, df_fluxes)
+    # meta-data
     # continuum
     X_train_source_info, X_test_source_info, y_train, y_test = train_test_split(X_source_info, y, test_size=0.2)
     X_train_source_info, X_val_source_info, y_train, y_val = train_test_split(X_train_source_info, y_train, test_size=0.2)
 
-    # meta-data
     X_train_spectra, X_test_spectra = train_test_split(X_fluxes, None, test_size=0.2)
     X_train_spectra, X_val_spectra = train_test_split(X_train_spectra, None, test_size=0.2)
 
@@ -170,39 +153,22 @@ def run_neural_network(df_spectral_data, df_fluxes):
     input_shapes = {'fluxes': X_train_spectra.shape[1], 
                     'source_info': X_train_source_info.shape[1]}
 
-    hypermodel = HyperSpaceModel(n_classes=n_classes, input_shapes=input_shapes)
-
-    tuner = RandomSearch(hypermodel,
-                         objective='val_accuracy',
-                         max_trials=10,
-                         executions_per_trial=2,
-                         directory=LOG_DIR)
-  
-    tuner.search(x=[X_train_source_info, X_train_spectra],
-                 y=y_train,
-                 epochs=2,
-                 batch_size=64,
-                 validation_data=(X_test_spectra_std, y_test))
     
-    # cnn, mlp = build_models(input_shapes=input_shapes)
-
-    # combine the output of the two branches
-
-
+    model = build_models(input_shapes=input_shapes, n_classes=3)
 
     tensorboard = TensorBoard(log_dir='logs/{}'.format('cnn-mlp_{}'.format(time.time())))
-    earlystopping = EarlyStopping(monitor='val_accuracy', patience=1)
+    earlystopping = EarlyStopping(monitor='val_accuracy', patience=3)
     modelcheckpoint = ModelCheckpoint(filepath='best_model_epoch.{epoch:02d}-{val_loss:.2f}.h5', monitor='val_loss', save_best_only=True),
 
-    callbacks_list = [#modelcheckpoint,
-                      #earlystopping,
+    callbacks_list = [# modelcheckpoint,
+                      earlystopping,
                       tensorboard]
 
-    # history = model.fit(x=[X_train_source_info, X_train_spectra],
-    #                     y=y_train,
-    #                     validation_data=([X_test_source_info, X_test_spectra_std], y_test),
-    #                     epochs=2,
-    #                     callbacks=callbacks_list)
+    history = model.fit(x=[X_train_source_info, X_train_spectra],
+                        y=y_train,
+                        validation_data=([X_test_source_info, X_test_spectra_std], y_test),
+                        epochs=2,
+                        callbacks=callbacks_list)
 
 
     # evaluate the model
@@ -221,11 +187,8 @@ def run_neural_network(df_spectral_data, df_fluxes):
                    X_test=[X_test_source_info, X_test_spectra_std],
                    y_test=y_test)
 
-    
-    return
 
 def get_incorrect_predictions(model, X_test, X_test_spectra, y_test, df):
-	# incorrects = np.nonzero(model.predict(X_test).reshape((-1,)) != y_test)
 	classes = ['galaxy', 'quasar', 'star']
 	predictions = model.predict(X_test).argmax(axis=1)
 	y_test = y_test.argmax(axis=1)
@@ -288,17 +251,12 @@ def summarize_results():
 	print('hello')
   
 def main():
-    df_fluxes = pd.read_hdf('data/sdss/preprocessed/0-50k_original_fluxes.h5', key='fluxes')
-    df_source_info = pd.read_hdf('data/sdss/preprocessed/0-50k_original_fluxes.h5', key='spectral_data')
+    df_fluxes = pd.read_hdf('data/sdss/preprocessed/0-50_gaussian.h5', key='fluxes').head(5000)
+    df_source_info = pd.read_hdf('data/sdss/preprocessed/0-50_gaussian.h5', key='spectral_data').head(5000)
     
-    df_fluxes = df_fluxes.head(10000)
-    df_source_info = df_source_info.head(10000)
+    print(f'df_source_info = {df_source_info}')
 
-    cnn = CNNModel(df_fluxes)
-    cnn.run(df_source_info, df_fluxes)
-
-
-    # model = run_neural_network(df_spectral_data, df_fluxes)
+    model = run_neural_network(df_source_info, df_fluxes)
 
 if __name__ == "__main__":
 	main()
