@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import os
 
-from tensorflow.keras.layers import Input, Dense
+from tensorflow.keras.layers import Input, Dense, Flatten, Conv1D, MaxPooling1D, UpSampling1D
 from tensorflow.keras.models import Model
 from tensorflow.keras.callbacks import TensorBoard
 
@@ -30,8 +30,15 @@ class AutoEncoder():
 
     def _encoder(self):
         inputs = Input(shape=(self.X[0].shape))
-        encoded = Dense(self.code_dimension, activation='relu')(inputs)
-        
+        # encoded = Dense(self.code_dimension, activation='relu')(inputs)
+
+        x = Conv1D(filters=32, kernel_size=3, activation='relu')(inputs)
+        x = MaxPooling1D(pool_size=2)(x)
+        x = Conv1D(filters=32, kernel_size=3, activation='relu')(x)
+        x = MaxPooling1D(pool_size=2)(x)
+        x = Conv1D(filters=32, kernel_size=3, activation='relu')(x)
+        encoded = MaxPooling1D(pool_size=2)(x)
+
         model = Model(inputs, encoded)
         self.encoder = model
 
@@ -39,8 +46,17 @@ class AutoEncoder():
     
     def _decoder(self):
         inputs = Input(shape=(self.code_dimension,))
-        decoded = Dense(self.X[0].shape[0])(inputs)
+        # decoded = Dense(self.X[0].shape[0])(inputs)
+
+        x = Conv1D(filters=32, kernel_size=3, activation='relu')(inputs)
+        x = UpSampling1D(2)(x)
+        x = Conv1D(filters=32, kernel_size=3, activation='relu')(x)
+        x = UpSampling1D(2)(x)
+        x = Conv1D(filters=32, kernel_size=3, activation='relu')(x)
+        x = UpSampling1D(2)(x)
         
+        decoded = Conv1D(filters=1, pool_size=2, activation='sigmoid')(x)
+
         model = Model(inputs, decoded)
         self.decoder = model
 
