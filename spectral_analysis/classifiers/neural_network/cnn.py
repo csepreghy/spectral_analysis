@@ -19,7 +19,6 @@ LOG_DIR = f"{int(time.time())}"
 
 class CNN:
     def __init__(self, df_fluxes):
-        print('NeuralNetworkModel init')
         self.input_length = len(df_fluxes.columns) - 1
         print(f'self.input_length = {self.input_length}')
 
