@@ -60,6 +60,11 @@ class AutoEncoder():
         return X
     
     def build_model(self, hp):
+        
+        # ================================================================================== #
+        # ==================================== ENCODER ===================================== #
+        # ================================================================================== #
+        
         input_layer = Input(shape=(self.X_train.shape[1], 1))
 
         # encoder
@@ -67,57 +72,72 @@ class AutoEncoder():
                    kernel_size=hp.Choice('encoder_conv_input_layer_kernel_size', values=[2, 3, 4, 8, 16, 32, 64]),
                    activation='relu', 
                    padding='same')(input_layer)
+
+        x = MaxPooling1D(2)(x)
+        x = Conv1D(filters=hp.Choice(f'encoder_conv_1_layer_filters', values=[16, 32, 64, 128, 256]),
+                    kernel_size=hp.Choice(f'encoder_conv_1_layer_kernel_size', values=[2, 3, 4, 8, 16, 32, 64]),
+                    activation='relu',
+                    padding='same')(x)
         
-        # x = Conv1D(filters=128, kernel_size=4, padding='same', activation='relu')(input_layer)
-        # x = MaxPooling1D(2)(x)
-        # x = Conv1D(filters=32, kernel_size=4, padding='same', activation='relu')(x)
-        # x = MaxPooling1D(2)(x)
-        # x = Conv1D(filters=16, kernel_size=4, padding='same', activation='relu')(x)
-        # x = MaxPooling1D(2)(x)
-        # x = Conv1D(filters=8, kernel_size=4, padding='same', activation='relu')(x)
-        # x = MaxPooling1D(2)(x)
-        # x = Conv1D(filters=4, kernel_size=4, padding='same', activation='relu')(x)
+        x = MaxPooling1D(2)(x)
+        x = Conv1D(filters=hp.Choice(f'encoder_conv_2_layer_filters', values=[16, 32, 64, 128, 256]),
+                    kernel_size=hp.Choice(f'encoder_conv_2_layer_kernel_size', values=[2, 3, 4, 8, 16, 32, 64]),
+                    activation='relu',
+                    padding='same')(x)
 
-        # encoded = MaxPooling1D(2, padding="same")(x)
+        x = MaxPooling1D(2)(x)
+        x = Conv1D(filters=hp.Choice(f'encoder_conv_3_layer_filters', values=[16, 32, 64, 128, 256]),
+                    kernel_size=hp.Choice(f'encoder_conv_3_layer_kernel_size', values=[2, 3, 4, 8, 16, 32, 64]),
+                    activation='relu',
+                    padding='same')(x)
 
-        # x = Conv1D(filters=4, kernel_size=4, padding='same', activation='relu')(encoded)
-        # x = UpSampling1D(2)(x)
-        # x = Conv1D(filters=8, kernel_size=4, padding='same', activation='relu')(x)
-        # x = UpSampling1D(2)(x)
-        # x = Conv1D(filters=16, kernel_size=4, padding='same', activation='relu')(x)
-        # x = UpSampling1D(2)(x)
-        # x = Conv1D(filters=32, kernel_size=4, padding='same', activation='relu')(x)
-        # x = UpSampling1D(2)(x)
-        # x = Conv1D(filters=64, kernel_size=4, padding='same', activation='relu')(x)
-        # x = UpSampling1D(2)(x)
-        
-        decoded = Conv1D(1, 1, activation='sigmoid', padding='same')(x) # 10 dims
-
-        for i in range(hp.Int('n_layers', 1, 5)):
-            x = MaxPooling1D(2)(x)
-            x = Conv1D(filters=hp.Choice(f'conv_{i}_layer_filters', values=[16, 32, 64, 128, 256]),
-                       kernel_size=hp.Choice(f'conv_{i}_layer_kernel_size', values=[2, 3, 4, 8, 16, 32, 64]),
-                       activation='relu',
-                       padding='same')(x)
+        x = MaxPooling1D(2)(x)
+        x = Conv1D(filters=hp.Choice(f'encoder_conv_4_layer_filters', values=[16, 32, 64, 128, 256]),
+                    kernel_size=hp.Choice(f'encoder_conv_4_layer_kernel_size', values=[2, 3, 4, 8, 16, 32, 64]),
+                    activation='relu',
+                    padding='same')(x)
 
         encoded = MaxPooling1D(2, padding="same")(x)
-        encoder = Model(input_layer, encoded)
 
-        # decoder
-        x = Conv1D(filters=hp.Choice('conv_input_layer_filters', values=[16, 32, 64, 128, 256]),
-                   kernel_size=hp.Choice('conv_input_layer_kernel_size', values=[2, 3, 4, 8, 16, 32]),
+        # ================================================================================== #
+        # ==================================== DECODER ===================================== #
+        # ================================================================================== #
+
+        x = Conv1D(filters=hp.Choice('decoder_conv_input_layer_filters', values=[16, 32, 64, 128, 256]),
+                   kernel_size=hp.Choice('decoder_conv_input_layer_kernel_size', values=[2, 3, 4, 8, 16, 32]),
                    activation='relu',
                    padding='same')(encoded)
         
         x = UpSampling1D(2)(x)
 
-        for i in range(hp.Int('n_layers', 1, 5)):
-            x = Conv1D(filters=hp.Choice('conv_input_layer_filters', values=[16, 32, 64, 128, 256]),
-                       kernel_size=hp.Choice('conv_input_layer_kernel_size', values=[2, 3, 4, 8, 16, 32]),
-                       activation='relu',
-                       padding='same')(x)
+        x = Conv1D(filters=hp.Choice('decoder_conv_1_layer_filters', values=[16, 32, 64, 128, 256]),
+                   kernel_size=hp.Choice('decoder_conv_1_layer_kernel_size', values=[2, 3, 4, 8, 16, 32]),
+                   activation='relu',
+                   padding='same')(x)
 
-            x = UpSampling1D(2)(x)
+        x = UpSampling1D(2)(x)
+
+        x = Conv1D(filters=hp.Choice('decoder_conv_2_layer_filters', values=[16, 32, 64, 128, 256]),
+                   kernel_size=hp.Choice('decoder_conv_2_layer_kernel_size', values=[2, 3, 4, 8, 16, 32]),
+                   activation='relu',
+                   padding='same')(x)
+
+        x = UpSampling1D(2)(x)
+
+        x = Conv1D(filters=hp.Choice('decoder_conv_3_layer_filters', values=[16, 32, 64, 128, 256]),
+                   kernel_size=hp.Choice('decoder_conv_3_layer_kernel_size', values=[2, 3, 4, 8, 16, 32]),
+                   activation='relu',
+                   padding='same')(x)
+
+        x = UpSampling1D(2)(x)
+
+        x = Conv1D(filters=hp.Choice('decoder_conv_4_layer_filters', values=[16, 32, 64, 128, 256]),
+                   kernel_size=hp.Choice('decoder_conv_4_layer_kernel_size', values=[2, 3, 4, 8, 16, 32]),
+                   activation='relu',
+                   padding='same')(x)
+
+        x = UpSampling1D(2)(x)
+        decoded = Conv1D(1, 1, activation='sigmoid', padding='same')(x) # 10 dims
         
         self.autoencoder = Model(input_layer, decoded)
         self.autoencoder.summary()
@@ -128,7 +148,7 @@ class AutoEncoder():
     def train_model(self, epochs, batch_size=32):
         tuner = RandomSearch(self.build_model,
                              objective='val_loss',
-                             max_trials=100,
+                             max_trials=50,
                              executions_per_trial=1,
                              directory='logs/keras-tuner/autoencoder')
     
