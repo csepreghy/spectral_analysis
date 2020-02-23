@@ -12,9 +12,7 @@ from tensorflow.keras.callbacks import EarlyStopping
 from spectral_analysis.data_preprocessing.data_preprocessing import remove_bytes_from_class, plot_spectrum, get_wavelengths_from_h5
 
 class AutoEncoder():
-    def __init__(self, df_source_info, df_fluxes, code_dimension):
-        self.code_dimension = code_dimension
-
+    def __init__(self, df_source_info, df_fluxes):
         self.X = self._prepare_data(df_source_info, df_fluxes)
         print(f'self.X.shape = {self.X.shape}')
 
@@ -24,10 +22,8 @@ class AutoEncoder():
 
         # print(f'self.X = {self.X}')
 
-        optimizer = Adam(lr=0.001)
-
         self.autoencoder_model = self.build_model()
-        self.autoencoder_model.compile(loss='mse', optimizer=optimizer)
+        self.autoencoder_model.compile(loss='mse', optimizer='nadam')
     
     def _prepare_data(self, df_source_info, df_fluxes):
         if "b'" in df_source_info['class'][0]:
@@ -55,23 +51,24 @@ class AutoEncoder():
         input_layer = Input(shape=(self.X.shape[1], 1))
 
         # encoder
-        x= Conv1D(64, 4, activation='relu', padding='same')(input_layer)
-        x = MaxPooling1D(2, padding="same")(x) # 5 dims
-        x = Conv1D(32, 2, activation="relu", padding="same")(x) # 5 dims
+        x= Conv1D(128, 8, activation='relu', padding='same')(input_layer)
+        x = MaxPooling1D(2, padding="same")(x)
+        x = Conv1D(64, 8, activation="relu", padding="same")(x)
         x = MaxPooling1D(2, padding='same')(x)
-        x = Conv1D(16, 2, activation="relu", padding="same")(x) # 5 dims
+        x = Conv1D(32, 4, activation="relu", padding="same")(x)
 
-        encoded = MaxPooling1D(2, padding="same")(x) # 3 dims
+        encoded = MaxPooling1D(2, padding="same")(x)
         encoder = Model(input_layer, encoded)
 
         # decoder
-        x = Conv1D(16, 2, activation="relu", padding="same")(encoded) # 3 dims
-        x = UpSampling1D(2)(x) # 6 dims
-        x = Conv1D(32, 2, activation="relu", padding="same")(x) # 3 dims
-        x = UpSampling1D(2)(x) # 6 dims
-        x = Conv1D(64, 2, activation='relu', name='decoder_conv_2', padding='same')(x) # 5 dims
-        x = UpSampling1D(2)(x) # 10 dims
-        decoded = Conv1D(1, 1, activation='sigmoid', padding='same')(x) # 10 dims
+        x = Conv1D(32, 2, activation="relu", padding="same")(encoded)
+        x = UpSampling1D(2)(x)
+        x = Conv1D(64, 2, activation="relu", padding="same")(x)
+        x = UpSampling1D(2)(x)
+        x = Conv1D(128, 2, activation='relu', name='decoder_conv_2', padding='same')(x)
+        x = UpSampling1D(2)(x)
+        
+        decoded = Conv1D(1, 1, activation='tanh', padding='same')(x) # 10 dims
         autoencoder = Model(input_layer, decoded)
         autoencoder.summary()
 
@@ -110,8 +107,8 @@ def main():
     # autoencoder.encoder_decoder()
     # autoencoder.fit(batch_size=32, epochs=100)
 
-    ae = AutoEncoder(df_source_info, df_fluxes, 10)
-    ae.train_model(epochs=200, batch_size=20)
+    ae = AutoEncoder(df_source_info, df_fluxes)
+    ae.train_model(epochs=200, batch_size=32)
 
 
 if __name__ == "__main__":
