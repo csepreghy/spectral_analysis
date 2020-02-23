@@ -61,8 +61,6 @@ def plot_spectrum(fluxes, wavelengths, save=False, filename=None):
                            figsize=(12, 8),
                            show_plot=True,
                            filename=filename,
-                           ymin=np.amin(fluxes) - 4,
-                           ymax=np.amax(fluxes) + 4,
                            save=save)
 
 def create_continuum(df, sp_index_range, sigma, downsize, save):
