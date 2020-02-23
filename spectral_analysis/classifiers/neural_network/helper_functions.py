@@ -35,6 +35,24 @@ from spectral_analysis.plotify import Plotify
 # a binary classifier, but it can be easily changed
 # It also automatically scales the data. This should speed up the process of training
 
+def train_test_split(X, test_size, y=None):
+    if y is not None and len(X) != len(y): assert('X and y does not have the same length')
+
+    n_test = round(len(X) * test_size)
+    n_train = len(X) - n_test
+
+    X_test = X[-n_test:]
+    X_train = X[:n_train]
+
+    print('len(X_train', len(X_train))
+
+    if y is not None:
+        y_test = y[-n_test:]
+        y_train = y[:n_train]
+
+    if y is not None: return X_train, X_test, y_train, y_test
+
+    else: return X_train, X_test
 
 def get_incorrect_predictions(model, X_test, X_test_spectra, y_test, df):
 	classes = ['galaxy', 'quasar', 'star']
