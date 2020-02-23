@@ -28,25 +28,6 @@ class MixedInputModel():
     def __init__(self):
         print('MixedInputModel __init__()')
 
-    def _train_test_split(self, X, y, test_size):
-        if y is not None and len(X) != len(y): assert('X and y does not have the same length')
-
-        n_test = round(len(X) * test_size)
-        n_train = len(X) - n_test
-
-        X_test = X[-n_test:]
-        X_train = X[:n_train]
-
-        print('len(X_train', len(X_train))
-
-        if y is not None:
-            y_test = y[-n_test:]
-            y_train = y[:n_train]
-
-        if y is not None: return X_train, X_test, y_train, y_test
-
-        else: return X_train, X_test
-
     def _prepare_data(self, df_source_info, df_fluxes):
         columns = []
 
