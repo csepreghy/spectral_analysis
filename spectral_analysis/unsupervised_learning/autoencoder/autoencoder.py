@@ -7,7 +7,7 @@ import time
 from tensorflow.keras.layers import Input, Dense, Flatten, Conv1D, MaxPooling1D, UpSampling1D, BatchNormalization, Reshape
 from tensorflow.keras.models import Model, Sequential
 from tensorflow.keras.callbacks import TensorBoard
-from tensorflow.keras.optimizers import Nadam
+from tensorflow.keras.optimizers import Adam, Nadam, RMSprop
 from tensorflow.keras.callbacks import EarlyStopping
 
 from kerastuner.engine.hyperparameters import HyperParameters
@@ -70,7 +70,9 @@ class AutoEncoder():
             'layer_4_filters': hp.Choice('layer_4_filters', values=[4, 8, 12, 16]),
             'layer_4_kernel_size': hp.Choice('layer_4_kernel_size', values=[3, 5]),
             'layer_5_filters': hp.Choice('layer_5_filters', values=[2, 3, 4, 8]),
-            'layer_5_kernel_size': hp.Choice('layer_5_kernel_size', values=[3])
+            'layer_5_kernel_size': hp.Choice('layer_5_kernel_size', values=[3]),
+            'optimizer': hp.Choice('optimizer', values=['adam', 'nadam', 'rmsprop']),
+            'last_activation': hp.Choice('last_activation', ['sigmoid', 'tanh'])
         }
         
         # ================================================================================== #
@@ -149,11 +151,11 @@ class AutoEncoder():
                    padding='same')(x)
 
         x = UpSampling1D(2)(x)
-        decoded = Conv1D(1, 1, activation='sigmoid', padding='same')(x)
+        decoded = Conv1D(1, 1, activation=hyperparameters['last_activation'], padding='same')(x)
         
         self.autoencoder = Model(input_layer, decoded)
         self.autoencoder.summary()
-        self.autoencoder.compile(loss='mse', optimizer=self.optimizer)
+        self.autoencoder.compile(loss='mse', optimizer=hyperparameters['optimizer'])
 
         return self.autoencoder
     
@@ -164,12 +166,16 @@ class AutoEncoder():
                                   executions_per_trial=1,
                                   directory='logs/keras-tuner/',
                                   project_name='autoencoder')
+        
+        self.tuner.search_space_summary()
     
         self.tuner.search(x=self.X_train,
                           y=self.X_train,
                           epochs=18,
                           batch_size=32,
                           validation_data=(self.X_test, self.X_test))
+
+        self.tuner.results_summary()
 
         # history = self.autoencoder.fit(self.X_train, self.X_train,
         #                                batch_size=batch_size,
@@ -196,8 +202,8 @@ class AutoEncoder():
 
         plotify = Plotify()
         fig, axs = plotify.get_figax(nrows=2)
-        axs[0].plot(self.wavelengths, self.X_test[24])
-        axs[1].plot(self.wavelengths, preds[24])
+        axs[0].plot(self.wavelengths, self.X_test[10])
+        axs[1].plot(self.wavelengths, preds[10])
         plt.show()
 
         return preds
