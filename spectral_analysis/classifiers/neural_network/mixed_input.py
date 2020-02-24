@@ -7,7 +7,6 @@ import time as time
 import datetime
 import math
 
-# from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import confusion_matrix
 
@@ -21,6 +20,7 @@ from tensorflow.keras.utils import to_categorical
 
 from spectral_analysis.data_preprocessing.data_preprocessing import remove_bytes_from_class
 from spectral_analysis.plotify import Plotify
+from spectral_analysis.classifiers.neural_network.helper_functions import train_test_split
 
 from helper_functions import evaluate_model
 
@@ -126,12 +126,12 @@ class MixedInputModel():
     def train(self, df_source_info, df_fluxes):
         X_source_info, X_fluxes, y = self._prepare_data(df_source_info, df_fluxes)
         # meta-data
-        X_train_source_info, X_test_source_info, y_train, y_test = self._train_test_split(X_source_info, y, test_size=0.2)
-        X_train_source_info, X_val_source_info, y_train, y_val = self._train_test_split(X_train_source_info, y_train, test_size=0.2)
+        X_train_source_info, X_test_source_info, y_train, y_test = train_test_split(X_source_info, y, test_size=0.2)
+        X_train_source_info, X_val_source_info, y_train, y_val = train_test_split(X_train_source_info, y_train, test_size=0.2)
 
         # continuum
-        X_train_spectra, X_test_spectra = self._train_test_split(X_fluxes, None, test_size=0.2)
-        X_train_spectra, X_val_spectra = self._train_test_split(X_train_spectra, None, test_size=0.2)
+        X_train_spectra, X_test_spectra = train_test_split(X_fluxes, None, test_size=0.2)
+        X_train_spectra, X_val_spectra = train_test_split(X_train_spectra, None, test_size=0.2)
 
         scaler = StandardScaler()
 
