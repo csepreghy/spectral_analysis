@@ -7,7 +7,7 @@ import time
 from tensorflow.keras.layers import Input, Dense, Flatten, Conv1D, MaxPooling1D, UpSampling1D, BatchNormalization, Reshape
 from tensorflow.keras.models import Model, Sequential
 from tensorflow.keras.callbacks import TensorBoard
-from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.optimizers import Nadam
 from tensorflow.keras.callbacks import EarlyStopping
 
 from kerastuner.engine.hyperparameters import HyperParameters
@@ -33,8 +33,7 @@ class AutoEncoder():
         
         print(f'self.X_train = {self.X_train}')
         
-        self.optimizer = Adam(lr=0.001)
-        # self.build_model(hp=None)
+        self.optimizer = Nadam(lr=0.001)
 
     
     def _prepare_data(self, df_source_info, df_fluxes):
@@ -60,6 +59,19 @@ class AutoEncoder():
         return X
     
     def build_model(self, hp):
+
+        hyperparameters = {
+            'layer_1_filters': hp.Choice('layer_1_filters', values=[8, 16, 32, 64, 128, 256]),
+            'layer_1_kernel_size': hp.Choice('layer_1_kernel_size', values=[2, 3, 4, 8, 16, 32, 64]),
+            'layer_2_filters': hp.Choice('layer_2_filters', values=[8, 16, 32, 64, 128]),
+            'layer_2_kernel_size': hp.Choice('layer_2_kernel_size', values=[2, 3, 4, 8, 16, 32]),
+            'layer_3_filters': hp.Choice('layer_3_filters', values=[4, 8, 16, 32]),
+            'layer_3_kernel_size': hp.Choice('layer_3_kernel_size', values=[2, 3, 4, 8, 16, 32]),
+            'layer_4_filters': hp.Choice('layer_4_filters', values=[4, 8, 12, 16]),
+            'layer_4_kernel_size': hp.Choice('layer_4_kernel_size', values=[2, 3, 4, 8]),
+            'layer_5_filters': hp.Choice('layer_5_filters', values=[2, 3, 4]),
+            'layer_5_kernel_size': hp.Choice('layer_5_kernel_size', values=[2, 3, 4])
+        }
         
         # ================================================================================== #
         # ==================================== ENCODER ===================================== #
@@ -68,32 +80,32 @@ class AutoEncoder():
         input_layer = Input(shape=(self.X_train.shape[1], 1))
 
         # encoder
-        x = Conv1D(filters=hp.Choice('encoder_conv_input_layer_filters', values=[8, 16, 32, 64, 128, 256]), 
-                   kernel_size=hp.Choice('encoder_conv_input_layer_kernel_size', values=[2, 3, 4, 8, 16, 32, 64]),
+        x = Conv1D(filters=hyperparameters['layer_1_filters'],
+                   kernel_size=hyperparameters['layer_1_kernel_size'],
                    activation='relu', 
                    padding='same')(input_layer)
 
         x = MaxPooling1D(2)(x)
-        x = Conv1D(filters=hp.Choice(f'encoder_conv_1_layer_filters', values=[8, 16, 32, 64, 128]),
-                    kernel_size=hp.Choice(f'encoder_conv_1_layer_kernel_size', values=[2, 3, 4, 8, 16, 32]),
+        x = Conv1D(filters=hyperparameters['layer_2_filters'],
+                    kernel_size=hyperparameters['layer_2_kernel_size'],
                     activation='relu',
                     padding='same')(x)
         
         x = MaxPooling1D(2)(x)
-        x = Conv1D(filters=hp.Choice(f'encoder_conv_2_layer_filters', values=[4, 8, 16, 32]),
-                    kernel_size=hp.Choice(f'encoder_conv_2_layer_kernel_size', values=[2, 3, 4, 8, 16, 32]),
+        x = Conv1D(filters=hyperparameters['layer_3_filters'],
+                    kernel_size=hyperparameters['layer_3_kernel_size'],
                     activation='relu',
                     padding='same')(x)
 
         x = MaxPooling1D(2)(x)
-        x = Conv1D(filters=hp.Choice(f'encoder_conv_3_layer_filters', values=[4, 8, 12, 16]),
-                    kernel_size=hp.Choice(f'encoder_conv_3_layer_kernel_size', values=[2, 3, 4, 8, 16]),
+        x = Conv1D(filters=hyperparameters['layer_4_filters'],
+                    kernel_size=hyperparameters['layer_4_kernel_size'],
                     activation='relu',
                     padding='same')(x)
 
         x = MaxPooling1D(2)(x)
-        x = Conv1D(filters=hp.Choice(f'encoder_conv_4_layer_filters', values=[2, 4, 8]),
-                    kernel_size=hp.Choice(f'encoder_conv_4_layer_kernel_size', values=[2, 3, 4, 8]),
+        x = Conv1D(filters=hyperparameters['layer_5_filters'],
+                    kernel_size=hyperparameters['layer_5_kernel_size'],
                     activation='relu',
                     padding='same')(x)
 
@@ -103,41 +115,41 @@ class AutoEncoder():
         # ==================================== DECODER ===================================== #
         # ================================================================================== #
 
-        x = Conv1D(filters=hp.Choice('decoder_conv_input_layer_filters', values=[2, 4, 8]),
-                   kernel_size=hp.Choice('decoder_conv_input_layer_kernel_size', values=[2, 3, 4, 8]),
+        x = Conv1D(filters=hyperparameters['layer_5_filters'],
+                   kernel_size=hyperparameters['layer_5_kernel_size'],
                    activation='relu',
                    padding='same')(encoded)
         
         x = UpSampling1D(2)(x)
 
-        x = Conv1D(filters=hp.Choice('decoder_conv_1_layer_filters', values=[4, 8, 12, 16]),
-                   kernel_size=hp.Choice('decoder_conv_1_layer_kernel_size', values=[2, 3, 4, 8, 16]),
+        x = Conv1D(filters=hyperparameters['layer_4_filters'],
+                   kernel_size=hyperparameters['layer_4_kernel_size'],
                    activation='relu',
                    padding='same')(x)
 
         x = UpSampling1D(2)(x)
 
-        x = Conv1D(filters=hp.Choice('decoder_conv_2_layer_filters', values=[4, 8, 16, 32]),
-                   kernel_size=hp.Choice('decoder_conv_2_layer_kernel_size', values=[2, 3, 4, 8, 16, 32]),
+        x = Conv1D(filters=hyperparameters['layer_3_filters'],
+                   kernel_size=hyperparameters['layer_3_kernel_size'],
                    activation='relu',
                    padding='same')(x)
 
         x = UpSampling1D(2)(x)
 
-        x = Conv1D(filters=hp.Choice('decoder_conv_3_layer_filters', values=[8, 16, 32, 64, 128]),
-                   kernel_size=hp.Choice('decoder_conv_3_layer_kernel_size', values=[2, 3, 4, 8, 16, 32]),
+        x = Conv1D(filters=hyperparameters['layer_2_filters'],
+                   kernel_size=hyperparameters['layer_2_kernel_size'],
                    activation='relu',
                    padding='same')(x)
 
         x = UpSampling1D(2)(x)
 
-        x = Conv1D(filters=hp.Choice('decoder_conv_4_layer_filters', values=[8, 16, 32, 64, 128, 256]),
-                   kernel_size=hp.Choice('decoder_conv_4_layer_kernel_size', values=[2, 3, 4, 8, 16, 32, 64]),
+        x = Conv1D(filters=hyperparameters['layer_1_filters'],
+                   kernel_size=hyperparameters['layer_1_kernel_size'],
                    activation='relu',
                    padding='same')(x)
 
         x = UpSampling1D(2)(x)
-        decoded = Conv1D(1, 1, activation='sigmoid', padding='same')(x) # 10 dims
+        decoded = Conv1D(1, 1, activation='sigmoid', padding='same')(x)
         
         self.autoencoder = Model(input_layer, decoded)
         self.autoencoder.summary()
@@ -146,24 +158,18 @@ class AutoEncoder():
         return self.autoencoder
     
     def train_model(self, epochs, batch_size=32):
-        tuner = RandomSearch(self.build_model,
-                             objective='val_loss',
-                             max_trials=40,
-                             executions_per_trial=1,
-                             directory='logs/keras-tuner/',
-                             project_name='autoencoder')
+        self.tuner = RandomSearch(self.build_model,
+                                  objective='val_loss',
+                                  max_trials=8,
+                                  executions_per_trial=1,
+                                  directory='logs/keras-tuner/',
+                                  project_name='autoencoder')
     
-        tuner.search(x=self.X_train,
-                     y=self.X_train,
-                     epochs=24,
-                     batch_size=32,
-                     validation_data=(self.X_test, self.X_test))
-
-        best_model = tuner.get_best_models(1)[0]
-        best_hyperparameters = tuner.get_best_hyperparameters(1)[0]
-
-        print(f'best_model = {best_model}')
-        print(f'best_hyperparameters = {best_hyperparameters}')
+        self.tuner.search(x=self.X_train,
+                          y=self.X_train,
+                          epochs=18,
+                          batch_size=32,
+                          validation_data=(self.X_test, self.X_test))
 
         # history = self.autoencoder.fit(self.X_train, self.X_train,
         #                                batch_size=batch_size,
@@ -178,15 +184,20 @@ class AutoEncoder():
         # plt.legend(['Train', 'Test'], loc='upper left')
         # plt.show()
     
-    def eval_model(self):
-        preds = self.autoencoder.predict(self.X_test)
+    def evaluate_model(self):
+        best_model = self.tuner.get_best_models(1)[0]
+        best_hyperparameters = self.tuner.get_best_hyperparameters(1)[0]
+
+        print(f'best_model = {best_model}')
+        print(f'best_hyperparameters = {best_hyperparameters}')
+
+        preds = best_model.predict(self.X_test)
         print(f'preds = {preds}')
 
-
         plotify = Plotify()
-        fig, axs = plotify.get_figax(n_subplots=2)
-        axs[0].plot(self.X_test[8], self.wavelengths)
-        axs[1].plot(preds[8], self.wavelengths)
+        fig, axs = plotify.get_figax(nrows=2)
+        axs[0].plot(self.wavelengths, self.X_test[24])
+        axs[1].plot(self.wavelengths, preds[24])
         plt.show()
 
         return preds
@@ -198,7 +209,7 @@ def main():
     ae = AutoEncoder(df_source_info, df_fluxes)
     ae.train_model(epochs=24, batch_size=64)
 
-    ae.eval_model()
+    ae.evaluate_model()
     
 
 if __name__ == "__main__":
