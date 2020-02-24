@@ -286,8 +286,8 @@ class Plotify:
 
     return fig, ax
 
-  def get_figax(self, is3d=False, figsize=(8, 6), use_grid=True):
-    fig, ax = plt.subplots(figsize=figsize)
+  def get_figax(self, is3d=False, figsize=(8, 6), use_grid=True, n_rows=1):
+    fig, ax = plt.subplots(n_rows=n_rows, figsize=figsize)
     fig.patch.set_facecolor(self.background_color)
 
     ax.set_facecolor(self.background_color)
