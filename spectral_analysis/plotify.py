@@ -286,17 +286,26 @@ class Plotify:
 
     return fig, ax
 
-  def get_figax(self, is3d=False, figsize=(8, 6), use_grid=True, n_rows=1):
-    fig, ax = plt.subplots(n_rows=n_rows, figsize=figsize)
+  def get_figax(self, is3d=False, figsize=(8, 6), use_grid=True, nrows=1):
+    fig, axs = plt.subplots(nrows=nrows, figsize=figsize)
     fig.patch.set_facecolor(self.background_color)
+    
+    if len(axs) > 1:
+        for ax in axs:
+            ax.set_facecolor(self.background_color)
+            ax.tick_params(colors=self.c_white)
+            ax.xaxis.label.set_color(self.c_white)
+            ax.yaxis.label.set_color(self.c_white)
+            ax.grid(use_grid, color=self.grid_color)
 
-    ax.set_facecolor(self.background_color)
-    ax.tick_params(colors=self.c_white)
-    ax.xaxis.label.set_color(self.c_white)
-    ax.yaxis.label.set_color(self.c_white)
-    ax.grid(use_grid, color=self.grid_color)
+    else:
+        axs.set_facecolor(self.background_color)
+        axs.tick_params(colors=self.c_white)
+        axs.xaxis.label.set_color(self.c_white)
+        axs.yaxis.label.set_color(self.c_white)
+        axs.grid(use_grid, color=self.grid_color)
 
-    return fig, ax
+    return fig, axs
 
   def get_figax3d(self):
     fig = plt.figure()
