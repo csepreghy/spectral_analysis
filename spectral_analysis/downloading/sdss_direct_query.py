@@ -25,12 +25,13 @@ def get_coordinates_from_query(save_metatable=False, save_coordinates=False):
 	start = time.clock()
 
 	query = "select \
-	spec.z, spec.ra, spec.dec, spec.specObjID, spec.bestObjID, spec.fluxObjID, spec.targetObjID, spec.plate, spec.class, spec.subClass, spec.zErr, \
-	spho.petroMag_u, spho.petroMag_g,	spho.petroMag_r,	spho.petroMag_i,	spho.petroMag_z,	spho.petroMagErr_u, spho.petroMagErr_g, spho.petroMagErr_r, spho.petroMagErr_i, spho.petroMagErr_z \
+	spec.z, spec.ra, spec.dec, spec.specObjID, spec.bestObjID, spec.fluxObjID, spec.targetObjID, spec.plate, \
+    spec.class, spec.subClass, spec.zErr, spho.petroMag_u, spho.petroMag_g, spho.petroMag_r, spho.petroMag_i, \
+    spho.petroMag_z, spho.petroMagErr_u, spho.petroMagErr_g, spho.petroMagErr_r, spho.petroMagErr_i, spho.petroMagErr_z \
 	from SpecObjAll AS spec \
 	JOIN SpecPhotoAll AS spho ON spec.specObjID = spho.specObjID \
 	where \
-	spec.zWarning = 0"
+	spec.zWarning = 0 AND spec.class = 'QSO'"
 
 	res = SDSS.query_sql(query)
 	df = res.to_pandas()
@@ -43,10 +44,10 @@ def get_coordinates_from_query(save_metatable=False, save_coordinates=False):
 	print(f'df = {df}')
 
 	if save_coordinates:
-		df_coordinate_list.to_csv('data/sdss/coordinate_list.csv')
+		df_coordinate_list.to_csv('data/sdss/quasar_coordinate_list.csv')
 	
 	if save_metatable:
-		df.to_pickle('data/sdss/meta_table.pkl')
+		df.to_pickle('data/sdss/quasar_meta_table.pkl')
 	
 	end = time.clock()
 	tt = end - start
@@ -60,7 +61,7 @@ def main():
 	"""
 	print('sdss_direct_query.py -- __main__')
 
-	get_coordinates_from_query(save_metatable=False, save_coordinates=False)
+	get_coordinates_from_query(save_metatable=True, save_coordinates=True)
 
 if __name__ == '__main__':
 	main()
