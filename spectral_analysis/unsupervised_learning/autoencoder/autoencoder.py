@@ -61,16 +61,16 @@ class AutoEncoder():
     def build_model(self, hp):
 
         hyperparameters = {
-            'layer_1_filters': hp.Choice('layer_1_filters', values=[8, 16, 32, 64, 128, 256]),
-            'layer_1_kernel_size': hp.Choice('layer_1_kernel_size', values=[2, 3, 4, 8, 16, 32, 64]),
+            'layer_1_filters': hp.Choice('layer_1_filters', values=[16, 32, 64, 128, 256]),
+            'layer_1_kernel_size': hp.Choice('layer_1_kernel_size', values=[3, 5, 7, 9, 11]),
             'layer_2_filters': hp.Choice('layer_2_filters', values=[8, 16, 32, 64, 128]),
-            'layer_2_kernel_size': hp.Choice('layer_2_kernel_size', values=[2, 3, 4, 8, 16, 32]),
+            'layer_2_kernel_size': hp.Choice('layer_2_kernel_size', values=[3, 5, 7, 9]),
             'layer_3_filters': hp.Choice('layer_3_filters', values=[4, 8, 16, 32]),
-            'layer_3_kernel_size': hp.Choice('layer_3_kernel_size', values=[2, 3, 4, 8, 16, 32]),
+            'layer_3_kernel_size': hp.Choice('layer_3_kernel_size', values=[3, 5, 7]),
             'layer_4_filters': hp.Choice('layer_4_filters', values=[4, 8, 12, 16]),
-            'layer_4_kernel_size': hp.Choice('layer_4_kernel_size', values=[2, 3, 4, 8]),
-            'layer_5_filters': hp.Choice('layer_5_filters', values=[2, 3, 4]),
-            'layer_5_kernel_size': hp.Choice('layer_5_kernel_size', values=[2, 3, 4])
+            'layer_4_kernel_size': hp.Choice('layer_4_kernel_size', values=[3, 5]),
+            'layer_5_filters': hp.Choice('layer_5_filters', values=[2, 3, 4, 8]),
+            'layer_5_kernel_size': hp.Choice('layer_5_kernel_size', values=[3])
         }
         
         # ================================================================================== #
