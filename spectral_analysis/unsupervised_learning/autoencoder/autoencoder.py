@@ -17,7 +17,7 @@ from sklearn.preprocessing import StandardScaler
 
 from spectral_analysis.data_preprocessing.data_preprocessing import remove_bytes_from_class, plot_spectrum, get_wavelengths_from_h5
 from spectral_analysis.classifiers.neural_network.helper_functions import train_test_split
-
+from spectral_analysis.plotify import Plotify
 
 class AutoEncoder():
     def __init__(self, df_source_info, df_fluxes):
@@ -68,32 +68,32 @@ class AutoEncoder():
         input_layer = Input(shape=(self.X_train.shape[1], 1))
 
         # encoder
-        x = Conv1D(filters=hp.Choice('encoder_conv_input_layer_filters', values=[16, 32, 64, 128]), 
+        x = Conv1D(filters=hp.Choice('encoder_conv_input_layer_filters', values=[8, 16, 32, 64, 128, 256]), 
                    kernel_size=hp.Choice('encoder_conv_input_layer_kernel_size', values=[2, 3, 4, 8, 16, 32, 64]),
                    activation='relu', 
                    padding='same')(input_layer)
 
         x = MaxPooling1D(2)(x)
-        x = Conv1D(filters=hp.Choice(f'encoder_conv_1_layer_filters', values=[16, 32, 64, 128, 256]),
-                    kernel_size=hp.Choice(f'encoder_conv_1_layer_kernel_size', values=[2, 3, 4, 8, 16, 32, 64]),
+        x = Conv1D(filters=hp.Choice(f'encoder_conv_1_layer_filters', values=[8, 16, 32, 64, 128]),
+                    kernel_size=hp.Choice(f'encoder_conv_1_layer_kernel_size', values=[2, 3, 4, 8, 16, 32]),
                     activation='relu',
                     padding='same')(x)
         
         x = MaxPooling1D(2)(x)
-        x = Conv1D(filters=hp.Choice(f'encoder_conv_2_layer_filters', values=[16, 32, 64, 128, 256]),
-                    kernel_size=hp.Choice(f'encoder_conv_2_layer_kernel_size', values=[2, 3, 4, 8, 16, 32, 64]),
+        x = Conv1D(filters=hp.Choice(f'encoder_conv_2_layer_filters', values=[4, 8, 16, 32]),
+                    kernel_size=hp.Choice(f'encoder_conv_2_layer_kernel_size', values=[2, 3, 4, 8, 16, 32]),
                     activation='relu',
                     padding='same')(x)
 
         x = MaxPooling1D(2)(x)
-        x = Conv1D(filters=hp.Choice(f'encoder_conv_3_layer_filters', values=[16, 32, 64, 128, 256]),
-                    kernel_size=hp.Choice(f'encoder_conv_3_layer_kernel_size', values=[2, 3, 4, 8, 16, 32, 64]),
+        x = Conv1D(filters=hp.Choice(f'encoder_conv_3_layer_filters', values=[4, 8, 12, 16]),
+                    kernel_size=hp.Choice(f'encoder_conv_3_layer_kernel_size', values=[2, 3, 4, 8, 16]),
                     activation='relu',
                     padding='same')(x)
 
         x = MaxPooling1D(2)(x)
-        x = Conv1D(filters=hp.Choice(f'encoder_conv_4_layer_filters', values=[16, 32, 64, 128, 256]),
-                    kernel_size=hp.Choice(f'encoder_conv_4_layer_kernel_size', values=[2, 3, 4, 8, 16, 32, 64]),
+        x = Conv1D(filters=hp.Choice(f'encoder_conv_4_layer_filters', values=[2, 4, 8]),
+                    kernel_size=hp.Choice(f'encoder_conv_4_layer_kernel_size', values=[2, 3, 4, 8]),
                     activation='relu',
                     padding='same')(x)
 
@@ -103,36 +103,36 @@ class AutoEncoder():
         # ==================================== DECODER ===================================== #
         # ================================================================================== #
 
-        x = Conv1D(filters=hp.Choice('decoder_conv_input_layer_filters', values=[16, 32, 64, 128, 256]),
-                   kernel_size=hp.Choice('decoder_conv_input_layer_kernel_size', values=[2, 3, 4, 8, 16, 32]),
+        x = Conv1D(filters=hp.Choice('decoder_conv_input_layer_filters', values=[2, 4, 8]),
+                   kernel_size=hp.Choice('decoder_conv_input_layer_kernel_size', values=[2, 3, 4, 8]),
                    activation='relu',
                    padding='same')(encoded)
         
         x = UpSampling1D(2)(x)
 
-        x = Conv1D(filters=hp.Choice('decoder_conv_1_layer_filters', values=[16, 32, 64, 128, 256]),
-                   kernel_size=hp.Choice('decoder_conv_1_layer_kernel_size', values=[2, 3, 4, 8, 16, 32]),
+        x = Conv1D(filters=hp.Choice('decoder_conv_1_layer_filters', values=[4, 8, 12, 16]),
+                   kernel_size=hp.Choice('decoder_conv_1_layer_kernel_size', values=[2, 3, 4, 8, 16]),
                    activation='relu',
                    padding='same')(x)
 
         x = UpSampling1D(2)(x)
 
-        x = Conv1D(filters=hp.Choice('decoder_conv_2_layer_filters', values=[16, 32, 64, 128, 256]),
+        x = Conv1D(filters=hp.Choice('decoder_conv_2_layer_filters', values=[4, 8, 16, 32]),
                    kernel_size=hp.Choice('decoder_conv_2_layer_kernel_size', values=[2, 3, 4, 8, 16, 32]),
                    activation='relu',
                    padding='same')(x)
 
         x = UpSampling1D(2)(x)
 
-        x = Conv1D(filters=hp.Choice('decoder_conv_3_layer_filters', values=[16, 32, 64, 128, 256]),
+        x = Conv1D(filters=hp.Choice('decoder_conv_3_layer_filters', values=[8, 16, 32, 64, 128]),
                    kernel_size=hp.Choice('decoder_conv_3_layer_kernel_size', values=[2, 3, 4, 8, 16, 32]),
                    activation='relu',
                    padding='same')(x)
 
         x = UpSampling1D(2)(x)
 
-        x = Conv1D(filters=hp.Choice('decoder_conv_4_layer_filters', values=[16, 32, 64, 128, 256]),
-                   kernel_size=hp.Choice('decoder_conv_4_layer_kernel_size', values=[2, 3, 4, 8, 16, 32]),
+        x = Conv1D(filters=hp.Choice('decoder_conv_4_layer_filters', values=[8, 16, 32, 64, 128, 256]),
+                   kernel_size=hp.Choice('decoder_conv_4_layer_kernel_size', values=[2, 3, 4, 8, 16, 32, 64]),
                    activation='relu',
                    padding='same')(x)
 
@@ -148,9 +148,10 @@ class AutoEncoder():
     def train_model(self, epochs, batch_size=32):
         tuner = RandomSearch(self.build_model,
                              objective='val_loss',
-                             max_trials=50,
+                             max_trials=40,
                              executions_per_trial=1,
-                             directory='logs/keras-tuner/autoencoder')
+                             directory='logs/keras-tuner/',
+                             project_name='autoencoder')
     
         tuner.search(x=self.X_train,
                      y=self.X_train,
@@ -180,8 +181,13 @@ class AutoEncoder():
     def eval_model(self):
         preds = self.autoencoder.predict(self.X_test)
         print(f'preds = {preds}')
-        plot_spectrum(self.X_test[24], self.wavelengths)
-        plot_spectrum(preds[24], self.wavelengths)
+
+
+        plotify = Plotify()
+        fig, axs = plotify.get_figax(n_subplots=2)
+        axs[0].plot(self.X_test[8], self.wavelengths)
+        axs[1].plot(preds[8], self.wavelengths)
+        plt.show()
 
         return preds
 
