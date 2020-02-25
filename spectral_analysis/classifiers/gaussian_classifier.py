@@ -10,7 +10,6 @@ import pandas as pd
 import numpy as np
 import time as time
 
-
 def run_gaussian_clf(df, config):
   df = df[0:100]
   start = time.time()

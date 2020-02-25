@@ -5,7 +5,6 @@ from sklearn.preprocessing import OneHotEncoder
 import pickle
 import pandas as pd
 
-
 def run_xgboost(df, config):
   x_train = df.drop(columns={"class"}).as_matrix()
   y_train = df["class"].get_values()
