@@ -166,9 +166,9 @@ class AutoEncoder():
                                   executions_per_trial=1,
                                   directory='logs/keras-tuner/',
                                   project_name='autoencoder')
-        
+
         self.tuner.search_space_summary()
-    
+
         self.tuner.search(x=self.X_train,
                           y=self.X_train,
                           epochs=20,
@@ -177,7 +177,7 @@ class AutoEncoder():
                           callbacks=[EarlyStopping('val_loss', patience=3)])
 
         self.tuner.results_summary()
-    
+
     def evaluate_model(self):
         best_model = self.tuner.get_best_models(1)[0]
         best_hyperparameters = self.tuner.get_best_hyperparameters(1)[0]
@@ -186,10 +186,9 @@ class AutoEncoder():
         print(f'best_hyperparameters = {best_hyperparameters}')
 
         preds = best_model.predict(self.X_test)
-        print(f'preds = {preds}')
 
         plotify = Plotify()
-        fig, axs = plotify.get_figax(nrows=2, figsize=(8, 10))
+        _, axs = plotify.get_figax(nrows=2, figsize=(8, 10))
         axs[0].plot(self.wavelengths, self.X_test[10], color=plotify.c_orange)
         axs[1].plot(self.wavelengths, preds[10], color=plotify.c_orange)
         plt.savefig('plots/autoencoder_gaussian', facecolor=plotify.background_color, dpi=180)
@@ -198,8 +197,8 @@ class AutoEncoder():
         return preds
 
 def main():
-    df_fluxes = pd.read_hdf('data/sdss/preprocessed/0-50_gaussian.h5', key='fluxes')
-    df_source_info = pd.read_hdf('data/sdss/preprocessed/0-50_gaussian.h5', key='spectral_data')
+    df_fluxes = pd.read_hdf('data/sdss/preprocessed/0-50k_original_fluxes.h5', key='fluxes')
+    df_source_info = pd.read_hdf('data/sdss/preprocessed/0-50k_original_fluxes.h5', key='spectral_data')
 
     ae = AutoEncoder(df_source_info, df_fluxes)
     ae.train_model(epochs=24, batch_size=64)
