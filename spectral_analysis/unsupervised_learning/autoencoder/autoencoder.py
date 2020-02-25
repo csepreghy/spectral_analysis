@@ -162,7 +162,7 @@ class AutoEncoder():
     def train_model(self, epochs, batch_size=32):
         self.tuner = RandomSearch(self.build_model,
                                   objective='val_loss',
-                                  max_trials=6,
+                                  max_trials=8,
                                   executions_per_trial=1,
                                   directory='logs/keras-tuner/',
                                   project_name='autoencoder')
@@ -173,7 +173,8 @@ class AutoEncoder():
                           y=self.X_train,
                           epochs=20,
                           batch_size=32,
-                          validation_data=(self.X_test, self.X_test))
+                          validation_data=(self.X_test, self.X_test),
+                          callbacks=[EarlyStopping('val_loss', patience=3)])
 
         self.tuner.results_summary()
     
@@ -189,8 +190,8 @@ class AutoEncoder():
 
         plotify = Plotify()
         fig, axs = plotify.get_figax(nrows=2, figsize=(8, 10))
-        axs[0].plot(self.wavelengths, self.X_test[12], color=plotify.c_orange)
-        axs[1].plot(self.wavelengths, preds[12], color=plotify.c_orange)
+        axs[0].plot(self.wavelengths, self.X_test[10], color=plotify.c_orange)
+        axs[1].plot(self.wavelengths, preds[10], color=plotify.c_orange)
         plt.savefig('plots/autoencoder_gaussian', facecolor=plotify.background_color, dpi=180)
         plt.show()
 
