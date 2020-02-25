@@ -5,7 +5,7 @@ import time as time
 def truncate(n):
   return int(n * 1000) / 1000
 
-def get_coordinates_from_query(save_metatable=False, save_coordinates=False):
+def get_coordinates_from_query(save_metatable=False, save_coordinates=False, quasar_only=False):
 	"""
 	get_coordinates_from_query()
 
@@ -24,14 +24,25 @@ def get_coordinates_from_query(save_metatable=False, save_coordinates=False):
 	"""
 	start = time.clock()
 
-	query = "select \
-	spec.z, spec.ra, spec.dec, spec.specObjID, spec.bestObjID, spec.fluxObjID, spec.targetObjID, spec.plate, \
-    spec.class, spec.subClass, spec.zErr, spho.petroMag_u, spho.petroMag_g, spho.petroMag_r, spho.petroMag_i, \
-    spho.petroMag_z, spho.petroMagErr_u, spho.petroMagErr_g, spho.petroMagErr_r, spho.petroMagErr_i, spho.petroMagErr_z \
-	from SpecObjAll AS spec \
-	JOIN SpecPhotoAll AS spho ON spec.specObjID = spho.specObjID \
-	where \
-	spec.zWarning = 0 AND spec.class = 'QSO'"
+    if quasar_only == True:
+        query = "select \
+                 spec.z, spec.ra, spec.dec, spec.specObjID, spec.bestObjID, spec.fluxObjID, spec.targetObjID, spec.plate, \
+                 spec.class, spec.subClass, spec.zErr, spho.petroMag_u, spho.petroMag_g, spho.petroMag_r, spho.petroMag_i, \
+                 spho.petroMag_z, spho.petroMagErr_u, spho.petroMagErr_g, spho.petroMagErr_r, spho.petroMagErr_i, spho.petroMagErr_z \
+                 from SpecObjAll AS spec \
+                 JOIN SpecPhotoAll AS spho ON spec.specObjID = spho.specObjID \
+                 where \
+                 spec.zWarning = 0 AND spec.class = 'QSO'"
+
+    else:
+        query = "select \
+                 spec.z, spec.ra, spec.dec, spec.specObjID, spec.bestObjID, spec.fluxObjID, spec.targetObjID, spec.plate, \
+                 spec.class, spec.subClass, spec.zErr, spho.petroMag_u, spho.petroMag_g, spho.petroMag_r, spho.petroMag_i, \
+                 spho.petroMag_z, spho.petroMagErr_u, spho.petroMagErr_g, spho.petroMagErr_r, spho.petroMagErr_i, spho.petroMagErr_z \
+                 from SpecObjAll AS spec \
+                 JOIN SpecPhotoAll AS spho ON spec.specObjID = spho.specObjID \
+                 where \
+                 spec.zWarning = 0"
 
 	res = SDSS.query_sql(query)
 	df = res.to_pandas()
@@ -61,7 +72,7 @@ def main():
 	"""
 	print('sdss_direct_query.py -- __main__')
 
-	get_coordinates_from_query(save_metatable=True, save_coordinates=True)
+	get_coordinates_from_query(save_metatable=True, save_coordinates=False)
 
 if __name__ == '__main__':
 	main()
