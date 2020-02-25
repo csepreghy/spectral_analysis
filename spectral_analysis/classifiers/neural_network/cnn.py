@@ -88,7 +88,9 @@ class CNN:
             model.add(Dense(hp.Choice(f'dense_{i}_filters', values=[16, 32, 64, 128, 256, 512]), activation='relu'))
 
         model.add(Dense(3, activation=hp.Choice('last_activation', values=['softmax', 'tanh'])))
-        model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+        model.compile(loss='categorical_crossentropy',
+                      optimizer=hp.Choice('optimizer', values=['adam', 'nadam', 'rmsprop']),
+                      metrics=['accuracy'])
 
         return model
 
