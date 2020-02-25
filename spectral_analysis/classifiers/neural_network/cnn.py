@@ -5,7 +5,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 
 from tensorflow.keras.optimizers import SGD
-from tensorflow.keras.callbacks import History
+from tensorflow.keras.callbacks import History, EarlyStopping
 from tensorflow.keras.layers import Dense, Dropout, Activation, Flatten, Conv1D, MaxPooling1D, Input
 from tensorflow.keras.models import Sequential, Model
 from tensorflow.keras.utils import to_categorical
@@ -59,13 +59,15 @@ class CNN:
                              objective='val_accuracy',
                              max_trials=10,
                              executions_per_trial=1,
-                             directory=LOG_DIR)
+                             directory='logs/keras-tuner/',
+                             project_name='autoencoder')
     
         tuner.search(x=X_train,
                      y=y_train,
-                     epochs=1,
+                     epochs=20,
                      batch_size=64,
-                     validation_data=(X_test, y_test))
+                     validation_data=(X_test, y_test),
+                     callbacks=[EarlyStopping('val_accuracy', patience=3)])
 
     def _build_model(self, hp):
         model = Sequential()
@@ -89,7 +91,7 @@ class CNN:
 
         model.add(Dense(3, activation=hp.Choice('last_activation', values=['softmax', 'tanh'])))
         model.compile(loss='categorical_crossentropy',
-                      optimizer=hp.Choice('optimizer', values=['adam', 'nadam', 'rmsprop']),
+                      optimizer=hp.Choice('optimizer', values=['adam', 'nadam']),
                       metrics=['accuracy'])
 
         return model
@@ -118,8 +120,8 @@ def main():
     df_fluxes = pd.read_hdf('data/sdss/preprocessed/0-50_gaussian.h5', key='fluxes')
     df_source_info = pd.read_hdf('data/sdss/preprocessed/0-50_gaussian.h5', key='spectral_data')
     
-    df_fluxes = df_fluxes.head(10000)
-    df_source_info = df_source_info.head(10000)
+    df_fluxes = df_fluxes.head(20000)
+    df_source_info = df_source_info.head(20000)
 
     cnn = CNN(df_fluxes)
     cnn.run(df_source_info, df_fluxes)
