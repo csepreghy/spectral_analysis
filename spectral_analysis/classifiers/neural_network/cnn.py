@@ -71,13 +71,13 @@ class CNN:
         model = Sequential()
 
         model.add(Conv1D(filters=hp.Choice('conv_filters_input_layer', values=[16, 32, 64, 128, 256, 512]),
-                         kernel_size=hp.Choice('kernel_size_input_layer', values=[2, 3, 4, 8, 16]),
+                         kernel_size=hp.Choice('kernel_size_input_layer', values=[3, 5, 7, 9]),
                          activation='relu',
                          input_shape=(self.input_length, 1)))
 
         for i in range(hp.Int('n_cnn_layers', 1, 4)):
             model.add(Conv1D(filters=hp.Choice(f'conv_{i}_filters', values=[16, 32, 64, 128, 256, 512]),
-                             kernel_size=hp.Choice(f'conv_{i}_filters_kernel_size', values=[2, 3, 4, 8, 16]),
+                             kernel_size=hp.Choice(f'conv_{i}_filters_kernel_size', values=[3, 5, 7, 9]),
                              activation='relu'))
                                 
         model.add(Dropout(0.5))
@@ -87,7 +87,7 @@ class CNN:
         for i in range(hp.Int('n_dense_layers', 1, 4)):
             model.add(Dense(hp.Choice(f'dense_{i}_filters', values=[16, 32, 64, 128, 256, 512]), activation='relu'))
 
-        model.add(Dense(3, activation='softmax'))
+        model.add(Dense(3, activation=hp.Choice('last_activation', values=['softmax', 'tanh'])))
         model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 
         return model
