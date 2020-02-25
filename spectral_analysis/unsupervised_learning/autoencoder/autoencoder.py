@@ -72,7 +72,7 @@ class AutoEncoder():
             'layer_5_filters': hp.Choice('layer_5_filters', values=[2, 3, 4, 8]),
             'layer_5_kernel_size': hp.Choice('layer_5_kernel_size', values=[3]),
             'optimizer': hp.Choice('optimizer', values=['adam', 'nadam', 'rmsprop']),
-            'last_activation': hp.Choice('last_activation', ['sigmoid', 'tanh'])
+            'last_activation': hp.Choice('last_activation', ['tanh'])
         }
         
         # ================================================================================== #
@@ -162,7 +162,7 @@ class AutoEncoder():
     def train_model(self, epochs, batch_size=32):
         self.tuner = RandomSearch(self.build_model,
                                   objective='val_loss',
-                                  max_trials=8,
+                                  max_trials=6,
                                   executions_per_trial=1,
                                   directory='logs/keras-tuner/',
                                   project_name='autoencoder')
@@ -171,24 +171,11 @@ class AutoEncoder():
     
         self.tuner.search(x=self.X_train,
                           y=self.X_train,
-                          epochs=18,
+                          epochs=20,
                           batch_size=32,
                           validation_data=(self.X_test, self.X_test))
 
         self.tuner.results_summary()
-
-        # history = self.autoencoder.fit(self.X_train, self.X_train,
-        #                                batch_size=batch_size,
-        #                                epochs=epochs,
-        #                                validation_data=(self.X_test, self.X_test))
-  
-        # plt.plot(history.history['loss'])
-        # plt.plot(history.history['val_loss'])
-        # plt.title('Model loss')
-        # plt.ylabel('Loss')
-        # plt.xlabel('Epoch')
-        # plt.legend(['Train', 'Test'], loc='upper left')
-        # plt.show()
     
     def evaluate_model(self):
         best_model = self.tuner.get_best_models(1)[0]
@@ -201,9 +188,10 @@ class AutoEncoder():
         print(f'preds = {preds}')
 
         plotify = Plotify()
-        fig, axs = plotify.get_figax(nrows=2)
-        axs[0].plot(self.wavelengths, self.X_test[10])
-        axs[1].plot(self.wavelengths, preds[10])
+        fig, axs = plotify.get_figax(nrows=2, figsize=(8, 10))
+        axs[0].plot(self.wavelengths, self.X_test[12], color=plotify.c_orange)
+        axs[1].plot(self.wavelengths, preds[12], color=plotify.c_orange)
+        plt.savefig('plots/autoencoder_gaussian', facecolor=plotify.background_color, dpi=180)
         plt.show()
 
         return preds
