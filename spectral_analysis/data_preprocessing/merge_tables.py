@@ -3,7 +3,7 @@ import pandas as pd
 import time as time
 
 
-def merge_with_metatable(from_sp, to_sp, save=False, df=None):
+def merge_with_metatable(from_sp, to_sp, df_spectra, save=False):
 	"""
 	merge_with_metatable()
 
@@ -17,13 +17,13 @@ def merge_with_metatable(from_sp, to_sp, save=False, df=None):
 		The number which specifies the upper limit to merge spectra with meta-data. 
 		String, beceause it must match the filename in folder data/sdss/spectra/
 
+    df_spectra : pd.DataFrame
+		The DataFrame that comes from downloading the raw spectral data. None by
+		default, in which case its loaded from disk.
+
 	save : boolean
 		When True, save the resulting merged table into a pickle
 		When False, don't save the resulting merged table
-	
-	df : pd.DataFrame
-		The DataFrame that comes from downloading the raw spectral data. None by
-		default, in which case its loaded from disk.
 	
 	Returns
 	-------
@@ -56,18 +56,11 @@ def merge_with_metatable(from_sp, to_sp, save=False, df=None):
 					'ra'
 	"""
 
-	if df == None:
-		df_spectra = pd.read_pickle('data/sdss/spectra/spectra_' + from_sp + '-' + to_sp + '.pkl')
-	
-	else:
-		df_spectra = df
-
-
-	df_meta_data = pd.read_pickle('data/sdss/meta_table.pkl')
+	df_meta_data = pd.read_pickle('data/meta_table.pkl')
 
 	df_meta_data["objid"] = df_meta_data['bestObjID'].astype(int)
 	df_spectra['objid'] = df_spectra['objid'].astype(int)
-	
+
 	print(f'df_spectra before removing duplicates = {df_spectra.shape[0]}')
 
 	df_spectra = df_spectra.drop_duplicates(subset=['objid'])
