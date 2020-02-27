@@ -239,91 +239,83 @@ def spectrallines_1source(flux, wavelength, z, sigma=4, delta1=10, delta2=80):
 
 # Compute the spectral line vectors for all the data
 
-def get_spectrallines(df, from_sp, to_sp, save):
-	"""
-	get_spectrallines()
+def get_spectrallines(df_fluxes, df_source_info, df_wavelengths, from_sp, to_sp, save):
+    """
+    get_spectrallines()
 
-	Takes a fluxes from DataFrame with spectra, and computes the area under curve at spectral lines
-	to get a magnitude for each spectral line of interest (hard coded list of areas of interest)
+    Takes a fluxes from DataFrame with spectra, and computes the area under curve at spectral lines
+    to get a magnitude for each spectral line of interest (hard coded list of areas of interest)
 
-	Parameters 
-	----------
-	df : pd.DataFrame
-		A table containing spectra with metadata, which comes from a merging of tables
-	
-	from_sp : int
-		The index of spectrum from which the spectral lines are calculated. Only used for the filename
-		at saving
-	
-	to_sp : int
-		The index of spectrum to which the spectral lines are calculated. Only used for the filename
-			at saving
-	
-	save: When True, saves the resulting DataFrame
-		  When False, doesn't save the DataFrame
-	
-	Returns
-	-------
-	df : pd.DataFrame
-		A pandas DataFrame with 2 columns.
+    Parameters 
+    ----------
+    df_fluxes : pandas.DataFrame
+        A table containing only fluxes and the corresponding objid as the first column
 
-		columns:	'spectral_lines',
-					'objid'
-	"""
+    df_source_info : pandas.DataFrame
+        table containing all additional data about a source
 
-	# Extract the important columns: flux list, wavelength list, objID, z
-	flux_list = df['flux_list'].to_numpy()
-	wavelength = df['wavelength'].to_numpy()
-	objid = df['objid'].to_numpy()
-	z = df['z'].to_numpy()
+    df_wavelengths : pandas.DataFrame
+        table containing only a list of wavelengths that all sources share.
 
-	"""
-	# ------ Temporarily: get class ------
-	specclass_bytes = df.get_values()[:, 4]
-	print(f'specclass_bytes = {specclass_bytes}')
-	# Convert the specclass bytes into strings
-	specclass = []
-	for i in specclass_bytes:
-		specclass.append(i.decode("utf-8"))
+    from_sp : int
+        The index of spectrum from which the spectral lines are calculated. Only used for the filename
+        at saving
 
-	
-	specclass = np.array(specclass)
-	print(f'specclass = {specclass}')
-	# -------------------------------------
-	"""
+    to_sp : int
+        The index of spectrum to which the spectral lines are calculated. Only used for the filename
+            at saving
 
-	# Create lists for the 2 columns: the spectral lines vector and the objID list
-	speclines_vector = []
-	speclines_objid = []
+    save: When True, saves the resulting DataFrame
+            When False, doesn't save the DataFrame
 
-	# Loop over all the sources in the data file: get for each one the vector with spectral lines
-	m = 0
-	for n in tqdm(range(len(df)), desc='Computing Spectral Lines: '):
-		try:
-			vector = spectrallines_1source(np.array(flux_list[n]), np.array(wavelength[n]), z[n])
-			speclines_vector.append(vector)
-			speclines_objid.append(objid[n])
+    Returns
+    -------
+    df : pd.DataFrame
+        A pandas DataFrame with 2 columns.
 
-		except:
-			m += 1
-			# print("Something went wrong with the spectral lines! At iteration ", n)
-			speclines_vector.append(np.nan)
-			speclines_objid.append(objid[n])
+        columns:	'spectral_lines',
+                    'objid'
+    """
 
-	# Merge the two columns together in a data frame
-	df = {}
-	df['objid'] = speclines_objid
-	df['spectral_lines'] = speclines_vector
-	#df['class'] = specclass
-	df = pd.DataFrame(df)
+    fluxes = np.delete(df_fluxes.values, 0, axis=1) # remove objids
+    print(f'fluxes = {fluxes}')
 
-	if save:
-		filename = 'data/sdss/spectral_lines/spectral_lines_' + str(from_sp) + '_' + str(to_sp) + '.pkl'
-		df.to_pickle(filename)
+    wavelengths = df_wavelengths.values
+    objid = df_source_info['objid'].to_numpy()
+    z = df_source_info['z'].to_numpy()
 
-	print("There were ", m, " errors.")
+    # Create lists for the 2 columns: the spectral lines vector and the objID list
+    speclines_vector = []
+    speclines_objid = []
 
-	return df
+    # Loop over all the sources in the data file: get for each one the vector with spectral lines
+    m = 0
+    for n in tqdm(range(len(df_source_info)), desc='Computing Spectral Lines: '):
+        # try:
+            vector = spectrallines_1source(np.array(fluxes[n]), np.array(wavelengths[n]), z[n])
+            speclines_vector.append(vector)
+            speclines_objid.append(objid[n])
+
+        # except:
+            m += 1
+            # print("Something went wrong with the spectral lines! At iteration ", n)
+            speclines_vector.append(np.nan)
+            speclines_objid.append(objid[n])
+
+    # Merge the two columns together in a data frame
+    df = {}
+    df['objid'] = speclines_objid
+    df['spectral_lines'] = speclines_vector
+    #df['class'] = specclass
+    df = pd.DataFrame(df)
+
+    if save:
+        filename = 'data/sdss/spectral_lines/spectral_lines_' + str(from_sp) + '_' + str(to_sp) + '.pkl'
+        df.to_pickle(filename)
+
+    print("There were ", m, " errors.")
+
+    return df
 
 
 # This part is for the visualisation
@@ -331,16 +323,16 @@ def get_spectrallines(df, from_sp, to_sp, save):
 
 def visualize_results():
 	qso_z = z[specclass == "QSO"]
-	qso_fluxlist = flux_list[specclass == "QSO"]
+	qso_fluxlist = fluxes[specclass == "QSO"]
 	qso_wavelength = wavelength[specclass == "QSO"]
 
 	star_z = z[specclass == "STAR"]
-	star_fluxlist = flux_list[specclass == "STAR"]
+	star_fluxlist = fluxes[specclass == "STAR"]
 	star_wavelength = wavelength[specclass == "STAR"]
 	star_z_err = z_err[specclass == "STAR"]
 
 	galaxy_z = z[specclass == "GALAXY"]
-	galaxy_fluxlist = flux_list[specclass == "GALAXY"]
+	galaxy_fluxlist = fluxes[specclass == "GALAXY"]
 	galaxy_wavelength = wavelength[specclass == "GALAXY"]
 
 	n = 2
@@ -420,13 +412,20 @@ def visualize_results():
 	plt.show()
 
 def main():
-	# The spectral lines of interest
-	speclines = [2799, 3727, 3934, 3968, 4101, 4304, 4342, 4861, 4960, 5008, 5175, 5895, 6565, 6716]
-	speclines_name = ['MgII_em', 'OII_em', 'CAIIH_ab', 'CAIIK_ab', 'Hdelta_ab', 'Gband_ab',
-					  'Hgamma_em', 'Hbeta_em', 'OIII_em', 'OIII_em', 'Mg_ab', 'NaI_ab', 'Halpha_em', 'S2_em']
+    # The spectral lines of interest
+    speclines = [2799, 3727, 3934, 3968, 4101, 4304, 4342, 4861, 4960, 5008, 5175, 5895, 6565, 6716]
+    speclines_name = ['MgII_em', 'OII_em', 'CAIIH_ab', 'CAIIK_ab', 'Hdelta_ab', 'Gband_ab',
+                        'Hgamma_em', 'Hbeta_em', 'OIII_em', 'OIII_em', 'Mg_ab', 'NaI_ab', 'Halpha_em', 'S2_em']
 
-	df_filtered = pd.read_pickle('data/sdss/spectra-meta/spectra-meta_0-5000.pkl')
-	df_spectral_lines = get_spectrallines(df_filtered, 0, 5000, True)
+    df_fluxes =  pd.read_hdf('data/sdss/preprocessed/50_100_original_fluxes.h5', key='fluxes')
+    df_source_info = pd.read_hdf('data/sdss/preprocessed/50_100_original_fluxes.h5', key='spectral_data')
+    df_wavelengths = pd.read_hdf('data/sdss/preprocessed/50_100_original_fluxes.h5', key='wavelengths')
+    df_spectral_lines = get_spectrallines(df_fluxes=df_fluxes,
+                                            df_source_info=df_source_info,
+                                            df_wavelengths=df_wavelengths,
+                                            from_sp=50000,
+                                            to_sp=100000,
+                                            save=True)
 
 if __name__ == "__main__":
 	main()
