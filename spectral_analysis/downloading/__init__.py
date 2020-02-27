@@ -15,8 +15,8 @@ from spectral_analysis.data_preprocessing.get_spectrallines import get_spectrall
 # 3) Merge spectra with table containing meta information ----------------- #
 
 def main():
-    from_sp = 110001
-    to_sp 	= 120000
+    from_sp = 130001
+    to_sp 	= 140000
 
     # --------------------------------------------------------------------------- #
     # ----------------------- 1) Get cordinates from query ---------------------- #
@@ -38,9 +38,9 @@ def main():
     # --------------------------------------------------------------------------- #
 
     df_merged = merge_with_metatable(from_sp=str(from_sp),
-                                        to_sp=str(to_sp),
-                                        save=True,
-                                        df=df_raw_spectra)
+                                     to_sp=str(to_sp),
+                                     save=True,
+                                     df_spectra=df_raw_spectra)
 
 if __name__ == '__main__':
 	main()
