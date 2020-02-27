@@ -290,7 +290,9 @@ class Plotify:
     fig, axs = plt.subplots(nrows=nrows, figsize=figsize)
     fig.patch.set_facecolor(self.background_color)
     
-    if len(axs) > 1:
+    print(f'axs = {axs}')
+
+    if nrows > 1:
         for ax in axs:
             ax.set_facecolor(self.background_color)
             ax.tick_params(colors=self.c_white)
