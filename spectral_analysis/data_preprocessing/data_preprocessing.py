@@ -19,7 +19,25 @@ CUTOFF_MIN = 3850
 CUTOFF_MAX = 9100
 
 def apply_gaussian_filter(fluxes, sigma):
-  return filters.gaussian(image=fluxes, sigma=sigma)
+    """
+    apply_gaussian_filter()
+
+    Takes one spectrum convolves a gaussian filter with it and returns the resulting list of fluxes
+
+    Parameters
+    ----------
+    fluxes : numpy.ndarray
+        1D numpy array of a list of fluxes
+    
+    sigma : int
+        the sigma with which the gaussian convolving is applied
+    
+    Returns
+    -------
+    fluxes : numpy.ndarray
+        1D numpy array that results from convolving the gaussian filter
+    """
+    return filters.gaussian(image=fluxes, sigma=sigma)
 
 
 def plot_spectrum(fluxes, wavelengths, save=False, filename=None):
@@ -467,6 +485,15 @@ def get_wavelengths_from_h5(filename):
 
     return wavelengths
 
+def apply_gaussian_to_fluxes(fluxes, sigma):
+    gaussian_fluxes = np.zeros_like(fluxes)
+
+    for index, flux in tqdm(enumerate(fluxes), total=len(gaussian_fluxes), desc='Applying Gaussian Filter: '):
+        gaussian_flux = apply_gaussian_filter(flux, sigma)
+        gaussian_fluxes[index] = gaussian_flux
+    
+    return gaussian_fluxes
+
 def main():
     """
     main()
@@ -479,11 +506,16 @@ def main():
 
     fluxes = get_fluxes_from_h5(filename='/sdss/preprocessed/0-50k_original_fluxes.h5')
     wavelengths = get_wavelengths_from_h5(filename='/sdss/preprocessed/0-50k_original_fluxes.h5')
-
-
-    print(f'fluxes[24][0:3736] = {fluxes[24][1:3737]}')
-    plot_spectrum(fluxes[24][1:3737], wavelengths)
     
+
+    fluxes = np.delete(fluxes, 0, axis=1)
+    gaussian_fluxes = apply_gaussian_to_fluxes(fluxes, 2)
+
+    plotify = Plotify()
+    _, axs = plotify.get_figax(nrows=2, figsize=(8, 10))
+    axs[0].plot(wavelengths, fluxes[10], color=plotify.c_orange)
+    axs[1].plot(wavelengths, gaussian_fluxes[10], color=plotify.c_orange)
+    plt.show()
 
     # df.to_pickle('data/sdss/preprocessed/0-50_preprocessed_2.pkl')
 
