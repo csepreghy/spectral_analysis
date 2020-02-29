@@ -511,6 +511,10 @@ def main():
 
     fluxes = get_fluxes_from_h5(filename='/sdss/preprocessed/0-50k_original_fluxes.h5')
     wavelengths = get_wavelengths_from_h5(filename='/sdss/preprocessed/0-50k_original_fluxes.h5')
+<<<<<<< HEAD
+=======
+    
+>>>>>>> 29a8591aed5f02d48e93831cd1d97a5c408be8a1
 
     fluxes = np.delete(fluxes, 0, axis=1)
     gaussian_fluxes = apply_gaussian_to_fluxes(fluxes, 2)
