@@ -15,8 +15,8 @@ from spectral_analysis.data_preprocessing.get_spectrallines import get_spectrall
 # 3) Merge spectra with table containing meta information ----------------- #
 
 def main():
-    from_sp = 0
-    to_sp 	= 10000
+    from_sp = 10000
+    to_sp 	= 15000
 
     # --------------------------------------------------------------------------- #
     # ----------------------- 1) Get cordinates from query ---------------------- #
@@ -29,9 +29,9 @@ def main():
     # --------------------------------------------------------------------------- #
     coord_list_url = str('data/quasar_coordinate_list.csv')
     df_raw_spectra = download_spectra(coord_list_url=coord_list_url,
-                                        from_sp=from_sp,
-                                        to_sp=to_sp,
-                                        save=False)
+                                      from_sp=from_sp,
+                                      to_sp=to_sp,
+                                      save=False)
 
     # --------------------------------------------------------------------------- #
     # --------- 3) Merge spectra with table containing meta information --------- #

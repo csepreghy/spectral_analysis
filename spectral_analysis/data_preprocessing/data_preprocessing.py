@@ -256,7 +256,7 @@ def spectrum_cutoff(df, save=False):
     print('DF After Cutoff:')
     print(df.columns)
     print(df)
-    print(f'Length of filtered_df = {len(df)}')
+    print(f'Length of cutoff_df = {len(df)}')
 
     if save == True:
         df.to_pickle('data/sdss/50-100_spectrum_cutoff.pkl')
@@ -427,8 +427,8 @@ def remove_nested_lists(df, filename):
 
     data_path = '/Users/csepreghyandras/the_universe/projects/spectral-analysis/data/sdss/preprocessed/'
 
-    flux_lists = df['flux_list'].head().to_numpy()
-    wavelengths = df['wavelength'].head().to_numpy()
+    flux_lists = df['flux_list'].to_numpy()
+    wavelengths = df['wavelength'].to_numpy()
 
     modified_flux_list = []
     modified_wavelengths = []
@@ -453,18 +453,18 @@ def remove_nested_lists(df, filename):
     flux_df = pd.DataFrame({'objid': df['objid']})
     flux_df[flux_column_list] = pd.DataFrame(modified_flux_list, index=None, columns=flux_column_list)
 
-    print(f'modified_flux_list = {modified_flux_list}')
+    print(f'modified_flux_list = {len(modified_flux_list)}')
     print(f'flux_column_list = {flux_column_list}')
     print(f'flux_df.values = {flux_df}')
 
-    store = pd.HDFStore(data_path + filename)
-    store.put('spectral_data', df, format='fixed', data_columns=True)
-    store.put('fluxes', flux_df, format='fixed', data_columns=True)
-    store.put('wavelengths', wavelength_df)
+    # store = pd.HDFStore(data_path + filename)
+    # store.put('spectral_data', df, format='fixed', data_columns=True)
+    # store.put('fluxes', flux_df, format='fixed', data_columns=True)
+    # store.put('wavelengths', wavelength_df)
 
-    print(store.keys())
+    # print(store.keys())
 
-    store.close()
+    # store.close()
     
 def get_fluxes_from_h5(filename):
     """
@@ -511,10 +511,6 @@ def main():
 
     fluxes = get_fluxes_from_h5(filename='/sdss/preprocessed/0-50k_original_fluxes.h5')
     wavelengths = get_wavelengths_from_h5(filename='/sdss/preprocessed/0-50k_original_fluxes.h5')
-<<<<<<< HEAD
-=======
-    
->>>>>>> 29a8591aed5f02d48e93831cd1d97a5c408be8a1
 
     fluxes = np.delete(fluxes, 0, axis=1)
     gaussian_fluxes = apply_gaussian_to_fluxes(fluxes, 2)
