@@ -20,6 +20,7 @@ def closest(myList, myNumber):
 
     If two numbers are equally close, return the smallest number.
     """
+
     pos = bisect_left(myList, myNumber)
     if pos == 0: return myList[0]
     if pos == len(myList): return myList[-1]
@@ -123,7 +124,7 @@ def spectrallines_1source(flux, wavelength, z, sigma=4, delta1=10, delta2=80):
     # The spectral lines EW will be saved in this list
     final_vector = []
 
-    for s in tqdm(range(len(speclines)), desc='Computing Sepctral Lines: ', total=len(speclines)):
+    for s in range(len(speclines)):
         # -------- Step 1: find the exact midpoint of spectral peak --------
 
         # Look for the critical points within an interval of delta around the predicted peaks.
@@ -292,12 +293,12 @@ def get_spectrallines(df_fluxes, df_source_info, df_wavelengths, from_sp, to_sp,
     # Loop over all the sources in the data file: get for each one the vector with spectral lines
     m = 0
     for n in tqdm(range(len(df_source_info)), desc='Computing Spectral Lines: '):
-        # try:
+        try:
             vector = spectrallines_1source(np.array(fluxes[n]), np.array(wavelengths), z[n])
             speclines_vector.append(vector)
             speclines_objid.append(objid[n])
 
-        # except:
+        except:
             m += 1
             # print("Something went wrong with the spectral lines! At iteration ", n)
             speclines_vector.append(np.nan)
