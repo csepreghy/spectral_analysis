@@ -425,7 +425,6 @@ def remove_nested_lists(df, filename):
         The same DataFrame as the input except the double brackets removed
     """
 
-    data_path = '/Users/csepreghyandras/the_universe/projects/spectral-analysis/data/sdss/preprocessed/'
 
     flux_lists = df['flux_list'].to_numpy()
     wavelengths = df['wavelength'].to_numpy()
@@ -457,14 +456,16 @@ def remove_nested_lists(df, filename):
     print(f'flux_column_list = {flux_column_list}')
     print(f'flux_df.values = {flux_df}')
 
-    # store = pd.HDFStore(data_path + filename)
-    # store.put('spectral_data', df, format='fixed', data_columns=True)
-    # store.put('fluxes', flux_df, format='fixed', data_columns=True)
-    # store.put('wavelengths', wavelength_df)
+    data_path = '/Users/csepreghyandras/the_universe/projects/spectral-analysis/data/sdss/preprocessed/'
 
-    # print(store.keys())
+    store = pd.HDFStore(data_path + filename)
+    store.put('spectral_data', df, format='fixed', data_columns=True)
+    store.put('fluxes', flux_df, format='fixed', data_columns=True)
+    store.put('wavelengths', wavelength_df)
 
-    # store.close()
+    print(store.keys())
+
+    store.close()
     
 def get_fluxes_from_h5(filename):
     """
