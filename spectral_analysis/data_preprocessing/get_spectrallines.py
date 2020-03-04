@@ -118,17 +118,12 @@ def spectrallines_1source(flux, wavelength, z, sigma=4, delta1=10, delta2=80):
     # Smooth the flux and compute its gradient
     smoothflux = apply_gaussian_filter(flux, sigma=sigma)
 
-    print(f'smoothflux = {smoothflux}')
-    print(f'wavelength = {wavelength}')
-
-    print(f'len smoothflux = {len(smoothflux)}')
-    print(f'len wavelength = {wavelength.shape}')
     gradient = np.gradient(smoothflux, wavelength)
 
     # The spectral lines EW will be saved in this list
     final_vector = []
 
-    for s in range(len(speclines)):
+    for s in tqdm(range(len(speclines)), desc='Computing Sepctral Lines: ', total=len(speclines)):
         # -------- Step 1: find the exact midpoint of spectral peak --------
 
         # Look for the critical points within an interval of delta around the predicted peaks.
