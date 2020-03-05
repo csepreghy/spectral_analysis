@@ -301,7 +301,7 @@ def get_spectrallines(df_fluxes, df_source_info, df_wavelengths, from_sp, to_sp,
         except:
             m += 1
             # print("Something went wrong with the spectral lines! At iteration ", n)
-            speclines_vector.append(np.nan)
+            speclines_vector.append([np.nan] * 14)
             speclines_objid.append(objid[n])
 
     # Merge the two columns together in a data frame
@@ -316,6 +316,8 @@ def get_spectrallines(df_fluxes, df_source_info, df_wavelengths, from_sp, to_sp,
         df.to_pickle(filename)
 
     print("There were ", m, " errors.")
+
+
 
     return df
 
@@ -428,6 +430,9 @@ def main():
                                           from_sp=50000,
                                           to_sp=100000,
                                           save=True)
+
+    # df_spectral_lines = pd.read_pickle('data/sdss/spectral_lines/spectral_lines_50000_100000.pkl')
+    # print(f'df_spectral_lines = {df_spectral_lines}')
 
 if __name__ == "__main__":
 	main()
