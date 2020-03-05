@@ -500,42 +500,64 @@ def apply_gaussian_to_fluxes(fluxes, sigma):
     
     return gaussian_fluxes
 
+def merge_spectral_lines_with_hdf5_data(df_source_info, df_spectral_lines):
+    spectral_lines_columns = []
+
+    spectral_lines = df_spectral_lines.values
+
+    for i in range(len(spectral_lines[0][1])):
+        spectral_lines_columns.append(f'spectral_line_{i}')
+    
+    spectral_lines_objids = spectral_lines[:, 0]
+    spectral_lines_lists = spectral_lines[:, 1]
+    spectral_lines_values = []
+    
+    for i in spectral_lines_lists:
+        row = []
+        for x in i:
+            row.append(x)
+
+        spectral_lines_values.append(row)
+
+
+    df_spectral_lines_expanded = pd.DataFrame({'objid': spectral_lines_objids})
+    df_spectral_lines_expanded[spectral_lines_columns] = pd.DataFrame(spectral_lines_values, columns=spectral_lines_columns)
+
+    df_merged = df_source_info.merge(df_spectral_lines_expanded, on='objid')
+    df_merged = df_merged.drop_duplicates(subset=['objid', 'z']).reset_index()
+    
+    print(f'df_merged = {df_merged}')
+    print(f'df_merged.columns = {df_merged.columns}')
+
+    data_path = '/Users/csepreghyandras/the_universe/projects/spectral-analysis/data/sdss/preprocessed/'
+    filename = '50-100_original_fluxes_speclines.h5'
+
+    flux_df = pd.read_hdf('data/sdss/preprocessed/50-100_original_fluxes.h5', key='fluxes')
+    wavelength_df = pd.read_hdf('data/sdss/preprocessed/50-100_original_fluxes.h5', key='wavelengths')
+
+    store = pd.HDFStore(data_path + filename)
+    store.put('spectral_data', df_merged, format='fixed', data_columns=True)
+    store.put('fluxes', flux_df, format='fixed', data_columns=True)
+    store.put('wavelengths', wavelength_df)
+
+    print(store.keys())
+
+    store.close()
+
+
 def main():
-    """
-    main()
-
-    Runs a test batch to test whether the functions filter_sources() works properly.
-    """
-
     # df_preprocessed = pd.read_pickle('data/sdss/preprocessed/0-50_preprocessed.pkl')
     # remove_nested_lists(df_preprocessed, '0-50_preprocessed.h5')
 
-    fluxes = get_fluxes_from_h5(filename='/sdss/preprocessed/0-50k_original_fluxes.h5')
-    wavelengths = get_wavelengths_from_h5(filename='/sdss/preprocessed/0-50k_original_fluxes.h5')
+    df_source_info = pd.read_hdf('data/sdss/preprocessed/50-100_original_fluxes_speclines.h5', key='spectral_data')
+    df_fluxes = pd.read_hdf('data/sdss/preprocessed/50-100_original_fluxes_speclines.h5', key='fluxes')
+    df_wavelengths= pd.read_hdf('data/sdss/preprocessed/50-100_original_fluxes_speclines.h5', key='wavelengths')
 
-    fluxes = np.delete(fluxes, 0, axis=1)
-    gaussian_fluxes = apply_gaussian_to_fluxes(fluxes, 2)
+    print(f'df_source_info = {df_source_info}')
+    print(f'df_fluxes = {df_fluxes}')
+    print(f'df_wavelengths = {df_wavelengths}')
 
-    plotify = Plotify()
-    _, axs = plotify.get_figax(nrows=2, figsize=(8, 10))
-    axs[0].plot(wavelengths, fluxes[10], color=plotify.c_orange)
-    axs[1].plot(wavelengths, gaussian_fluxes[10], color=plotify.c_orange)
-    plt.show()
-
-    # df.to_pickle('data/sdss/preprocessed/0-50_preprocessed_2.pkl')
-
-    # df.to_hdf(path_or_buf='data/sdss/preprocessed/0-50_preprocessed.h5',
-    #           key='data',
-    #           mode='w')
-
-    # df_h5 = pd.read_hdf('data/sdss/preprocessed/0-50_preprocessed.h5', key='data')
-    # print(f'df_h5 = {df_h5}')
-    
-    # df_spectra = pd.read_pickle('data/sdss/spectra-meta/spectra-meta_1000-2020.pkl')
-    # filtered_df = filter_sources(df=df_spectra, save=False)
-    # df_cutoff = spectrum_cutoff(filtered_df)
-    # print(f'filtered_df = {filtered_df}')
-
+    merge_spectral_lines_with_hdf5_data(df_source_info, df_spectral_lines)
 
 if __name__ == '__main__':
 	main()
