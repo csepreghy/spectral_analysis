@@ -36,7 +36,7 @@ def main():
 # - 5) Cut off values from the sides to have the same range for all spectra - #
 # --------------------------------------------------------------------------- #
 	
-    # df_cutoff = spectrum_cutoff(df=df_filtered)
+    # df_cutoff = spectrum_cutoff(df=df_filtered, save=False)
     df_filtered = None # To remove from memory
 
 # --------------------------------------------------------------------------- #
@@ -49,16 +49,17 @@ def main():
     #                                 downsize=1,
     #                                 save=True)
 
-    # df_continuum = pd.read_pickle('data/sdss/continuum0_50000.pkl')
-    # remove_nested_lists(df_cutoff, '50_100_preprocessed_original_fluxes')
+    # df = pd.read_pickle('data/sdss/continuum0_50000.pkl')
+    # remove_nested_lists(df_cutoff, '50-100_original_fluxes_hello.h5')
 
 # --------------------------------------------------------------------------- #
 # ------------------------- 7) Get spectral lines --------------------------- #
 # --------------------------------------------------------------------------- #
 
-    df_fluxes =  pd.read_hdf('data/sdss/preprocessed/50_100_original_fluxes.h5', key='fluxes')
-    df_source_info = pd.read_hdf('data/sdss/preprocessed/50_100_original_fluxes.h5', key='spectral_data')
-    df_wavelengths = pd.read_hdf('data/sdss/preprocessed/50_100_original_fluxes.h5', key='wavelengths')
+    df_fluxes =  pd.read_hdf('data/sdss/preprocessed/50-100_original_fluxes.h5', key='fluxes')
+    df_source_info = pd.read_hdf('data/sdss/preprocessed/50-100_original_fluxes.h5', key='spectral_data')
+    df_wavelengths = pd.read_hdf('data/sdss/preprocessed/50-100_original_fluxes.h5', key='wavelengths')
+
     df_spectral_lines = get_spectrallines(df_fluxes=df_fluxes,
                                           df_source_info=df_source_info,
                                           df_wavelengths=df_wavelengths,

@@ -170,93 +170,98 @@ def create_continuum(df, sp_index_range, sigma, downsize, save):
 # plot_one_spectrum(spectra=continuum_df, nth_element=2300, sigma=4, downsize=4, filename=('animation_plot'), save=False, show_plot=True)
 
 def filter_sources(df, save=False):
-	"""
-	filter_sources()
+    """
+    filter_sources()
 
-	Takes all spectra as a DataFrame and removes all sources that fall out of the optimal wavelength range
-	and therefore don't have enough values for classification
+    Takes all spectra as a DataFrame and removes all sources that fall out of the optimal wavelength range
+    and therefore don't have enough values for classification
 
-	Parameters
-	---------
-	df : pandas.DataFrame
-		All unfiltered spectra that is already merged with the metatable
-	
-	save : boolean
-		When True, saves the filtered DataFrame into a pickle file
-		When False, doesn't save
+    Parameters
+    ---------
+    df : pandas.DataFrame
+        All unfiltered spectra that is already merged with the metatable
 
-	Returns
-	-------
-	df_filtered : pandas.DataFrame
-	"""
+    save : boolean
+        When True, saves the filtered DataFrame into a pickle file
+        When False, doesn't save
 
-	print(f'df.shape[0] = {df.shape[0]}')
-	duplicates = df[df.duplicated(subset=['objid', 'z'])]
-	df = df.drop_duplicates(subset=['objid', 'z'])
-	print(f'duplicates = {duplicates}')
-	print(f'df.shape[0] = {df.shape[0]}')
-	
-	rows_after_removal = []
+    Returns
+    -------
+    df_filtered : pandas.DataFrame
+    """
 
-	print('Number of rows before filtering: ', str(df.shape[0]))
-	print('df', df.columns)
+    print(f'df.shape[0] = {df.shape[0]}')
+    duplicates = df[df.duplicated(subset=['objid', 'z'])]
+    df = df.drop_duplicates(subset=['objid', 'z'])
+    print(f'duplicates = {duplicates}')
+    print(f'df.shape[0] = {df.shape[0]}')
 
-	for index, spectrum in tqdm(df.iterrows(), total=df.shape[0], desc='Filtering Sources: '):
-		min_value = np.amin(spectrum['wavelength'].tolist())
-		max_value = np.amax(spectrum['wavelength'].tolist())
+    rows_after_removal = []
 
-		if min_value < CUTOFF_MIN and max_value > CUTOFF_MAX:
-			row = {'wavelength': spectrum['wavelength'].tolist(),
-				   'flux_list': spectrum['flux_list'].tolist(),
-				   'petroMagErr_u': spectrum['petroMagErr_u'],
-				   'petroMagErr_g': spectrum['petroMagErr_g'],
-				   'petroMagErr_r': spectrum['petroMagErr_r'],
-				   'petroMagErr_i': spectrum['petroMagErr_i'],
-				   'petroMagErr_z': spectrum['petroMagErr_z'],
-				   'petroMag_u': spectrum['petroMag_u'],
-				   'petroMag_g': spectrum['petroMag_g'],
-				   'petroMag_r': spectrum['petroMag_r'],
-				   'petroMag_i': spectrum['petroMag_i'],
-				   'petroMag_z': spectrum['petroMag_z'],
-				   'subClass': spectrum['subClass'],
-				   'fluxObjID': spectrum['fluxObjID'],
-				   'objid': spectrum['objid'],
-				   'plate': spectrum['plate'],
-				   'class': spectrum['class'],
-				   'zErr': spectrum['zErr'],
-				   'dec': spectrum['dec'],
-				   'ra': spectrum['ra'],
-				   'z': spectrum['z']}
+    print('Number of rows before filtering: ', str(df.shape[0]))
+    print('df', df.columns)
 
-		rows_after_removal.append(row)
-		
-	filtered_df = pd.DataFrame(rows_after_removal)
-	print('Number of rows after filtering: ', str(len(filtered_df)))
+    for index, spectrum in tqdm(df.iterrows(), total=df.shape[0], desc='Filtering Sources: '):
+        min_value = np.amin(spectrum['wavelength'].tolist())
+        max_value = np.amax(spectrum['wavelength'].tolist())
 
-	if save:
-		filtered_df.to_pickle('filtered_df.pkl')
-		# df_filtered.to_msgpack('data/spectra-meta-filtered_0-70k.msg')
-		# df_filtered = pd.read_msgpack('data/spectra-meta-filtered_0-70k.msg')
-	
-	return filtered_df
+        if min_value < CUTOFF_MIN and max_value > CUTOFF_MAX:
+            row = {'wavelength': spectrum['wavelength'].tolist(),
+                    'flux_list': spectrum['flux_list'].tolist(),
+                    'petroMagErr_u': spectrum['petroMagErr_u'],
+                    'petroMagErr_g': spectrum['petroMagErr_g'],
+                    'petroMagErr_r': spectrum['petroMagErr_r'],
+                    'petroMagErr_i': spectrum['petroMagErr_i'],
+                    'petroMagErr_z': spectrum['petroMagErr_z'],
+                    'petroMag_u': spectrum['petroMag_u'],
+                    'petroMag_g': spectrum['petroMag_g'],
+                    'petroMag_r': spectrum['petroMag_r'],
+                    'petroMag_i': spectrum['petroMag_i'],
+                    'petroMag_z': spectrum['petroMag_z'],
+                    'subClass': spectrum['subClass'],
+                    'fluxObjID': spectrum['fluxObjID'],
+                    'objid': spectrum['objid'],
+                    'plate': spectrum['plate'],
+                    'class': spectrum['class'],
+                    'zErr': spectrum['zErr'],
+                    'dec': spectrum['dec'],
+                    'ra': spectrum['ra'],
+                    'z': spectrum['z']}
 
-def spectrum_cutoff(df):
-	for index, spectrum in tqdm(df.iterrows(), total=df.shape[0], desc='Spectrum Cutoff: '):
-		wavelengths = np.array(spectrum['wavelength'])
-		fluxes = np.array(spectrum['flux_list'])
+        rows_after_removal.append(row)
+        
+    filtered_df = pd.DataFrame(rows_after_removal)
+    print(f'filtered_df = {filtered_df}')
+    print('Number of rows after filtering: ', str(len(filtered_df)))
 
-		fluxes = fluxes[(wavelengths > CUTOFF_MIN) & (wavelengths < CUTOFF_MAX)]
-		wavelengths = wavelengths[(wavelengths > CUTOFF_MIN) & (wavelengths < CUTOFF_MAX)]
+    if save:
+        filtered_df.to_pickle('filtered_df.pkl')
+        # df_filtered.to_msgpack('data/spectra-meta-filtered_0-70k.msg')
+        # df_filtered = pd.read_msgpack('data/spectra-meta-filtered_0-70k.msg')
 
-		df.loc[index, 'wavelength'] = [[wavelengths]]
-		df.loc[index, 'flux_list'] = [[fluxes]]
-		
-	print('DF After Cutoff:')
-	print(df.columns)
-	print(df.head())
-	print(f'Length of filtered_df = {len(df)}')
+    return filtered_df
 
-	return df
+def spectrum_cutoff(df, save=False):
+    for index, spectrum in tqdm(df.iterrows(), total=df.shape[0], desc='Spectrum Cutoff: '):
+        wavelengths = np.array(spectrum['wavelength'])
+        fluxes = np.array(spectrum['flux_list'])
+
+        fluxes = fluxes[(wavelengths > CUTOFF_MIN) & (wavelengths < CUTOFF_MAX)]
+        wavelengths = wavelengths[(wavelengths > CUTOFF_MIN) & (wavelengths < CUTOFF_MAX)]
+
+        df.loc[index, 'wavelength'] = [[wavelengths]]
+        df.loc[index, 'flux_list'] = [[fluxes]]
+        
+
+    print('DF After Cutoff:')
+    print(df.columns)
+    print(df)
+    print(f'Length of cutoff_df = {len(df)}')
+
+    if save == True:
+        df.to_pickle('data/sdss/50-100_spectrum_cutoff.pkl')
+
+    return df
 
 def check_minmax_values(spectra, sigma=16, downsize=8):
   min_wavelength_values = []
@@ -420,10 +425,9 @@ def remove_nested_lists(df, filename):
         The same DataFrame as the input except the double brackets removed
     """
 
-    data_path = '/Users/csepreghyandras/the_universe/projects/spectral-analysis/data/sdss/preprocessed/'
 
-    flux_lists = df['flux_list'].head().to_numpy()
-    wavelengths = df['wavelength'].head().to_numpy()
+    flux_lists = df['flux_list'].to_numpy()
+    wavelengths = df['wavelength'].to_numpy()
 
     modified_flux_list = []
     modified_wavelengths = []
@@ -448,9 +452,11 @@ def remove_nested_lists(df, filename):
     flux_df = pd.DataFrame({'objid': df['objid']})
     flux_df[flux_column_list] = pd.DataFrame(modified_flux_list, index=None, columns=flux_column_list)
 
-    print(f'modified_flux_list = {modified_flux_list}')
+    print(f'modified_flux_list = {len(modified_flux_list)}')
     print(f'flux_column_list = {flux_column_list}')
     print(f'flux_df.values = {flux_df}')
+
+    data_path = '/Users/csepreghyandras/the_universe/projects/spectral-analysis/data/sdss/preprocessed/'
 
     store = pd.HDFStore(data_path + filename)
     store.put('spectral_data', df, format='fixed', data_columns=True)
@@ -494,43 +500,66 @@ def apply_gaussian_to_fluxes(fluxes, sigma):
     
     return gaussian_fluxes
 
-def main():
-    """
-    main()
+def merge_spectral_lines_with_hdf5_data(df_source_info, df_spectral_lines):
+    spectral_lines_columns = []
 
-    Runs a test batch to test whether the functions filter_sources() works properly.
-    """
+    spectral_lines = df_spectral_lines.values
+
+    for i in range(len(spectral_lines[0][1])):
+        spectral_lines_columns.append(f'spectral_line_{i}')
+    
+    spectral_lines_objids = spectral_lines[:, 0]
+    spectral_lines_lists = spectral_lines[:, 1]
+    spectral_lines_values = []
+    
+    for i in spectral_lines_lists:
+        row = []
+        for x in i:
+            row.append(x)
+
+        spectral_lines_values.append(row)
+
+
+    df_spectral_lines_expanded = pd.DataFrame({'objid': spectral_lines_objids})
+    df_spectral_lines_expanded[spectral_lines_columns] = pd.DataFrame(spectral_lines_values, columns=spectral_lines_columns)
+
+    df_merged = df_source_info.merge(df_spectral_lines_expanded, on='objid')
+    df_merged = df_merged.drop_duplicates(subset=['objid', 'z']).reset_index()
+    
+    print(f'df_merged = {df_merged}')
+    print(f'df_merged.columns = {df_merged.columns}')
+
+    data_path = '/Users/csepreghyandras/the_universe/projects/spectral-analysis/data/sdss/preprocessed/'
+    filename = '0-50_original_fluxes_speclines.h5'
+
+    flux_df = pd.read_hdf('data/sdss/preprocessed/50-100_original_fluxes.h5', key='fluxes')
+    wavelength_df = pd.read_hdf('data/sdss/preprocessed/50-100_original_fluxes.h5', key='wavelengths')
+
+    store = pd.HDFStore(data_path + filename)
+    store.put('spectral_data', df_merged, format='fixed', data_columns=True)
+    store.put('fluxes', flux_df, format='fixed', data_columns=True)
+    store.put('wavelengths', wavelength_df)
+
+    print(store.keys())
+
+    store.close()
+
+
+def main():
 
     # df_preprocessed = pd.read_pickle('data/sdss/preprocessed/0-50_preprocessed.pkl')
     # remove_nested_lists(df_preprocessed, '0-50_preprocessed.h5')
 
-    fluxes = get_fluxes_from_h5(filename='/sdss/preprocessed/0-50k_original_fluxes.h5')
-    wavelengths = get_wavelengths_from_h5(filename='/sdss/preprocessed/0-50k_original_fluxes.h5')
-    
+    fluxes = get_fluxes_from_h5(filename='/sdss/preprocessed/0-50_original_fluxes_speclines.h5')
+    wavelengths = get_wavelengths_from_h5(filename='/sdss/preprocessed/0-50_original_fluxes_speclines.h5')
+    df_source_info = pd.read_hdf('data/sdss/preprocessed/0-50_original_fluxes_speclines.h5', key='spectral_data')
+    df_spectral_lines = pd.read_pickle('data/sdss/spectral_lines/spectral_lines_0_50000.pkl')
 
-    fluxes = np.delete(fluxes, 0, axis=1)
-    gaussian_fluxes = apply_gaussian_to_fluxes(fluxes, 2)
+    print(f'fluxes = {fluxes}')
+    print(f'wavelengths = {wavelengths}')
+    print(f'df_source_info = {df_source_info}')
 
-    plotify = Plotify()
-    _, axs = plotify.get_figax(nrows=2, figsize=(8, 10))
-    axs[0].plot(wavelengths, fluxes[10], color=plotify.c_orange)
-    axs[1].plot(wavelengths, gaussian_fluxes[10], color=plotify.c_orange)
-    plt.show()
-
-    # df.to_pickle('data/sdss/preprocessed/0-50_preprocessed_2.pkl')
-
-    # df.to_hdf(path_or_buf='data/sdss/preprocessed/0-50_preprocessed.h5',
-    #           key='data',
-    #           mode='w')
-
-    # df_h5 = pd.read_hdf('data/sdss/preprocessed/0-50_preprocessed.h5', key='data')
-    # print(f'df_h5 = {df_h5}')
-    
-    # df_spectra = pd.read_pickle('data/sdss/spectra-meta/spectra-meta_1000-2020.pkl')
-    # filtered_df = filter_sources(df=df_spectra, save=False)
-    # df_cutoff = spectrum_cutoff(filtered_df)
-    # print(f'filtered_df = {filtered_df}')
-
+    # merge_spectral_lines_with_hdf5_data(df_source_info, df_spectral_lines)
 
 if __name__ == '__main__':
 	main()

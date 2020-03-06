@@ -56,7 +56,7 @@ def merge_with_metatable(from_sp, to_sp, df_spectra, save=False):
 					'ra'
 	"""
 
-	df_meta_data = pd.read_pickle('data/meta_table.pkl')
+	df_meta_data = pd.read_pickle('data/quasar_meta_table.pkl')
 
 	df_meta_data["objid"] = df_meta_data['bestObjID'].astype(int)
 	df_spectra['objid'] = df_spectra['objid'].astype(int)

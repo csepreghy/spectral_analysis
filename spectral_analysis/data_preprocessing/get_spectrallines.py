@@ -20,6 +20,7 @@ def closest(myList, myNumber):
 
     If two numbers are equally close, return the smallest number.
     """
+
     pos = bisect_left(myList, myNumber)
     if pos == 0: return myList[0]
     if pos == len(myList): return myList[-1]
@@ -105,129 +106,130 @@ def continuum(X, slope, intercept):
 	return slope * X + intercept
 
 def spectrallines_1source(flux, wavelength, z, sigma=4, delta1=10, delta2=80):
-	"""
-	:param flux: Array of flux values of 1 source.
-	:param wavelength: Array of wavelength values of 1 source.
-	:param z: Redshift of the source.
-	:param sigma: Smoothing parameter (default is 4).
-	:param delta1: Interval in which to look for the exact midpoint of the peak (default is 5).
-	:param delta2: Interval in which to look for the begin and end points of the peak (default is 80).
-	:return: Vector with Pseudo-Equivalent Widths (EW) for each spectral line (for 1 source).
-	"""
+    """
+    :param flux: Array of flux values of 1 source.
+    :param wavelength: Array of wavelength values of 1 source.
+    :param z: Redshift of the source.
+    :param sigma: Smoothing parameter (default is 4).
+    :param delta1: Interval in which to look for the exact midpoint of the peak (default is 5).
+    :param delta2: Interval in which to look for the begin and end points of the peak (default is 80).
+    :return: Vector with Pseudo-Equivalent Widths (EW) for each spectral line (for 1 source).
+    """
 
-	# Smooth the flux and compute its gradient
-	smoothflux = apply_gaussian_filter(flux, sigma=sigma)
-	gradient = np.gradient(smoothflux, wavelength)
+    # Smooth the flux and compute its gradient
+    smoothflux = apply_gaussian_filter(flux, sigma=sigma)
 
-	# The spectral lines EW will be saved in this list
-	final_vector = []
+    gradient = np.gradient(smoothflux, wavelength)
 
-	for s in range(len(speclines)):
-		# -------- Step 1: find the exact midpoint of spectral peak --------
+    # The spectral lines EW will be saved in this list
+    final_vector = []
 
-		# Look for the critical points within an interval of delta around the predicted peaks.
-		line_min = speclines[s] * (1 + z) - delta1
-		line_max = speclines[s] * (1 + z) + delta1
-		interval_flux = smoothflux[(line_min < wavelength) & (wavelength < line_max)]
-		interval_wavelength = np.array(wavelength[(line_min < wavelength) & (wavelength < line_max)])
-		interval_gradient = gradient[(line_min < wavelength) & (wavelength < line_max)]
+    for s in range(len(speclines)):
+        # -------- Step 1: find the exact midpoint of spectral peak --------
 
-		# If the spectral line is outside of the wavelength range: EW = 0
-		if len(interval_flux) == 0.0:
-			EW = 0.0
-			final_vector.append(EW)
-			continue
+        # Look for the critical points within an interval of delta around the predicted peaks.
+        line_min = speclines[s] * (1 + z) - delta1
+        line_max = speclines[s] * (1 + z) + delta1
+        interval_flux = smoothflux[(line_min < wavelength) & (wavelength < line_max)]
+        interval_wavelength = np.array(wavelength[(line_min < wavelength) & (wavelength < line_max)])
+        interval_gradient = gradient[(line_min < wavelength) & (wavelength < line_max)]
 
-		# Find the exact midpoint in a small interval
-		wavelength_mid = find_midpoint(interval_flux, interval_wavelength, interval_gradient, speclines[s] * (1 + z))
+        # If the spectral line is outside of the wavelength range: EW = 0
+        if len(interval_flux) == 0.0:
+            EW = 0.0
+            final_vector.append(EW)
+            continue
 
-		# If still no critical point is found: use location of spectral line
-		if np.isnan(wavelength_mid):
-			wavelength_mid = speclines[s] * (1+z)
+        # Find the exact midpoint in a small interval
+        wavelength_mid = find_midpoint(interval_flux, interval_wavelength, interval_gradient, speclines[s] * (1 + z))
 
-
-		# -------- Step 2: find the begin and end points --------
-
-		# Define the intervals to look at
-		end_right = wavelength_mid - delta2
-		end_left = wavelength_mid + delta2
-		interval_r_flux = np.flip(smoothflux[(end_right < wavelength) & (wavelength < wavelength_mid)])
-		interval_r_wavelength = np.flip(np.array(wavelength[(end_right < wavelength) & (wavelength < wavelength_mid)]))
-		interval_r_gradient = np.flip(gradient[(end_right < wavelength) & (wavelength < wavelength_mid)])
-		interval_l_flux = smoothflux[(wavelength_mid < wavelength) & (wavelength < end_left)]
-		interval_l_wavelength = np.array(wavelength[(wavelength_mid < wavelength) & (wavelength < end_left)])
-		interval_l_gradient = gradient[(wavelength_mid < wavelength) & (wavelength < end_left)]
-
-		# Find start point
-		if s == 0: # for MgII: use different function, that ignores the first critical point
-			wavelength_start = find_criticalpoint_extended(interval_r_flux, interval_r_wavelength, interval_r_gradient)
-		else:
-			wavelength_start = find_criticalpoint(interval_r_flux, interval_r_wavelength, interval_r_gradient)
-
-		if len(interval_r_wavelength) == 0: # If there are no points to right: use first point of interval
-			wavelength_start = interval_wavelength[0]
-
-		# Find end point
-		if s == 0: # for MgII: use different function, that ignores the first critical point
-			wavelength_end = find_criticalpoint_extended(interval_l_flux, interval_l_wavelength, interval_l_gradient)
-		elif len(interval_l_wavelength) == 0: # If there are no points to left: use last point of interval
-			wavelength_end = interval_wavelength[-1]
-		else:
-			wavelength_end = find_criticalpoint(interval_l_flux, interval_l_wavelength, interval_l_gradient)
-
-		# If no critical points are found in the interval:
-
-		if np.isnan(wavelength_start):
-			if not np.isnan(wavelength_end): # Critical point found for end point: mirror that distance
-				wavelength_start = closest(np.flip(interval_r_wavelength), wavelength_mid - (wavelength_end - wavelength_mid))
-			else: # None found: take point closest to end of interval
-				wavelength_start = closest(np.flip(interval_r_wavelength), end_right)
-
-		if np.isnan(wavelength_end):
-			if not np.isnan(wavelength_start): # Critical point found for start point: mirror that distance
-				wavelength_end = closest(interval_l_wavelength, wavelength_mid + (wavelength_mid - wavelength_start))
-			else: # None found: take point closest to end of interval
-				wavelength_end = closest(interval_l_wavelength, end_left)
-
-		# Get corresponding indices of the start and end points
-		index_start = list(wavelength).index(wavelength_start)
-		index_end = list(wavelength).index(wavelength_end)
-
-		# -------- Step 3: Make continuum --------
-
-		# Connect the start and end point by a straight line. --> y = a x + b
-		if wavelength_end == wavelength_start:
-			slope = 0.0
-		else:
-			slope = (smoothflux[index_end] - smoothflux[index_start]) / (wavelength_end - wavelength_start)
-		
-		intercept = smoothflux[index_start] - slope * wavelength_start
-
-		#test_wavelength = np.linspace(wavelength_start, wavelength_end, 100)
-		#test_continuum = continuum(test_wavelength)
+        # If still no critical point is found: use location of spectral line
+        if np.isnan(wavelength_mid):
+            wavelength_mid = speclines[s] * (1+z)
 
 
-		# -------- Step 4: Compute Pseudo-Equivalent Widths (EW) --------
+        # -------- Step 2: find the begin and end points --------
 
-		# Define the interval to look at: all points between start and end point of spectral line
-		EWinterval_flux = smoothflux[(wavelength_start < wavelength) & (wavelength < wavelength_end)]
-		EWinterval_wavelength = np.array(wavelength[(wavelength_start < wavelength) & (wavelength < wavelength_end)])
-		EWinterval_continuum = continuum(EWinterval_wavelength, slope, intercept)
+        # Define the intervals to look at
+        end_right = wavelength_mid - delta2
+        end_left = wavelength_mid + delta2
+        interval_r_flux = np.flip(smoothflux[(end_right < wavelength) & (wavelength < wavelength_mid)])
+        interval_r_wavelength = np.flip(np.array(wavelength[(end_right < wavelength) & (wavelength < wavelength_mid)]))
+        interval_r_gradient = np.flip(gradient[(end_right < wavelength) & (wavelength < wavelength_mid)])
+        interval_l_flux = smoothflux[(wavelength_mid < wavelength) & (wavelength < end_left)]
+        interval_l_wavelength = np.array(wavelength[(wavelength_mid < wavelength) & (wavelength < end_left)])
+        interval_l_gradient = gradient[(wavelength_mid < wavelength) & (wavelength < end_left)]
+
+        # Find start point
+        if s == 0: # for MgII: use different function, that ignores the first critical point
+            wavelength_start = find_criticalpoint_extended(interval_r_flux, interval_r_wavelength, interval_r_gradient)
+        else:
+            wavelength_start = find_criticalpoint(interval_r_flux, interval_r_wavelength, interval_r_gradient)
+
+        if len(interval_r_wavelength) == 0: # If there are no points to right: use first point of interval
+            wavelength_start = interval_wavelength[0]
+
+        # Find end point
+        if s == 0: # for MgII: use different function, that ignores the first critical point
+            wavelength_end = find_criticalpoint_extended(interval_l_flux, interval_l_wavelength, interval_l_gradient)
+        elif len(interval_l_wavelength) == 0: # If there are no points to left: use last point of interval
+            wavelength_end = interval_wavelength[-1]
+        else:
+            wavelength_end = find_criticalpoint(interval_l_flux, interval_l_wavelength, interval_l_gradient)
+
+        # If no critical points are found in the interval:
+
+        if np.isnan(wavelength_start):
+            if not np.isnan(wavelength_end): # Critical point found for end point: mirror that distance
+                wavelength_start = closest(np.flip(interval_r_wavelength), wavelength_mid - (wavelength_end - wavelength_mid))
+            else: # None found: take point closest to end of interval
+                wavelength_start = closest(np.flip(interval_r_wavelength), end_right)
+
+        if np.isnan(wavelength_end):
+            if not np.isnan(wavelength_start): # Critical point found for start point: mirror that distance
+                wavelength_end = closest(interval_l_wavelength, wavelength_mid + (wavelength_mid - wavelength_start))
+            else: # None found: take point closest to end of interval
+                wavelength_end = closest(interval_l_wavelength, end_left)
+
+        # Get corresponding indices of the start and end points
+        index_start = list(wavelength).index(wavelength_start)
+        index_end = list(wavelength).index(wavelength_end)
+
+        # -------- Step 3: Make continuum --------
+
+        # Connect the start and end point by a straight line. --> y = a x + b
+        if wavelength_end == wavelength_start:
+            slope = 0.0
+        else:
+            slope = (smoothflux[index_end] - smoothflux[index_start]) / (wavelength_end - wavelength_start)
+        
+        intercept = smoothflux[index_start] - slope * wavelength_start
+
+        #test_wavelength = np.linspace(wavelength_start, wavelength_end, 100)
+        #test_continuum = continuum(test_wavelength)
 
 
-		if len(EWinterval_wavelength) == 0 or len(EWinterval_wavelength) == 1 or np.any(EWinterval_continuum == 0.0):
-			# No points? EW = 0
-			EW = 0.0
-		else:
-			# Make an array of delta_wavelength. This is the width of the bars.
-			Delta_wavelength = np.append(np.diff(EWinterval_wavelength), np.diff(EWinterval_wavelength)[-1])
-			# Obtain the area by multiplying the height ( = flux - continuum) by the width
-			EW = np.sum((EWinterval_flux - EWinterval_continuum) / EWinterval_continuum * Delta_wavelength)
+        # -------- Step 4: Compute Pseudo-Equivalent Widths (EW) --------
 
-		# Add the found EW to the vector
-		final_vector.append(EW)
+        # Define the interval to look at: all points between start and end point of spectral line
+        EWinterval_flux = smoothflux[(wavelength_start < wavelength) & (wavelength < wavelength_end)]
+        EWinterval_wavelength = np.array(wavelength[(wavelength_start < wavelength) & (wavelength < wavelength_end)])
+        EWinterval_continuum = continuum(EWinterval_wavelength, slope, intercept)
 
-	return final_vector
+
+        if len(EWinterval_wavelength) == 0 or len(EWinterval_wavelength) == 1 or np.any(EWinterval_continuum == 0.0):
+            # No points? EW = 0
+            EW = 0.0
+        else:
+            # Make an array of delta_wavelength. This is the width of the bars.
+            Delta_wavelength = np.append(np.diff(EWinterval_wavelength), np.diff(EWinterval_wavelength)[-1])
+            # Obtain the area by multiplying the height ( = flux - continuum) by the width
+            EW = np.sum((EWinterval_flux - EWinterval_continuum) / EWinterval_continuum * Delta_wavelength)
+
+        # Add the found EW to the vector
+        final_vector.append(EW)
+
+    return final_vector
 
 
 # -------------------------------
@@ -280,7 +282,7 @@ def get_spectrallines(df_fluxes, df_source_info, df_wavelengths, from_sp, to_sp,
     fluxes = np.delete(df_fluxes.values, 0, axis=1) # remove objids
     print(f'fluxes = {fluxes}')
 
-    wavelengths = df_wavelengths.values
+    wavelengths = df_wavelengths.values.flatten()
     objid = df_source_info['objid'].to_numpy()
     z = df_source_info['z'].to_numpy()
 
@@ -291,15 +293,15 @@ def get_spectrallines(df_fluxes, df_source_info, df_wavelengths, from_sp, to_sp,
     # Loop over all the sources in the data file: get for each one the vector with spectral lines
     m = 0
     for n in tqdm(range(len(df_source_info)), desc='Computing Spectral Lines: '):
-        # try:
-            vector = spectrallines_1source(np.array(fluxes[n]), np.array(wavelengths[n]), z[n])
+        try:
+            vector = spectrallines_1source(np.array(fluxes[n]), np.array(wavelengths), z[n])
             speclines_vector.append(vector)
             speclines_objid.append(objid[n])
 
-        # except:
+        except:
             m += 1
             # print("Something went wrong with the spectral lines! At iteration ", n)
-            speclines_vector.append(np.nan)
+            speclines_vector.append([np.nan] * 14)
             speclines_objid.append(objid[n])
 
     # Merge the two columns together in a data frame
@@ -314,6 +316,8 @@ def get_spectrallines(df_fluxes, df_source_info, df_wavelengths, from_sp, to_sp,
         df.to_pickle(filename)
 
     print("There were ", m, " errors.")
+
+
 
     return df
 
@@ -415,17 +419,20 @@ def main():
     # The spectral lines of interest
     speclines = [2799, 3727, 3934, 3968, 4101, 4304, 4342, 4861, 4960, 5008, 5175, 5895, 6565, 6716]
     speclines_name = ['MgII_em', 'OII_em', 'CAIIH_ab', 'CAIIK_ab', 'Hdelta_ab', 'Gband_ab',
-                        'Hgamma_em', 'Hbeta_em', 'OIII_em', 'OIII_em', 'Mg_ab', 'NaI_ab', 'Halpha_em', 'S2_em']
+                      'Hgamma_em', 'Hbeta_em', 'OIII_em', 'OIII_em', 'Mg_ab', 'NaI_ab', 'Halpha_em', 'S2_em']
 
-    df_fluxes =  pd.read_hdf('data/sdss/preprocessed/50_100_original_fluxes.h5', key='fluxes')
-    df_source_info = pd.read_hdf('data/sdss/preprocessed/50_100_original_fluxes.h5', key='spectral_data')
-    df_wavelengths = pd.read_hdf('data/sdss/preprocessed/50_100_original_fluxes.h5', key='wavelengths')
+    df_fluxes =  pd.read_hdf('data/sdss/preprocessed/0-50_original_fluxes.h5', key='fluxes')
+    df_source_info = pd.read_hdf('data/sdss/preprocessed/0-50_original_fluxes.h5', key='spectral_data')
+    df_wavelengths = pd.read_hdf('data/sdss/preprocessed/0-50_original_fluxes.h5', key='wavelengths')
     df_spectral_lines = get_spectrallines(df_fluxes=df_fluxes,
-                                            df_source_info=df_source_info,
-                                            df_wavelengths=df_wavelengths,
-                                            from_sp=50000,
-                                            to_sp=100000,
-                                            save=True)
+                                          df_source_info=df_source_info,
+                                          df_wavelengths=df_wavelengths,
+                                          from_sp=0,
+                                          to_sp=50000,
+                                          save=True)
+
+    # df_spectral_lines = pd.read_pickle('data/sdss/spectral_lines/spectral_lines_50000_100000.pkl')
+    # print(f'df_spectral_lines = {df_spectral_lines}')
 
 if __name__ == "__main__":
 	main()
