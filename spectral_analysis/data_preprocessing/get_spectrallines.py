@@ -421,14 +421,14 @@ def main():
     speclines_name = ['MgII_em', 'OII_em', 'CAIIH_ab', 'CAIIK_ab', 'Hdelta_ab', 'Gband_ab',
                       'Hgamma_em', 'Hbeta_em', 'OIII_em', 'OIII_em', 'Mg_ab', 'NaI_ab', 'Halpha_em', 'S2_em']
 
-    df_fluxes =  pd.read_hdf('data/sdss/preprocessed/50-100_original_fluxes.h5', key='fluxes')
-    df_source_info = pd.read_hdf('data/sdss/preprocessed/50-100_original_fluxes.h5', key='spectral_data')
-    df_wavelengths = pd.read_hdf('data/sdss/preprocessed/50-100_original_fluxes.h5', key='wavelengths')
+    df_fluxes =  pd.read_hdf('data/sdss/preprocessed/0-50_original_fluxes.h5', key='fluxes')
+    df_source_info = pd.read_hdf('data/sdss/preprocessed/0-50_original_fluxes.h5', key='spectral_data')
+    df_wavelengths = pd.read_hdf('data/sdss/preprocessed/0-50_original_fluxes.h5', key='wavelengths')
     df_spectral_lines = get_spectrallines(df_fluxes=df_fluxes,
                                           df_source_info=df_source_info,
                                           df_wavelengths=df_wavelengths,
-                                          from_sp=50000,
-                                          to_sp=100000,
+                                          from_sp=0,
+                                          to_sp=50000,
                                           save=True)
 
     # df_spectral_lines = pd.read_pickle('data/sdss/spectral_lines/spectral_lines_50000_100000.pkl')
