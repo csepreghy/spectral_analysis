@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import time as time
 import datetime
 import math
+from tqdm.auto import tqdm
 
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import confusion_matrix
@@ -46,7 +47,7 @@ class MixedInputModel():
         X_fluxes = df_fluxes.values
         y = []
 
-        for _, spectrum in df_source_info[columns].iterrows():
+        for _, spectrum in tqdm(df_source_info[columns].iterrows(), total=len(df_source_info), desc="Preparing Data: "):
             X_row = []
 
             for i in range(14):
@@ -58,8 +59,6 @@ class MixedInputModel():
                 
                 else:
                     X_row.append(spectral_line)
-            
-            print(f'X_row = {X_row}')
 
             X_row.append(spectrum['z'])
             X_row.append(spectrum['zErr'])
