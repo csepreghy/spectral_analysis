@@ -18,7 +18,7 @@ from tensorflow.keras.layers import Dense, Dropout, Activation, Flatten, Conv1D,
 from tensorflow.keras.models import Sequential, Model
 from tensorflow.keras.utils import to_categorical
 
-from spectral_analysis.data_preprocessing.data_preprocessing import remove_bytes_from_class
+from spectral_analysis.data_preprocessing.data_preprocessing import remove_bytes_from_class, get_fluxes_from_h5
 from spectral_analysis.plotify import Plotify
 from spectral_analysis.classifiers.neural_network.helper_functions import train_test_split
 
@@ -49,21 +49,17 @@ class MixedInputModel():
         for _, spectrum in df_source_info[columns].iterrows():
             X_row = []
 
-            try:
-                spectral_lines = spectrum['spectral_lines']
-
-                if type(spectral_lines) == list:
-                    for spectral_line in spectral_lines:
-                        X_row.append(spectral_line)
-
-                elif math.isnan(spectral_lines):
-                    spectral_lines = [-99] * 14 # number of spectral lines is 14
-
-                for spectral_line in spectral_lines:
+            for i in range(14):
+                column = f'spectral_line_{i}'
+                spectral_line = spectrum[column]
+                
+                if spectral_line == np.nan:
+                    X_row.append(-99)
+                
+                else:
                     X_row.append(spectral_line)
-
-            except:
-                print('No spectral lines found')
+            
+            print(f'X_row = {X_row}')
 
             X_row.append(spectrum['z'])
             X_row.append(spectrum['zErr'])
@@ -189,8 +185,8 @@ class MixedInputModel():
         return model
 
 def main():
-    df_fluxes = pd.read_hdf('data/sdss/preprocessed/0-50_gaussian.h5', key='fluxes').head(5000)
-    df_source_info = pd.read_hdf('data/sdss/preprocessed/0-50_gaussian.h5', key='spectral_data').head(5000)
+    df_fluxes = pd.read_hdf('data/sdss/preprocessed/0-50_original_fluxes_speclines.h5', key='fluxes').head(1000)
+    df_source_info = pd.read_hdf('data/sdss/preprocessed/0-50_original_fluxes_speclines.h5', key='spectral_data').head(1000)
 
     mixed_input_model = MixedInputModel()
     mixed_input_model.train(df_source_info, df_fluxes)
