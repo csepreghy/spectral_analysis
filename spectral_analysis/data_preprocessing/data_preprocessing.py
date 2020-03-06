@@ -380,7 +380,8 @@ def merge_lines_and_continuum(spectral_lines, continuum):
 
 def remove_bytes_from_class(df):
     classes = df['class'].to_numpy()
-    classes = [x.replace('b\'', '').replace('\'', '') for x in classes]
+    classes = [str(x).replace('b\'', '').replace('\'', '') for x in classes]
+    
     df['class'] = classes
 
     return df
