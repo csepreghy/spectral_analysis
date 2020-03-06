@@ -56,8 +56,6 @@ class MixedInputModel():
                 
                 else:
                     X_row.append(spectral_line)
-            
-            print(f'X_row = {X_row}')
 
             X_row.append(spectrum['z'])
             X_row.append(spectrum['zErr'])
