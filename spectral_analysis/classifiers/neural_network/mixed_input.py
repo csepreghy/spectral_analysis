@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import time as time
 import datetime
 import math
+from tqdm.auto import tqdm
 
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import confusion_matrix
@@ -18,7 +19,7 @@ from tensorflow.keras.layers import Dense, Dropout, Activation, Flatten, Conv1D,
 from tensorflow.keras.models import Sequential, Model
 from tensorflow.keras.utils import to_categorical
 
-from spectral_analysis.spectral_analysis.data_preprocessing.data_preprocessing import remove_bytes_from_class,
+from spectral_analysis.spectral_analysis.data_preprocessing.data_preprocessing import remove_bytes_from_class
 from spectral_analysis.spectral_analysis.plotify import Plotify
 from spectral_analysis.spectral_analysis.classifiers.neural_network.helper_functions import train_test_split, evaluate_model
 
@@ -44,7 +45,7 @@ class MixedInputModel():
         X_fluxes = df_fluxes.values
         y = []
 
-        for _, spectrum in df_source_info[columns].iterrows():
+        for _, spectrum in tqdm(df_source_info[columns].iterrows(), total=len(df_source_info), desc="Preparing Data: "):
             X_row = []
 
             for i in range(14):
