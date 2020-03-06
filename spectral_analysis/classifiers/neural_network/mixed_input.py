@@ -185,8 +185,8 @@ class MixedInputModel():
         return model
 
 def main():
-    df_fluxes = pd.read_hdf('data/sdss/preprocessed/0-50_original_fluxes_speclines.h5', key='fluxes').head(1000)
-    df_source_info = pd.read_hdf('data/sdss/preprocessed/0-50_original_fluxes_speclines.h5', key='spectral_data').head(1000)
+    df_fluxes = pd.read_hdf('data/sdss/preprocessed/0-50_original_fluxes_speclines.h5', key='fluxes')
+    df_source_info = pd.read_hdf('data/sdss/preprocessed/0-50_original_fluxes_speclines.h5', key='spectral_data')
 
     mixed_input_model = MixedInputModel()
     mixed_input_model.train(df_source_info, df_fluxes)
