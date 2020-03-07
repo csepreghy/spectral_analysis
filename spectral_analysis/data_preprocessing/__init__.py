@@ -8,7 +8,8 @@ from spectral_analysis.spectral_analysis.data_preprocessing.data_preprocessing i
                                                                     spectrum_cutoff,
                                                                     create_continuum,
                                                                     merge_lines_and_continuum,
-                                                                    remove_nested_lists)
+                                                                    remove_nested_lists,
+                                                                    merge_spectral_lines_with_hdf5_data)
 
 from spectral_analysis.spectral_analysis.data_preprocessing.merge_tables import merge_with_metatable
 from spectral_analysis.spectral_analysis.data_preprocessing.get_spectrallines import get_spectrallines
@@ -28,15 +29,19 @@ def main():
 # --------------- 4) Filter Out Spectra with not enough values -------------- #
 # --------------------------------------------------------------------------- #
 
-    # df_merged = pd.read_parquet('data/sdss/spectra-meta/50-100_merged.parquet')
-    # df_filtered = filter_sources(df=df_merged, save=False)
+    df_merged = pd.read_parquet('data/sdss/spectra-meta/50-100_merged.parquet')
+    print(f'df_merged 1 = {df_merged}')
+    df_merged = df_merged.drop_duplicates(subset='objid', keep='first', inplace=False)
+    print(f'df_merged 2 = {df_merged}')
+
+    df_filtered = filter_sources(df=df_merged, save=False)
     df_merged = None # To remove from memory
 
 # --------------------------------------------------------------------------- #
 # - 5) Cut off values from the sides to have the same range for all spectra - #
 # --------------------------------------------------------------------------- #
 	
-    # df_cutoff = spectrum_cutoff(df=df_filtered, save=False)
+    df_cutoff = spectrum_cutoff(df=df_filtered, save=False)
     df_filtered = None # To remove from memory
 
 # --------------------------------------------------------------------------- #
@@ -49,8 +54,7 @@ def main():
     #                                 downsize=1,
     #                                 save=True)
 
-    # df = pd.read_pickle('data/sdss/continuum0_50000.pkl')
-    # remove_nested_lists(df_cutoff, '50-100_original_fluxes_hello.h5')
+    remove_nested_lists(df_cutoff, '50-100_original_fluxes.h5')
 
 # --------------------------------------------------------------------------- #
 # ------------------------- 7) Get spectral lines --------------------------- #
@@ -60,6 +64,9 @@ def main():
     df_source_info = pd.read_hdf('data/sdss/preprocessed/50-100_original_fluxes.h5', key='spectral_data')
     df_wavelengths = pd.read_hdf('data/sdss/preprocessed/50-100_original_fluxes.h5', key='wavelengths')
 
+    print(f'df_fluxes = {df_fluxes}')
+    print(f'df_source_info = {df_source_info}')
+
     df_spectral_lines = get_spectrallines(df_fluxes=df_fluxes,
                                           df_source_info=df_source_info,
                                           df_wavelengths=df_wavelengths,
@@ -67,12 +74,7 @@ def main():
                                           to_sp=to_sp,
                                           save=True)
 
-# --------------------------------------------------------------------------- #
-# --------- 8) Merge spectral lines with the continuum to one table --------- #
-# --------------------------------------------------------------------------- #
-
-    # df_preprocessed = merge_lines_and_continuum(df_spectral_lines, df_filtered)
-    # df_preprocessed.to_pickle('data/sdss/50-100_spectral_lines_and_fluxes.pkl')
+    merge_spectral_lines_with_hdf5_data(df_source_info, df_spectral_lines)
 
 # ---------------------------------------------------------------------------- #
 # ---------------------------- 9) Merge all data ----------------------------- #
@@ -85,5 +87,4 @@ def main():
 
 if __name__ == "__main__":
 	main()
-
 
