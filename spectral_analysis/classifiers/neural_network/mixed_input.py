@@ -193,8 +193,10 @@ def main():
     df_fluxes = pd.concat([df_fluxes1, df_fluxes2], ignore_index=True)
     df_source_info = pd.concat([df_source_info1, df_source_info2], ignore_index=True)
 
-    print(df_source_info['class'])
-    print(df_fluxes)
+    print(f'len(df_fluxes1) = {len(df_fluxes1)}')
+    print(f'len(df_fluxes2) = {len(df_fluxes2)}')
+    print(f'len(df_source_info1) = {len(df_source_info1)}')
+    print(f'len(df_source_info2) = {len(df_source_info2)}')
 
     mixed_input_model = MixedInputModel()
     mixed_input_model.train(df_source_info, df_fluxes)
