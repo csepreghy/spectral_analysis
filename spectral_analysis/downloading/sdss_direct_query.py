@@ -5,7 +5,7 @@ import time as time
 def truncate(n):
   return int(n * 1000) / 1000
 
-def get_coordinates_from_query(save_metatable=False, save_coordinates=False, quasar_only=False):
+def get_coordinates_from_query(save_metatable=False, save_coordinates=False, source_type=None):
     """
     get_coordinates_from_query()
 
@@ -24,7 +24,7 @@ def get_coordinates_from_query(save_metatable=False, save_coordinates=False, qua
     """
     start = time.clock()
 
-    if quasar_only == True:
+    if source_type == 'QSO':
         query = "select \
                     spec.z, spec.ra, spec.dec, spec.specObjID, spec.bestObjID, spec.fluxObjID, spec.targetObjID, spec.plate, \
                     spec.class, spec.subClass, spec.zErr, spho.petroMag_u, spho.petroMag_g, spho.petroMag_r, spho.petroMag_i, \
@@ -33,6 +33,16 @@ def get_coordinates_from_query(save_metatable=False, save_coordinates=False, qua
                     JOIN SpecPhotoAll AS spho ON spec.specObjID = spho.specObjID \
                     where \
                     spec.zWarning = 0 AND spec.class = 'QSO'"
+
+    elif source_type == 'STAR':
+        query = "select \
+                    spec.z, spec.ra, spec.dec, spec.specObjID, spec.bestObjID, spec.fluxObjID, spec.targetObjID, spec.plate, \
+                    spec.class, spec.subClass, spec.zErr, spho.petroMag_u, spho.petroMag_g, spho.petroMag_r, spho.petroMag_i, \
+                    spho.petroMag_z, spho.petroMagErr_u, spho.petroMagErr_g, spho.petroMagErr_r, spho.petroMagErr_i, spho.petroMagErr_z \
+                    from SpecObjAll AS spec \
+                    JOIN SpecPhotoAll AS spho ON spec.specObjID = spho.specObjID \
+                    where \
+                    spec.zWarning = 0 AND spec.class = 'STAR'"
 
     else:
         query = "select \
@@ -55,10 +65,10 @@ def get_coordinates_from_query(save_metatable=False, save_coordinates=False, qua
     print(f'df = {df}')
 
     if save_coordinates:
-        df_coordinate_list.to_csv('data/sdss/quasar_coordinate_list.csv')
+        df_coordinate_list.to_csv('data/sdss/star_coordinate_list.csv')
 
     if save_metatable:
-        df.to_pickle('data/sdss/quasar_meta_table.pkl')
+        df.to_pickle('data/sdss/star_meta_table.pkl')
 
     end = time.clock()
     tt = end - start
