@@ -32,7 +32,7 @@ class MixedInputModel():
     def _prepare_data(self, df_source_info, df_fluxes):
         columns = []
 
-        if "b'" in df_source_info['class'][0]:
+        if "b'" in str(df_source_info['class'][0]):
             df_source_info = remove_bytes_from_class(df_source_info)
 
         df_source_info['class'] = pd.Categorical(df_source_info['class'])
@@ -184,11 +184,11 @@ class MixedInputModel():
         return model
 
 def main():
-    df_fluxes1 = pd.read_hdf('data/sdss/preprocessed/0-50_original_fluxes_speclines.h5', key='fluxes')
-    df_source_info1 = pd.read_hdf('data/sdss/preprocessed/0-50_original_fluxes_speclines.h5', key='spectral_data')
+    df_fluxes1 = pd.read_hdf('data/sdss/preprocessed/0-50_o_fluxes.h5', key='fluxes')
+    df_source_info1 = pd.read_hdf('data/sdss/preprocessed/0-50_o_fluxes.h5', key='spectral_data')
 
-    df_fluxes2 = pd.read_hdf('data/sdss/preprocessed/50-100_original_fluxes_speclines.h5', key='fluxes')
-    df_source_info2 = pd.read_hdf('data/sdss/preprocessed/50-100_original_fluxes_speclines.h5', key='spectral_data')
+    df_fluxes2 = pd.read_hdf('data/sdss/preprocessed/50-100_o_fluxes.h5', key='fluxes')
+    df_source_info2 = pd.read_hdf('data/sdss/preprocessed/50-100_o_fluxes.h5', key='spectral_data')
 
     df_fluxes = pd.concat([df_fluxes1, df_fluxes2], ignore_index=True)
     df_source_info = pd.concat([df_source_info1, df_source_info2], ignore_index=True)

@@ -563,4 +563,8 @@ def main():
     merge_spectral_lines_with_hdf5_data(df_source_info, df_spectral_lines)
 
 if __name__ == '__main__':
-	main()
+	# main()
+    df_source_info = pd.read_hdf('data/sdss/preprocessed/50-100_original_fluxes_speclines.h5', key='spectral_data')
+    df_fluxes = pd.read_hdf('data/sdss/preprocessed/50-100_original_fluxes_speclines.h5', key='fluxes')
+    print(f'df_source_info = {df_source_info}')
+    print(f'df_fluxes = {df_fluxes}')
