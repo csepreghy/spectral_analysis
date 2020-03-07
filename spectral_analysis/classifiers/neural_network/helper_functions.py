@@ -44,11 +44,12 @@ def train_test_split(X, test_size, y=None):
     X_test = X[-n_test:]
     X_train = X[:n_train]
 
-    print('len(X_train', len(X_train))
+    print('len(X_train)', len(X_train))
 
     if y is not None:
         y_test = y[-n_test:]
         y_train = y[:n_train]
+        print(f'len(y_train) = {len(y_train)}')
 
     if y is not None: return X_train, X_test, y_train, y_test
 
