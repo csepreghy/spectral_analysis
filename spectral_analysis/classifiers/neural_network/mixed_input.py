@@ -159,7 +159,7 @@ class MixedInputModel():
         history = model.fit(x=[X_train_source_info, X_train_spectra],
                             y=y_train,
                             validation_data=([X_test_source_info, X_test_spectra_std], y_test),
-                            epochs=2,
+                            epochs=24,
                             callbacks=callbacks_list)
 
 
