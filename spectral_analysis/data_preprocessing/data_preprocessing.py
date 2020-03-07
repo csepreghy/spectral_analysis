@@ -456,6 +456,7 @@ def remove_nested_lists(df, filename):
     print(f'modified_flux_list = {len(modified_flux_list)}')
     print(f'flux_column_list = {flux_column_list}')
     print(f'flux_df.values = {flux_df}')
+    print(f'df spectral_data = {df}')
 
     data_path = '/Users/csepreghyandras/the_universe/projects/spectral-analysis/data/sdss/preprocessed/'
 
@@ -523,18 +524,20 @@ def merge_spectral_lines_with_hdf5_data(df_source_info, df_spectral_lines):
 
     df_spectral_lines_expanded = pd.DataFrame({'objid': spectral_lines_objids})
     df_spectral_lines_expanded[spectral_lines_columns] = pd.DataFrame(spectral_lines_values, columns=spectral_lines_columns)
+    df_merged = pd.concat([df_source_info, df_spectral_lines_expanded], axis=1)
+    df_merged = df_merged.loc[:, ~df_merged.columns.duplicated()]
 
-    df_merged = df_source_info.merge(df_spectral_lines_expanded, on='objid')
-    df_merged = df_merged.drop_duplicates(subset=['objid', 'z']).reset_index()
-    
     print(f'df_merged = {df_merged}')
     print(f'df_merged.columns = {df_merged.columns}')
 
     data_path = '/Users/csepreghyandras/the_universe/projects/spectral-analysis/data/sdss/preprocessed/'
-    filename = '0-50_original_fluxes_speclines.h5'
+    filename = '50-100_original_fluxes_speclines.h5'
 
     flux_df = pd.read_hdf('data/sdss/preprocessed/50-100_original_fluxes.h5', key='fluxes')
     wavelength_df = pd.read_hdf('data/sdss/preprocessed/50-100_original_fluxes.h5', key='wavelengths')
+
+    print(f'flux_df = {flux_df}')
+    print(f'spectral_lines_expanded = {df_spectral_lines_expanded}')
 
     store = pd.HDFStore(data_path + filename)
     store.put('spectral_data', df_merged, format='fixed', data_columns=True)
@@ -551,16 +554,13 @@ def main():
     # df_preprocessed = pd.read_pickle('data/sdss/preprocessed/0-50_preprocessed.pkl')
     # remove_nested_lists(df_preprocessed, '0-50_preprocessed.h5')
 
-    fluxes = get_fluxes_from_h5(filename='/sdss/preprocessed/0-50_original_fluxes_speclines.h5')
-    wavelengths = get_wavelengths_from_h5(filename='/sdss/preprocessed/0-50_original_fluxes_speclines.h5')
-    df_source_info = pd.read_hdf('data/sdss/preprocessed/0-50_original_fluxes_speclines.h5', key='spectral_data')
-    df_spectral_lines = pd.read_pickle('data/sdss/spectral_lines/spectral_lines_0_50000.pkl')
+    df_source_info = pd.read_hdf('data/sdss/preprocessed/50-100_original_fluxes.h5', key='spectral_data')
+    df_spectral_lines = pd.read_pickle('data/sdss/spectral_lines/spectral_lines_50000_100000.pkl')
 
-    print(f'fluxes = {fluxes}')
-    print(f'wavelengths = {wavelengths}')
-    print(f'df_source_info = {df_source_info}')
+    # print(f'df_source_info = {df_source_info}')
+    # print(f'df_spectral_lines = {df_spectral_lines}')
 
-    # merge_spectral_lines_with_hdf5_data(df_source_info, df_spectral_lines)
+    merge_spectral_lines_with_hdf5_data(df_source_info, df_spectral_lines)
 
 if __name__ == '__main__':
 	main()
