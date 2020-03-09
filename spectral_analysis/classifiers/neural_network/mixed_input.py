@@ -85,11 +85,12 @@ class MixedInputModel():
     def _build_cnn(self, input_length):
         model = Sequential()
 
-        model.add(Conv1D(filters=64, kernel_size=3, activation='relu', input_shape=(input_length, 1)))
+        model.add(Conv1D(filters=128, kernel_size=3, activation='relu', input_shape=(input_length, 1)))
         model.add(Conv1D(filters=64, kernel_size=3, activation='relu'))
         model.add(Dropout(0.5))
         model.add(MaxPooling1D(pool_size=2))
         model.add(Flatten())
+        model.add(Dense(64, activation='relu'))
         model.add(Dense(32, activation='relu'))
 
         return model
@@ -97,8 +98,9 @@ class MixedInputModel():
     def _build_mlp(self, input_shape):
         model = Sequential()
 
-        model.add(Dense(256, input_dim=input_shape, activation='relu', kernel_initializer='he_uniform'))
-        model.add(Dense(256, input_dim=256, activation='relu', kernel_initializer='he_uniform'))
+        model.add(Dense(512, input_dim=input_shape, activation='relu', kernel_initializer='he_uniform'))
+        model.add(Dense(256, input_dim=512, activation='relu', kernel_initializer='he_uniform'))
+        model.add(Dense(128, input_dim=256, activation='relu', kernel_initializer='he_uniform'))
 
         return model
 
