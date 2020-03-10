@@ -37,7 +37,7 @@ class AutoEncoder():
 
     
     def _prepare_data(self, df_source_info, df_fluxes):
-        if "b'" in df_source_info['class'][0]:
+        if "b'" in str(df_source_info['class'][0]):
             df_source_info = remove_bytes_from_class(df_source_info)
     
         df_quasars = df_source_info.loc[df_source_info['class'] == 'QSO']
@@ -52,7 +52,7 @@ class AutoEncoder():
 
         print(f'{X.shape}')
 
-        wavelengths = get_wavelengths_from_h5(filename='/sdss/preprocessed/0-50k_original_fluxes.h5')
+        wavelengths = get_wavelengths_from_h5(filename='sdss/preprocessed/0-50_o_fluxes.h5')
         wavelengths = wavelengths[::8]
         self.wavelengths = wavelengths[0:448]
         # plot_spectrum(X[0], wavelengths)
@@ -183,22 +183,28 @@ class AutoEncoder():
         best_hyperparameters = self.tuner.get_best_hyperparameters(1)[0]
 
         print(f'best_model = {best_model}')
-        print(f'best_hyperparameters = {best_hyperparameters}')
+        print(f'best_hyperparameters = {self.tuner.results_summary()[0]}')
 
         preds = best_model.predict(self.X_test)
 
         plotify = Plotify()
         _, axs = plotify.get_figax(nrows=2, figsize=(8, 10))
-        axs[0].plot(self.wavelengths, self.X_test[10], color=plotify.c_orange)
-        axs[1].plot(self.wavelengths, preds[10], color=plotify.c_orange)
+        axs[0].plot(self.wavelengths, self.X_test[24], color=plotify.c_orange)
+        axs[1].plot(self.wavelengths, preds[24], color=plotify.c_orange)
         plt.savefig('plots/autoencoder_gaussian', facecolor=plotify.background_color, dpi=180)
         plt.show()
 
         return preds
 
 def main():
-    df_fluxes = pd.read_hdf('data/sdss/preprocessed/0-50k_original_fluxes.h5', key='fluxes')
-    df_source_info = pd.read_hdf('data/sdss/preprocessed/0-50k_original_fluxes.h5', key='spectral_data')
+    df_fluxes1 = pd.read_hdf('data/sdss/preprocessed/0-50_o_fluxes.h5', key='fluxes')
+    df_source_info1 = pd.read_hdf('data/sdss/preprocessed/0-50_o_fluxes.h5', key='spectral_data')
+
+    df_fluxes2 = pd.read_hdf('data/sdss/preprocessed/50-100_o_fluxes.h5', key='fluxes')
+    df_source_info2 = pd.read_hdf('data/sdss/preprocessed/50-100_o_fluxes.h5', key='spectral_data')
+
+    df_fluxes = pd.concat([df_fluxes1, df_fluxes2], ignore_index=True)
+    df_source_info = pd.concat([df_source_info1, df_source_info2], ignore_index=True)
 
     ae = AutoEncoder(df_source_info, df_fluxes)
     ae.train_model(epochs=24, batch_size=64)
