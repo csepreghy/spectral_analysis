@@ -21,9 +21,7 @@ from tensorflow.keras.utils import to_categorical
 
 from the_universe.projects.spectral_analysis.spectral_analysis.data_preprocessing.data_preprocessing import remove_bytes_from_class, get_fluxes_from_h5
 from the_universe.projects.spectral_analysis.spectral_analysis.plotify import Plotify
-from the_universe.projects.spectral_analysis.spectral_analysis.classifiers.neural_network.helper_functions import train_test_split
-
-from helper_functions import evaluate_model
+from the_universe.projects.spectral_analysis.spectral_analysis.classifiers.neural_network.helper_functions import train_test_split, evaluate_model
 
 class MixedInputModel():
     def __init__(self):
