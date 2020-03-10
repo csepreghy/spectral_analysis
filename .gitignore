@@ -13,6 +13,7 @@ __pycache__
 .idea
 .idea/*.*
 .vscode
+.ipynb_checkpoints/
 other
 logs
 log
