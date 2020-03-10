@@ -8,7 +8,7 @@ import pickle
 from itertools import islice
 from tqdm.auto import tqdm
 
-from the_universe.projects.spectral_analysis.spectral_analysis.plotify import Plotify
+from spectral_analysis.spectral_analysis.plotify import Plotify
 
 import pathlib
 import os

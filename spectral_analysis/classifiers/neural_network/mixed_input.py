@@ -19,9 +19,9 @@ from tensorflow.keras.layers import Dense, Dropout, Activation, Flatten, Conv1D,
 from tensorflow.keras.models import Sequential, Model
 from tensorflow.keras.utils import to_categorical
 
-from the_universe.projects.spectral_analysis.spectral_analysis.data_preprocessing.data_preprocessing import remove_bytes_from_class, get_fluxes_from_h5
-from the_universe.projects.spectral_analysis.spectral_analysis.plotify import Plotify
-from the_universe.projects.spectral_analysis.spectral_analysis.classifiers.neural_network.helper_functions import train_test_split, evaluate_model
+from spectral_analysis.spectral_analysis.data_preprocessing.data_preprocessing import remove_bytes_from_class, get_fluxes_from_h5
+from spectral_analysis.spectral_analysis.plotify import Plotify
+from spectral_analysis.spectral_analysis.classifiers.neural_network.helper_functions import train_test_split, evaluate_model
 
 class MixedInputModel():
     def __init__(self):
