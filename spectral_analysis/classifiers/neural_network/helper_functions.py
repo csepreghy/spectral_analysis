@@ -20,7 +20,7 @@ from tensorflow.keras.layers import Dense, Activation, Input, concatenate
 from tensorflow.keras.models import Sequential, Model
 from tensorflow.keras.utils import to_categorical
 
-from spectral_analysis.spectral_analysis.plotify import Plotify
+from the_universe.projects.spectral_analysis.spectral_analysis.plotify import Plotify
 
 # This is a mixed input neural network that combines a CNN with an MLP.
 # Inputs:

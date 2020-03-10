@@ -7,7 +7,7 @@ from os import listdir
 from os.path import isfile, join
 from tqdm.auto import tqdm
 
-from spectral_analysis.data_preprocessing.data_preprocessing import get_fluxes_from_h5, get_wavelengths_from_h5
+from the_universe.projects.spectral_analysis.spectral_analysis.data_preprocessing.data_preprocessing import get_fluxes_from_h5, get_wavelengths_from_h5
 
 def merge_data(filenames):
     with open('data/sdss/spectra-meta/50-100/' + filenames[0], 'rb') as g:
