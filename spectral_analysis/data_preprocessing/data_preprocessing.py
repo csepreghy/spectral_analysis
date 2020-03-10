@@ -579,13 +579,15 @@ def interpolate_and_reduce_to(df_fluxes, df_source_info, df_wavelengths, filenam
     store.put('fluxes', df_new_fluxes, format='fixed', data_columns=True)
     store.put('wavelengths', df_new_wavelengths)
 
+    store.close()
+
 
 def main():
-    df_fluxes = pd.read_hdf('data/sdss/preprocessed/0-50_i_fluxes_1536.h5', key='fluxes')
-    df_source_info = pd.read_hdf('data/sdss/preprocessed/0-50_i_fluxes_1536.h5', key='spectral_data')
-    df_wavelengths = pd.read_hdf('data/sdss/preprocessed/0-50_i_fluxes_1536.h5', key='wavelengths')
+    df_fluxes = pd.read_hdf('data/sdss/preprocessed/50-100_o_fluxes.h5', key='fluxes')
+    df_source_info = pd.read_hdf('data/sdss/preprocessed/50-100_o_fluxes.h5', key='spectral_data')
+    df_wavelengths = pd.read_hdf('data/sdss/preprocessed/50-100_o_fluxes.h5', key='wavelengths')
 
-    # interpolate_and_reduce_to(df_fluxes, df_source_info, df_wavelengths, '0-50_i_fluxes_1536.h5')
+    interpolate_and_reduce_to(df_fluxes, df_source_info, df_wavelengths, '50-100_i_fluxes_1536.h5')
 
 if __name__ == '__main__':
 	main()
