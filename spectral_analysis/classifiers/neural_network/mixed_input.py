@@ -42,7 +42,7 @@ class MixedInputModel():
                 columns.append(column)
 
         X_source_info = []
-        X_fluxes = df_fluxes.values
+        X_fluxes = np.delete(df_fluxes.values, 0, axis=1)
         y = []
 
         for _, spectrum in tqdm(df_source_info[columns].iterrows(), total=len(df_source_info), desc="Preparing Data: "):
@@ -123,6 +123,8 @@ class MixedInputModel():
 
         X_train_source_info, X_test_source_info, y_train, y_test = train_test_split(X=X_source_info, y=y, test_size=0.2)
         X_train_source_info, X_val_source_info, y_train, y_val = train_test_split(X=X_train_source_info, y=y_train, test_size=0.2)
+
+        print(f'X_fluxes = {X_fluxes}')
 
         X_train_spectra, X_test_spectra = train_test_split(X=X_fluxes, y=None, test_size=0.2)
         X_train_spectra, X_val_spectra = train_test_split(X=X_train_spectra, y=None, test_size=0.2)
