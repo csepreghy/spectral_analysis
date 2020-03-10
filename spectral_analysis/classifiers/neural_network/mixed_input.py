@@ -186,14 +186,14 @@ class MixedInputModel():
         return model
 
 def main():
-    df_fluxes1 = pd.read_hdf('data/sdss/preprocessed/0-50_o_fluxes.h5', key='fluxes')
-    df_source_info1 = pd.read_hdf('data/sdss/preprocessed/0-50_o_fluxes.h5', key='spectral_data')
+    df_fluxes1 = pd.read_hdf('data/sdss/preprocessed/0-50_o_fluxes.h5', key='fluxes').head(5000)
+    df_source_info1 = pd.read_hdf('data/sdss/preprocessed/0-50_o_fluxes.h5', key='spectral_data').head(5000)
 
     df_fluxes2 = pd.read_hdf('data/sdss/preprocessed/50-100_o_fluxes.h5', key='fluxes')
     df_source_info2 = pd.read_hdf('data/sdss/preprocessed/50-100_o_fluxes.h5', key='spectral_data')
 
-    df_fluxes = pd.concat([df_fluxes1, df_fluxes2], ignore_index=True)
-    df_source_info = pd.concat([df_source_info1, df_source_info2], ignore_index=True)
+    df_fluxes = pd.concat([df_fluxes1, df_fluxes2], ignore_index=True).head(10000)
+    df_source_info = pd.concat([df_source_info1, df_source_info2], ignore_index=True).head(10000)
 
     print(f'len(df_fluxes1) = {len(df_fluxes1)}')
     print(f'len(df_fluxes2) = {len(df_fluxes2)}')
