@@ -2,11 +2,12 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import sys
-from skimage import io, filters, feature
-from scipy import ndimage
 import pickle
 from itertools import islice
 from tqdm.auto import tqdm
+
+from skimage import io, filters, feature
+from scipy import ndimage, interpolate
 
 from spectral_analysis.plotify import Plotify
 
@@ -380,6 +381,7 @@ def merge_lines_and_continuum(spectral_lines, continuum):
 
 def remove_bytes_from_class(df):
     classes = df['class'].to_numpy()
+    print(f'classes = {classes}')
     classes = [str(x).replace('b\'', '').replace('\'', '') for x in classes]
     
     df['class'] = classes
@@ -445,7 +447,7 @@ def remove_nested_lists(df, filename):
 
     flux_column_list = []
     for flux_column in range(len(flux_lists[0][0])):
-        flux_column_list.append('flux_' + str(flux_column))
+        flux_column_list.append(f'flux_str{(flux_column)}')
     
     wavelength_df = pd.DataFrame({'wavelengths': modified_wavelengths[0]})
     print(f'wavelength_df = {wavelength_df}') 
@@ -548,23 +550,42 @@ def merge_spectral_lines_with_hdf5_data(df_source_info, df_spectral_lines):
 
     store.close()
 
+def interpolate_and_reduce_to(df_fluxes, df_source_info, df_wavelengths, filename, reduce_to=1536):
+    fluxes = np.delete(df_fluxes.values, 0, axis=1)
+    objids = df_fluxes.values[:,0]
+    wavelengths = df_wavelengths.values.flatten()
+
+    new_wavelengths = np.linspace(min(wavelengths), max(wavelengths), reduce_to)
+    f = interpolate.interp1d(wavelengths, fluxes, kind='zero')
+    new_fluxes = f(new_wavelengths)
+
+    flux_column_list = []
+    for flux_column in range(len(new_fluxes[0])):
+        flux_column_list.append(f'flux_{str(flux_column)}')
+
+    # plot_spectrum(new_fluxes[24], new_wavelengths)
+
+    df_new_wavelengths = pd.DataFrame({'wavelengths': new_wavelengths})
+    df_new_fluxes = pd.DataFrame({'objid': objids})
+    df_new_fluxes[flux_column_list] = pd.DataFrame(new_fluxes, index=None, columns=flux_column_list)
+
+    print(f'df_new_fluxes = {df_new_fluxes}')
+    print(f'wavelengths_df = {df_new_wavelengths}')
+
+    data_path = '/Users/csepreghyandras/the_universe/projects/spectral-analysis/data/sdss/preprocessed/'
+
+    store = pd.HDFStore(data_path + filename)
+    store.put('source_info', df_source_info, format='fixed', data_columns=True)
+    store.put('fluxes', df_new_fluxes, format='fixed', data_columns=True)
+    store.put('wavelengths', df_new_wavelengths)
+
 
 def main():
+    df_fluxes = pd.read_hdf('data/sdss/preprocessed/0-50_i_fluxes_1536.h5', key='fluxes')
+    df_source_info = pd.read_hdf('data/sdss/preprocessed/0-50_i_fluxes_1536.h5', key='spectral_data')
+    df_wavelengths = pd.read_hdf('data/sdss/preprocessed/0-50_i_fluxes_1536.h5', key='wavelengths')
 
-    # df_preprocessed = pd.read_pickle('data/sdss/preprocessed/0-50_preprocessed.pkl')
-    # remove_nested_lists(df_preprocessed, '0-50_preprocessed.h5')
-
-    df_source_info = pd.read_hdf('data/sdss/preprocessed/50-100_original_fluxes.h5', key='spectral_data')
-    df_spectral_lines = pd.read_pickle('data/sdss/spectral_lines/spectral_lines_50000_100000.pkl')
-
-    # print(f'df_source_info = {df_source_info}')
-    # print(f'df_spectral_lines = {df_spectral_lines}')
-
-    merge_spectral_lines_with_hdf5_data(df_source_info, df_spectral_lines)
+    # interpolate_and_reduce_to(df_fluxes, df_source_info, df_wavelengths, '0-50_i_fluxes_1536.h5')
 
 if __name__ == '__main__':
-	# main()
-    df_source_info = pd.read_hdf('data/sdss/preprocessed/50-100_original_fluxes_speclines.h5', key='spectral_data')
-    df_fluxes = pd.read_hdf('data/sdss/preprocessed/50-100_original_fluxes_speclines.h5', key='fluxes')
-    print(f'df_source_info = {df_source_info}')
-    print(f'df_fluxes = {df_fluxes}')
+	main()
