@@ -563,31 +563,46 @@ def interpolate_and_reduce_to(df_fluxes, df_source_info, df_wavelengths, filenam
     for flux_column in range(len(new_fluxes[0])):
         flux_column_list.append(f'flux_{str(flux_column)}')
 
-    # plot_spectrum(new_fluxes[24], new_wavelengths)
+    plot_spectrum(fluxes[124], wavelengths)
+    plot_spectrum(new_fluxes[124], new_wavelengths)
 
-    df_new_wavelengths = pd.DataFrame({'wavelengths': new_wavelengths})
-    df_new_fluxes = pd.DataFrame({'objid': objids})
-    df_new_fluxes[flux_column_list] = pd.DataFrame(new_fluxes, index=None, columns=flux_column_list)
+    # df_new_wavelengths = pd.DataFrame({'wavelengths': new_wavelengths})
+    # df_new_fluxes = pd.DataFrame({'objid': objids})
+    # df_new_fluxes[flux_column_list] = pd.DataFrame(new_fluxes, index=None, columns=flux_column_list)
 
-    print(f'df_new_fluxes = {df_new_fluxes}')
-    print(f'wavelengths_df = {df_new_wavelengths}')
+    # print(f'df_new_fluxes = {df_new_fluxes}')
+    # print(f'wavelengths_df = {df_new_wavelengths}')
 
-    data_path = '/Users/csepreghyandras/the_universe/projects/spectral-analysis/data/sdss/preprocessed/'
+    # data_path = '/Users/csepreghyandras/the_universe/projects/spectral-analysis/data/sdss/preprocessed/'
 
-    store = pd.HDFStore(data_path + filename)
-    store.put('source_info', df_source_info, format='fixed', data_columns=True)
-    store.put('fluxes', df_new_fluxes, format='fixed', data_columns=True)
-    store.put('wavelengths', df_new_wavelengths)
+    # store = pd.HDFStore(data_path + filename)
+    # store.put('source_info', df_source_info, format='fixed', data_columns=True)
+    # store.put('fluxes', df_new_fluxes, format='fixed', data_columns=True)
+    # store.put('wavelengths', df_new_wavelengths)
 
-    store.close()
+    # store.close()
+
+def get_joint_classes(df_source_info):
+    classes = [x.decode('utf-8') for x in df_source_info['class']]
+    sub_classes = [x.decode('utf-8') for x in df_source_info['subClass']]
+
+    joint_classes = []
+
+    for i in range(len(classes)):
+        if sub_classes[i] == '': sub_classes[i] = 'NONE'
+        joint_class = f'{classes[i]}_{sub_classes[i]}'
+        joint_classes.append(joint_class)
+
+    return joint_classes
+
 
 
 def main():
     df_fluxes = pd.read_hdf('data/sdss/preprocessed/50-100_o_fluxes.h5', key='fluxes')
-    df_source_info = pd.read_hdf('data/sdss/preprocessed/50-100_o_fluxes.h5', key='spectral_data')
+    df_source_info = pd.read_hdf('data/sdss/preprocessed/50-100_o_fluxes.h5', key='spectral_data').head(1000)
     df_wavelengths = pd.read_hdf('data/sdss/preprocessed/50-100_o_fluxes.h5', key='wavelengths')
 
-    interpolate_and_reduce_to(df_fluxes, df_source_info, df_wavelengths, '50-100_i_fluxes_1536.h5')
+    get_joint_classes(df_source_info)
 
 if __name__ == '__main__':
 	main()
