@@ -19,31 +19,42 @@ from tensorflow.keras.layers import Dense, Dropout, Activation, Flatten, Conv1D,
 from tensorflow.keras.models import Sequential, Model
 from tensorflow.keras.utils import to_categorical
 
-from spectral_analysis.data_preprocessing.data_preprocessing import remove_bytes_from_class
+from spectral_analysis.data_preprocessing.data_preprocessing import remove_bytes_from_class, get_joint_classes
 from spectral_analysis.plotify import Plotify
 from spectral_analysis.classifiers.neural_network.helper_functions import train_test_split, evaluate_model
 
 class MixedInputModel():
-    def __init__(self):
-        print('MixedInputModel __init__()')
+    def __init__(self, subclass=False):
+        self.subclass = subclass
 
     def _prepare_data(self, df_source_info, df_fluxes):
         columns = []
+        if self.subclass == False:
+            df_source_info['label'] = [x.decode('utf-8') for x in df_source_info['class']]
 
-        if "b'" in str(df_source_info['class'][0]):
-            df_source_info = remove_bytes_from_class(df_source_info)
-
-        df_source_info['class'] = pd.Categorical(df_source_info['class'])
-        df_dummies = pd.get_dummies(df_source_info['class'], prefix='category')
+        elif self.subclass == True:
+            df_source_info['label'] = get_joint_classes(df_source_info)
+        
+        df_source_info['label'] = pd.Categorical(df_source_info['label'])
+        
+        df_dummies = pd.get_dummies(df_source_info['label'], prefix='label')
         df_source_info = pd.concat([df_source_info, df_dummies], axis=1)
 
         for column in df_source_info.columns:
-            if column not in ['class', 'dec', 'ra', 'plate', 'wavelength', 'objid', 'subClass']:
+            if column not in ['class', 'dec', 'ra', 'plate', 'wavelength', 'objid', 'subClass', 'label']:
                 columns.append(column)
 
         X_source_info = []
         X_fluxes = np.delete(df_fluxes.values, 0, axis=1)
         y = []
+
+        label_columns = []
+        for column in df_source_info.columns:
+            if 'label_' in column: label_columns.append(column)
+        
+        self.n_labels = len(label_columns)
+        
+        print(f'label_columns = {len(label_columns)}')
 
         for _, spectrum in tqdm(df_source_info[columns].iterrows(), total=len(df_source_info), desc="Preparing Data: "):
             X_row = []
@@ -71,11 +82,7 @@ class MixedInputModel():
             X_row.append(spectrum['petroMagErr_i'])
             X_row.append(spectrum['petroMagErr_z'])
 
-            category_GALAXY = spectrum['category_GALAXY']
-            category_QSO = spectrum['category_QSO']
-            category_STAR = spectrum['category_STAR']
-
-            y_row = [category_GALAXY, category_QSO, category_STAR]
+            y_row = spectrum[label_columns]
 
             X_source_info.append(X_row)
             y.append(y_row)
@@ -90,8 +97,8 @@ class MixedInputModel():
         model.add(Dropout(0.5))
         model.add(MaxPooling1D(pool_size=2))
         model.add(Flatten())
-        model.add(Dense(64, activation='relu'))
-        model.add(Dense(32, activation='relu'))
+        model.add(Dense(256, activation='relu'))
+        model.add(Dense(128, activation='relu'))
 
         return model
 
@@ -149,7 +156,7 @@ class MixedInputModel():
                         'source_info': X_train_source_info.shape[1]}
 
         
-        model = self._build_models(input_shapes=input_shapes, n_classes=3)
+        model = self._build_models(input_shapes=input_shapes, n_classes=self.n_labels)
 
         tensorboard = TensorBoard(log_dir='logs/{}'.format('cnn-mlp_{}'.format(time.time())))
         earlystopping = EarlyStopping(monitor='val_accuracy', patience=3)
@@ -185,11 +192,11 @@ class MixedInputModel():
         return model
 
 def main():
-    df_fluxes1 = pd.read_hdf('data/sdss/preprocessed/interpolated_1536/0-50_i_fluxes_1536.h5', key='fluxes').head(5000)
-    df_source_info1 = pd.read_hdf('data/sdss/preprocessed/interpolated_1536/0-50_i_fluxes_1536.h5', key='spectral_data').head(5000)
+    df_fluxes1 = pd.read_hdf('data/sdss/preprocessed/interpolated_1536/0-50_i_fluxes_1536.h5', key='fluxes')
+    df_source_info1 = pd.read_hdf('data/sdss/preprocessed/interpolated_1536/0-50_i_fluxes_1536.h5', key='source_info')
 
     df_fluxes2 = pd.read_hdf('data/sdss/preprocessed/interpolated_1536/50-100_i_fluxes_1536.h5', key='fluxes')
-    df_source_info2 = pd.read_hdf('data/sdss/preprocessed/interpolated_1536/50-100_i_fluxes_1536.h5', key='spectral_data')
+    df_source_info2 = pd.read_hdf('data/sdss/preprocessed/interpolated_1536/50-100_i_fluxes_1536.h5', key='source_info')
 
     df_fluxes = pd.concat([df_fluxes1, df_fluxes2], ignore_index=True)
     df_source_info = pd.concat([df_source_info1, df_source_info2], ignore_index=True)
@@ -199,7 +206,7 @@ def main():
     print(f'len(df_source_info1) = {len(df_source_info1)}')
     print(f'len(df_source_info2) = {len(df_source_info2)}')
 
-    mixed_input_model = MixedInputModel()
+    mixed_input_model = MixedInputModel(subclass=True)
     mixed_input_model.train(df_source_info, df_fluxes)
 
 if __name__ == "__main__":
