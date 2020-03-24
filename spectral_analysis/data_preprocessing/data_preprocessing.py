@@ -14,8 +14,6 @@ from spectral_analysis.plotify import Plotify
 import pathlib
 import os
 
-plotify = Plotify()
-
 CUTOFF_MIN = 3850
 CUTOFF_MAX = 9100
 
@@ -72,12 +70,13 @@ def plot_spectrum(fluxes, wavelengths, save=False, filename=None):
     print('len(wavelengths)', len(wavelengths))
     print('len(fluxes)', len(fluxes))
 
+    plotify = Plotify(theme='light')
     fig, ax = plotify.plot(x=wavelengths,
                            y=fluxes,
                            xlabel='Frequencies',
                            ylabel='Flux',
                            title=spectrum_title,
-                           figsize=(12, 8),
+                           figsize=(8, 5),
                            show_plot=True,
                            filename=filename,
                            save=save)
@@ -589,7 +588,7 @@ def get_joint_classes(df_source_info):
     joint_classes = []
 
     for i in range(len(classes)):
-        if sub_classes[i] == '': sub_classes[i] = 'NONE'
+        if sub_classes[i] == '': sub_classes[i] = 'NULL'
         joint_class = f'{classes[i]}_{sub_classes[i]}'
         joint_classes.append(joint_class)
 
@@ -598,11 +597,11 @@ def get_joint_classes(df_source_info):
 
 
 def main():
-    df_fluxes = pd.read_hdf('data/sdss/preprocessed/50-100_o_fluxes.h5', key='fluxes')
+    df_fluxes = pd.read_hdf('data/sdss/preprocessed/50-100_o_fluxes.h5', key='fluxes').head(1000)
     df_source_info = pd.read_hdf('data/sdss/preprocessed/50-100_o_fluxes.h5', key='spectral_data').head(1000)
     df_wavelengths = pd.read_hdf('data/sdss/preprocessed/50-100_o_fluxes.h5', key='wavelengths')
 
-    get_joint_classes(df_source_info)
+    plot_spectrum(df_fluxes.values[124][1:3737], df_wavelengths.values)
 
 if __name__ == '__main__':
 	main()
