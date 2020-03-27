@@ -580,19 +580,32 @@ def interpolate_and_reduce_to(df_fluxes, df_source_info, df_wavelengths, filenam
     # store.put('wavelengths', df_new_wavelengths)
 
     # store.close()
+    return new_fluxes, new_wavelengths
 
-def get_joint_classes(df_source_info):
+def get_joint_classes(df_source_info, df_fluxes, mainclass):
     classes = [x.decode('utf-8') for x in df_source_info['class']]
-    sub_classes = [x.decode('utf-8') for x in df_source_info['subClass']]
+    subclasses = [x.decode('utf-8') for x in df_source_info['subClass']]
+    df_source_info['class'] = classes
+    df_source_info['subClass'] = subclasses
 
-    joint_classes = []
+    print(len(df_fluxes))
+    print(len(df_source_info))
+    
+    df_fluxes = df_fluxes.loc[df_source_info['class'] == mainclass]
+    df_source_info = df_source_info.loc[df_source_info['class'] == mainclass]
 
-    for i in range(len(classes)):
-        if sub_classes[i] == '': sub_classes[i] = 'NULL'
-        joint_class = f'{classes[i]}_{sub_classes[i]}'
-        joint_classes.append(joint_class)
+    df_source_info['label'] = df_source_info['subClass']
 
-    return joint_classes
+    print(len(df_fluxes))
+    print(len(df_source_info))
+
+    return df_source_info, df_fluxes
+
+    # joint_classes = []
+    # for i in range(len(classes)):
+    #     if subclasses[i] == '': subclasses[i] = 'NULL'
+    #     joint_class = f'{classes[i]}_{subclasses[i]}'
+    #     joint_classes.append(joint_class)
 
 
 

@@ -19,21 +19,24 @@ from tensorflow.keras.layers import Dense, Dropout, Activation, Flatten, Conv1D,
 from tensorflow.keras.models import Sequential, Model
 from tensorflow.keras.utils import to_categorical
 
-from spectral_analysis.data_preprocessing.data_preprocessing import remove_bytes_from_class, get_joint_classes
+from spectral_analysis.data_preprocessing.data_preprocessing import (remove_bytes_from_class,
+                                                                     get_joint_classes,
+                                                                     plot_spectrum,
+                                                                     interpolate_and_reduce_to)
 from spectral_analysis.plotify import Plotify
 from spectral_analysis.classifiers.neural_network.helper_functions import train_test_split, evaluate_model
 
 class MixedInputModel():
-    def __init__(self, subclass=False):
-        self.subclass = subclass
+    def __init__(self, mainclass=None):
+        self.mainclass = mainclass
 
     def _prepare_data(self, df_source_info, df_fluxes):
         columns = []
-        if self.subclass == False:
+        if self.mainclass == None:
             df_source_info['label'] = [x.decode('utf-8') for x in df_source_info['class']]
 
-        elif self.subclass == True:
-            df_source_info['label'] = get_joint_classes(df_source_info)
+        else:
+            df_source_info, df_fluxes = get_joint_classes(df_source_info, df_fluxes, self.mainclass)
         
         df_source_info['label'] = pd.Categorical(df_source_info['label'])
         
@@ -180,10 +183,10 @@ class MixedInputModel():
         print('Train: %.3f, Test: %.3f' % (train_acc, test_acc))
 
         # get_incorrect_predictions(X_test=[X_test_source_info, X_test_spectra_std],
-        #                             X_test_spectra=X_test_spectra,
-        #                             model=model,
-        #                             y_test=y_test,
-        #                             df=df)
+        #                           X_test_spectra=X_test_spectra,
+       #                            model=model,
+       #                            y_test=y_test,
+       #                            df=df)
 
         evaluate_model(model=model,
                        X_test=[X_test_source_info, X_test_spectra_std],
@@ -201,13 +204,17 @@ def main():
     df_fluxes = pd.concat([df_fluxes1, df_fluxes2], ignore_index=True)
     df_source_info = pd.concat([df_source_info1, df_source_info2], ignore_index=True)
 
+    df_wavelengths = pd.read_hdf('data/sdss/preprocessed/interpolated_1536/50-100_i_fluxes_1536.h5', key='wavelengths')
+
     print(f'len(df_fluxes1) = {len(df_fluxes1)}')
     print(f'len(df_fluxes2) = {len(df_fluxes2)}')
     print(f'len(df_source_info1) = {len(df_source_info1)}')
     print(f'len(df_source_info2) = {len(df_source_info2)}')
 
-    mixed_input_model = MixedInputModel(subclass=True)
+    mixed_input_model = MixedInputModel(mainclass='QSO')
     mixed_input_model.train(df_source_info, df_fluxes)
+
+
 
 if __name__ == "__main__":
     main()
