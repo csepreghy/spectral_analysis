@@ -29,20 +29,24 @@ def main():
 # --------------- 4) Filter Out Spectra with not enough values -------------- #
 # --------------------------------------------------------------------------- #
 
-    df_merged = pd.read_parquet('data/sdss/spectra-meta/50-100_merged.parquet')
-    print(f'df_merged 1 = {df_merged}')
-    df_merged = df_merged.drop_duplicates(subset='objid', keep='first', inplace=False)
-    print(f'df_merged 2 = {df_merged}')
+    # print(f'df_merged 1 = {df_merged}')
+    # df_merged = df_merged.drop_duplicates(subset='objid', keep='first', inplace=False)
+    # df_filtered = filter_sources(df=df_merged, save=False)
 
-    df_filtered = filter_sources(df=df_merged, save=False)
-    df_merged = None # To remove from memory
+    # df_merged = None # To remove from memory
+    
+    # print(f'df_filtered = {df_filtered}')
+    # print(f'df_merged = {df_merged}')
 
 # --------------------------------------------------------------------------- #
 # - 5) Cut off values from the sides to have the same range for all spectra - #
 # --------------------------------------------------------------------------- #
 	
-    df_cutoff = spectrum_cutoff(df=df_filtered, save=False)
-    df_filtered = None # To remove from memory
+    # df_filtered = pd.read_parquet('data/sdss/balanced_uniques.parquet')
+    # df_cutoff = spectrum_cutoff(df=df_filtered, save=False)
+    # df_cutoff.to_parquet('data/sdss/balanced_cutoff.parquet')
+    # df_filtered = None # To remove from memory
+    # print(f'y = {y}')
 
 # --------------------------------------------------------------------------- #
 # ------------- 6) Create Continuum that has Gaussian smoothing ------------- #
@@ -54,15 +58,17 @@ def main():
     #                                 downsize=1,
     #                                 save=True)
 
-    remove_nested_lists(df_cutoff, '50-100_original_fluxes.h5')
+    # df_cutoff = pd.read_parquet('data/sdss/balanced_cutoff.parquet')
+    # print(f'df_cutoff = {df_cutoff}')
+    # remove_nested_lists(df_cutoff, 'balanced.h5')
 
 # --------------------------------------------------------------------------- #
 # ------------------------- 7) Get spectral lines --------------------------- #
 # --------------------------------------------------------------------------- #
 
-    df_fluxes =  pd.read_hdf('data/sdss/preprocessed/50-100_original_fluxes.h5', key='fluxes')
-    df_source_info = pd.read_hdf('data/sdss/preprocessed/50-100_original_fluxes.h5', key='spectral_data')
-    df_wavelengths = pd.read_hdf('data/sdss/preprocessed/50-100_original_fluxes.h5', key='wavelengths')
+    df_fluxes =  pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='fluxes')
+    df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='spectral_data')
+    df_wavelengths = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='wavelengths')
 
     print(f'df_fluxes = {df_fluxes}')
     print(f'df_source_info = {df_source_info}')
@@ -74,7 +80,7 @@ def main():
                                           to_sp=to_sp,
                                           save=True)
 
-    merge_spectral_lines_with_hdf5_data(df_source_info, df_spectral_lines)
+    # merge_spectral_lines_with_hdf5_data(df_source_info, df_spectral_lines)
 
 # ---------------------------------------------------------------------------- #
 # ---------------------------- 9) Merge all data ----------------------------- #
