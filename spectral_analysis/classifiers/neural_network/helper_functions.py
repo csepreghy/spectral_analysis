@@ -35,7 +35,7 @@ from spectral_analysis.plotify import Plotify
 # a binary classifier, but it can be easily changed
 # It also automatically scales the data. This should speed up the process of training
 
-def train_test_split(X, test_size, y=None):
+def train_test_split(X, test_size, y=None, objids=None):
     if y is not None and len(X) != len(y): assert('X and y does not have the same length')
 
     n_test = round(len(X) * test_size)
@@ -80,19 +80,19 @@ def get_incorrect_predictions(model, X_test, X_test_spectra, y_test, df):
 	print('len(spectrum_x', len(spectrum_x))
 
 	fig, ax = plotify.plot(x=spectrum_x,
-						   y=spectrum_y,
-						   xlabel='Frequencies',
-						   ylabel='Flux',
-						   title='title',
-  						   figsize=(12, 8),
-    					   show_plot=True,
-    					   filename=('filename'),
-    					   save=False,
-    					   color='orange',
-    					   ymin=-5,
-    					   ymax=12,
-    					   xmin=3800,
-    					   xmax=9100)
+                         y=spectrum_y,
+                         xlabel='Frequencies',
+                         ylabel='Flux',
+                         title='title',
+                         figsize=(12, 8),
+                         show_plot=True,
+                         filename=('filename'),
+                         save=False,
+                         color='orange',
+                         ymin=-5,
+                         ymax=12,
+                         xmin=3800,
+                         xmax=9100)
 
 	plt.plot(x=spectrum_x, y=spectrum_y)
 	plt.show()
