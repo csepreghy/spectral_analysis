@@ -5,10 +5,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 class Plotify:
-  def __init__(self, theme='dark'):
+  def __init__(self, theme='dark', fontsize=12):
     # Basic configuration
     self.use_grid = True
     self.theme = theme
+
+    rcParams.update({'font.size': fontsize})
 
     # Color Constants
     if self.theme == 'dark':
@@ -18,10 +20,20 @@ class Plotify:
         self.c_text = '#FFFFFF'
     
     elif self.theme == 'light':
-        self.c_background = '#F2F2F2'
-        self.grid_color = '#AAAAAA'
+        self.c_background = '#F8F8F8'
+        self.grid_color = '#CDCDCD'
         self.legend_color = '#A6A6A6'
         self.c_text = '#666666'
+        rcParams['text.color'] = self.c_text
+        rcParams['axes.labelcolor'] = self.c_text
+        rcParams['xtick.color'] = self.c_text
+        rcParams['ytick.color'] = self.c_text
+    
+    elif self.theme == 'ugly':
+        self.c_background = '#FFFFFF'
+        self.grid_color = '#000000'
+        self.legend_color = '#A6A6A6'
+        self.c_text = '#111111'
         rcParams['text.color'] = self.c_text
         rcParams['axes.labelcolor'] = self.c_text
         rcParams['xtick.color'] = self.c_text
