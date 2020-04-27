@@ -427,7 +427,6 @@ def remove_nested_lists(df, filename):
         The same DataFrame as the input except the double brackets removed
     """
 
-
     flux_lists = df['flux_list'].to_numpy()
     wavelengths = df['wavelength'].to_numpy()
     
