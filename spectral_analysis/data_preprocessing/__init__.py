@@ -70,15 +70,26 @@ def main():
     df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='spectral_data')
     df_wavelengths = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='wavelengths')
 
+    df_source_info['class'] = [x.decode('utf-8') for x in df_source_info['class']]
+
+    quasars = df_source_info.loc[df_source_info['class'] == 'QSO']
+    print(f'len(quasars) = {len(quasars)}')
+
+    galaxies = df_source_info.loc[df_source_info['class'] == 'GALAXY']
+    print(f'len(galaxies) = {len(galaxies)}')
+
+    stars = df_source_info.loc[df_source_info['class'] == 'STAR']
+    print(f'len(stars) = {len(stars)}')
+
     print(f'df_fluxes = {df_fluxes}')
     print(f'df_source_info = {df_source_info}')
 
-    df_spectral_lines = get_spectrallines(df_fluxes=df_fluxes,
-                                          df_source_info=df_source_info,
-                                          df_wavelengths=df_wavelengths,
-                                          from_sp=from_sp,
-                                          to_sp=to_sp,
-                                          save=True)
+    # df_spectral_lines = get_spectrallines(df_fluxes=df_fluxes,
+    #                                       df_source_info=df_source_info,
+    #                                       df_wavelengths=df_wavelengths,
+    #                                       from_sp=from_sp,
+    #                                       to_sp=to_sp,
+    #                                       save=True)
 
     # merge_spectral_lines_with_hdf5_data(df_source_info, df_spectral_lines)
 
