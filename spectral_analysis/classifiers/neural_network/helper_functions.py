@@ -100,6 +100,7 @@ def get_incorrect_predictions(model, X_test, X_test_spectra, y_test, df):
 def evaluate_model(model, X_test, y_test):
 	classes = ['galaxy', 'quasar', 'star']
 	y_pred = model.predict(X_test)
+
 	matrix = confusion_matrix(y_test.argmax(axis=1), y_pred.argmax(axis=1))
 
 	df_cm = pd.DataFrame(matrix,
