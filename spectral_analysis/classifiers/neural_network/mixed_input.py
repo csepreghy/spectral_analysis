@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import time as time
 import datetime
 import math
+import random
 from tqdm.auto import tqdm
 
 from sklearn.preprocessing import StandardScaler
@@ -24,7 +25,7 @@ from spectral_analysis.data_preprocessing.data_preprocessing import (remove_byte
                                                                      plot_spectrum,
                                                                      interpolate_and_reduce_to)
 from spectral_analysis.plotify import Plotify
-from spectral_analysis.classifiers.neural_network.helper_functions import train_test_split, evaluate_model
+from spectral_analysis.classifiers.neural_network.helper_functions import train_test_split, evaluate_model, unison_shuffled_copies
 
 class MixedInputModel():
     def __init__(self, mainclass=None):
@@ -33,7 +34,8 @@ class MixedInputModel():
     def _prepare_data(self, df_source_info, df_fluxes):
         columns = []
         if self.mainclass == None:
-            df_source_info['label'] = [x.decode('utf-8') for x in df_source_info['class']]
+            try: df_source_info['label'] = [x.decode('utf-8') for x in df_source_info['class']]
+            except: df_source_info['label'] = df_source_info['class']
 
         else:
             df_source_info, df_fluxes = get_joint_classes(df_source_info, df_fluxes, self.mainclass)
@@ -66,7 +68,7 @@ class MixedInputModel():
                 column = f'spectral_line_{i}'
                 spectral_line = spectrum[column]
                 
-                if spectral_line == np.nan:
+                if np.isnan(spectral_line):
                     X_row.append(-99)
                 
                 else:
@@ -87,17 +89,29 @@ class MixedInputModel():
 
             y_row = spectrum[label_columns]
 
+            if np.isnan(np.sum(X_row)):
+              raise Exception(f'Found ya! Row: {X_row}')
+
             X_source_info.append(X_row)
             y.append(y_row)
+        
+        array_sum = np.sum(X_source_info)
+        array_has_nan = np.isnan(array_sum)
+
+        print('array_has_nan', array_has_nan)
+
+        X_source_info, X_fluxes = unison_shuffled_copies(X_source_info, X_fluxes)
+        
 
         return X_source_info, X_fluxes, y
 
     def _build_cnn(self, input_length):
         model = Sequential()
 
-        model.add(Conv1D(filters=128, kernel_size=3, activation='relu', input_shape=(input_length, 1)))
+        model.add(Conv1D(filters=256, kernel_size=5, activation='relu', input_shape=(input_length, 1)))
+        model.add(Conv1D(filters=128, kernel_size=5, activation='relu'))
         model.add(Conv1D(filters=64, kernel_size=3, activation='relu'))
-        model.add(Dropout(0.5))
+        model.add(Dropout(0.2))
         model.add(MaxPooling1D(pool_size=2))
         model.add(Flatten())
         model.add(Dense(256, activation='relu'))
@@ -108,6 +122,7 @@ class MixedInputModel():
     def _build_mlp(self, input_shape):
         model = Sequential()
 
+        model.add(Dense(1024, input_dim=input_shape, activation='relu', kernel_initializer='he_uniform'))
         model.add(Dense(512, input_dim=input_shape, activation='relu', kernel_initializer='he_uniform'))
         model.add(Dense(256, input_dim=512, activation='relu', kernel_initializer='he_uniform'))
         model.add(Dense(128, input_dim=256, activation='relu', kernel_initializer='he_uniform'))
@@ -121,7 +136,7 @@ class MixedInputModel():
         combined = concatenate([cnn.output, mlp.output])
 
         final_classifier = Dense(128, activation="relu")(combined)
-        final_classifier = Dense(n_classes, activation="softmax")(final_classifier)
+        final_classifier = Dense(n_classes, activation="sigmoid")(final_classifier)
         
         model = Model(inputs=[mlp.input, cnn.input], outputs=final_classifier)
         model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
@@ -162,7 +177,7 @@ class MixedInputModel():
         model = self._build_models(input_shapes=input_shapes, n_classes=self.n_labels)
 
         tensorboard = TensorBoard(log_dir='logs/{}'.format('cnn-mlp_{}'.format(time.time())))
-        earlystopping = EarlyStopping(monitor='val_accuracy', patience=3)
+        earlystopping = EarlyStopping(monitor='val_accuracy', patience=13)
         modelcheckpoint = ModelCheckpoint(filepath='best_model_epoch.{epoch:02d}-{val_loss:.2f}.h5', monitor='val_loss', save_best_only=True),
 
         callbacks_list = [# modelcheckpoint,
@@ -195,23 +210,15 @@ class MixedInputModel():
         return model
 
 def main():
-    df_fluxes1 = pd.read_hdf('data/sdss/preprocessed/interpolated_1536/0-50_i_fluxes_1536.h5', key='fluxes')
-    df_source_info1 = pd.read_hdf('data/sdss/preprocessed/interpolated_1536/0-50_i_fluxes_1536.h5', key='source_info')
+    df_fluxes = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='fluxes').head(75000)
+    df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='spectral_data').head(75000)
+    df_wavelengths = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='wavelengths')
 
-    df_fluxes2 = pd.read_hdf('data/sdss/preprocessed/interpolated_1536/50-100_i_fluxes_1536.h5', key='fluxes')
-    df_source_info2 = pd.read_hdf('data/sdss/preprocessed/interpolated_1536/50-100_i_fluxes_1536.h5', key='source_info')
 
-    df_fluxes = pd.concat([df_fluxes1, df_fluxes2], ignore_index=True)
-    df_source_info = pd.concat([df_source_info1, df_source_info2], ignore_index=True)
+    print(f'len(df_fluxes1) = {df_fluxes}')
+    print(f'len(df_source_info2) = {df_source_info}')
 
-    df_wavelengths = pd.read_hdf('data/sdss/preprocessed/interpolated_1536/50-100_i_fluxes_1536.h5', key='wavelengths')
-
-    print(f'len(df_fluxes1) = {len(df_fluxes1)}')
-    print(f'len(df_fluxes2) = {len(df_fluxes2)}')
-    print(f'len(df_source_info1) = {len(df_source_info1)}')
-    print(f'len(df_source_info2) = {len(df_source_info2)}')
-
-    mixed_input_model = MixedInputModel(mainclass='QSO')
+    mixed_input_model = MixedInputModel()
     mixed_input_model.train(df_source_info, df_fluxes)
 
 
