@@ -51,7 +51,7 @@ class MixedInputModel():
         X_fluxes = np.delete(df_fluxes.values, 0, axis=1)
         y = []
 
-        if mainclass is not None:
+        if self.mainclass is not None:
             label_columns = []
             for column in df_source_info.columns:
                 if 'label_' in column: label_columns.append(column)
