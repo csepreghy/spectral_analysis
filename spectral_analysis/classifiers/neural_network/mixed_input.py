@@ -54,13 +54,15 @@ class MixedInputModel():
         X_fluxes = np.delete(df_fluxes.values, 0, axis=1)
         y = []
 
-        label_columns = []
-        for column in df_source_info.columns:
-            if 'label_' in column: label_columns.append(column)
-        
-        self.n_labels = len(label_columns)
-        
-        print(f'label_columns = {len(label_columns)}')
+        if mainclass is not None:
+            label_columns = []
+            for column in df_source_info.columns:
+                if 'label_' in column: label_columns.append(column)
+            
+            self.n_labels = len(label_columns)
+            print(f'label_columns = {len(label_columns)}')
+
+        else: self.n_labels = 3
 
         for _, spectrum in tqdm(df_source_info[columns].iterrows(), total=len(df_source_info), desc="Preparing Data: "):
             X_row = []
@@ -174,6 +176,8 @@ class MixedInputModel():
         y_train = np.array(y_train)
         y_test = np.array(y_test)
 
+        print(f'y_test = {y_test}')
+
         input_shapes = {'fluxes': X_train_spectra.shape[1], 
                         'source_info': X_train_source_info.shape[1]}
 
@@ -192,8 +196,8 @@ class MixedInputModel():
         history = model.fit(x=[X_train_source_info, X_train_spectra],
                             y=y_train,
                             validation_data=([X_test_source_info, X_test_spectra_std], y_test),
-                            epochs=24,
-                            batch_size=64,
+                            epochs=2,
+                            batch_size=32,
                             callbacks=callbacks_list)
 
 
