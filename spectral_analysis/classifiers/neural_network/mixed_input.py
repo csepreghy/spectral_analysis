@@ -20,9 +20,9 @@ from tensorflow.keras.layers import Dense, Dropout, Activation, Flatten, Conv1D,
 from tensorflow.keras.models import Sequential, Model
 from tensorflow.keras.utils import to_categorical
 
-from spectral_analysis.spectral_analysis.data_preprocessing.data_preprocessing import remove_bytes_from_class, get_fluxes_from_h5
-from spectral_analysis.spectral_analysis.plotify import Plotify
-from spectral_analysis.spectral_analysis.classifiers.neural_network.helper_functions import train_test_split, evaluate_model, unison_shuffled_copies
+from spectral_analysis.data_preprocessing.data_preprocessing import remove_bytes_from_class, get_fluxes_from_h5
+from spectral_analysis.plotify import Plotify
+from spectral_analysis.classifiers.neural_network.helper_functions import train_test_split, evaluate_model, unison_shuffled_copies
 
 class MixedInputModel():
     def __init__(self, mainclass=None, spectral_lines=False):
@@ -224,8 +224,8 @@ class MixedInputModel():
         return model
 
 def main():
-    df_fluxes = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='fluxes')
-    df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='source_info')
+    df_fluxes = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='fluxes').head(1000)
+    df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='source_info').head(1000)
     df_wavelengths = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='wavelengths')
 
 

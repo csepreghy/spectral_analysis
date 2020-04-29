@@ -9,7 +9,7 @@ from tqdm.auto import tqdm
 from skimage import io, filters, feature
 from scipy import ndimage, interpolate
 
-from spectral_analysis.spectral_analysis.plotify import Plotify
+from spectral_analysis.plotify import Plotify
 
 import pathlib
 import os
