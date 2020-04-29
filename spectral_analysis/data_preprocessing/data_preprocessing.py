@@ -545,10 +545,10 @@ def merge_spectral_lines_with_hdf5_data(df_source_info, df_spectral_lines):
     print(f'df_merged.columns = {df_merged.columns}')
 
     data_path = '/Users/csepreghyandras/the_universe/projects/spectral-analysis/data/sdss/preprocessed/'
-    filename = '50-100_original_fluxes_speclines.h5'
+    filename = 'balanced_spectral_lines.h5'
 
-    flux_df = pd.read_hdf('data/sdss/preprocessed/50-100_original_fluxes.h5', key='fluxes')
-    wavelength_df = pd.read_hdf('data/sdss/preprocessed/50-100_original_fluxes.h5', key='wavelengths')
+    flux_df = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='fluxes')
+    wavelength_df = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='wavelengths')
 
     print(f'flux_df = {flux_df}')
     print(f'spectral_lines_expanded = {df_spectral_lines_expanded}')
