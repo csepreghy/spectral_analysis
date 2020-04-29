@@ -9,7 +9,8 @@ from spectral_analysis.spectral_analysis.data_preprocessing.data_preprocessing i
                                                                     create_continuum,
                                                                     merge_lines_and_continuum,
                                                                     remove_nested_lists,
-                                                                    merge_spectral_lines_with_hdf5_data)
+                                                                    merge_spectral_lines_with_hdf5_data,
+                                                                    convert_byte_classes)
 
 from spectral_analysis.spectral_analysis.data_preprocessing.merge_tables import merge_with_metatable
 from spectral_analysis.spectral_analysis.data_preprocessing.get_spectrallines import get_spectrallines
@@ -66,11 +67,27 @@ def main():
 # ------------------------- 7) Get spectral lines --------------------------- #
 # --------------------------------------------------------------------------- #
 
-    df_fluxes =  pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='fluxes')
-    df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='spectral_data')
-    df_wavelengths = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='wavelengths')
+
 
     # df_source_info['class'] = [x.decode('utf-8') for x in df_source_info['class']]
+
+
+    df_fluxes =  pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines_no_bytes.h5', key='fluxes')
+    df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines_no_bytes.h5', key='source_info')
+    df_wavelengths = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines_no_bytes.h5', key='wavelengths')
+
+
+
+    # df_spectral_lines = get_spectrallines(df_fluxes=df_fluxes,
+    #                                       df_source_info=df_source_info,
+    #                                       df_wavelengths=df_wavelengths,
+    #                                       from_sp=0,
+    #                                       to_sp=96115,
+    #                                       save=True)
+
+    # df_spectral_lines = pd.read_pickle('data/sdss/spectral_lines/spectral_lines_0_96115.ecpkl')
+
+    # convert_byte_classes(df_fluxes, df_source_info, df_wavelengths)
 
     quasars = df_source_info.loc[df_source_info['class'] == 'QSO']
     print(f'len(quasars) = {len(quasars)}')
@@ -87,29 +104,6 @@ def main():
     print(f'df_fluxes.columns = {df_fluxes.columns}')
     print(f'df_source_info.columns = {df_source_info.columns}')
     print(f'len = df_source_info.columns = {len(df_source_info.columns)}')
-
-    df_fluxes2 =  pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='fluxes')
-    df_source_info2 = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='spectral_data')
-    df_wavelengths2 = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='wavelengths')
-
-    print(f'df_fluxes2 = {df_fluxes2}')
-    print(f'df_source_info2 = {df_source_info2}')
-
-    print(f'df_fluxes2.columns = {df_fluxes2.columns}')
-    print(f'df_source_info2.columns = {df_source_info2.columns}')
-    print(f'len(df_source_info2.columns) = {len(df_source_info2.columns)}')
-
-    # df_spectral_lines = get_spectrallines(df_fluxes=df_fluxes,
-    #                                       df_source_info=df_source_info,
-    #                                       df_wavelengths=df_wavelengths,
-    #                                       from_sp=0,
-    #                                       to_sp=96115,
-    #                                       save=True)
-
-    # df_spectral_lines = pd.read_pickle('data/sdss/spectral_lines/spectral_lines_0_96115.pkl')
-
-    # merge_spectral_lines_with_hdf5_data(df_source_info, df_spectral_lines)
-
 
 
 # ---------------------------------------------------------------------------- #

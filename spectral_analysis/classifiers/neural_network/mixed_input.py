@@ -25,8 +25,9 @@ from spectral_analysis.spectral_analysis.plotify import Plotify
 from spectral_analysis.spectral_analysis.classifiers.neural_network.helper_functions import train_test_split, evaluate_model, unison_shuffled_copies
 
 class MixedInputModel():
-    def __init__(self, mainclass=None):
+    def __init__(self, mainclass=None, spectral_lines=False):
         self.mainclass = mainclass
+        self.spectral_lines = spectral_lines
 
     def _prepare_data(self, df_source_info, df_fluxes):
         columns = []
@@ -60,16 +61,17 @@ class MixedInputModel():
 
         for _, spectrum in tqdm(df_source_info[columns].iterrows(), total=len(df_source_info), desc="Preparing Data: "):
             X_row = []
-
-            for i in range(14):
-                column = f'spectral_line_{i}'
-                spectral_line = spectrum[column]
-                
-                if np.isnan(spectral_line):
-                    X_row.append(-99)
-                
-                else:
-                    X_row.append(spectral_line)
+            
+            if self.spectral_lines:
+              for i in range(14):
+                  column = f'spectral_line_{i}'
+                  spectral_line = spectrum[column]
+                  
+                  if np.isnan(spectral_line):
+                      X_row.append(-99)
+                  
+                  else:
+                      X_row.append(spectral_line)
 
             X_row.append(spectrum['z'])
             X_row.append(spectrum['zErr'])
@@ -134,9 +136,11 @@ class MixedInputModel():
 
         final_classifier = Dense(128, activation="relu")(combined)
         final_classifier = Dense(n_classes, activation="sigmoid")(final_classifier)
+
+        optimizer = keras.optimizers.Adam(lr=0.01)
         
         model = Model(inputs=[mlp.input, cnn.input], outputs=final_classifier)
-        model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+        model.compile(loss='categorical_crossentropy', optimizer=optimizer, metrics=['accuracy'])
     
         return model
     
@@ -170,12 +174,13 @@ class MixedInputModel():
         input_shapes = {'fluxes': X_train_spectra.shape[1], 
                         'source_info': X_train_source_info.shape[1]}
 
-        
         model = self._build_models(input_shapes=input_shapes, n_classes=self.n_labels)
 
         tensorboard = TensorBoard(log_dir='logs/{}'.format('cnn-mlp_{}'.format(time.time())))
         earlystopping = EarlyStopping(monitor='val_accuracy', patience=13)
-        modelcheckpoint = ModelCheckpoint(filepath='best_model_epoch.{epoch:02d}-{val_loss:.2f}.h5', monitor='val_loss', save_best_only=True),
+        modelcheckpoint = ModelCheckpoint(filepath='best_model_epoch.{epoch:02d}-{val_loss:.2f}.h5',
+                                          monitor='val_loss',
+                                          save_best_only=True)
 
         callbacks_list = [# modelcheckpoint,
                         earlystopping,
@@ -185,6 +190,7 @@ class MixedInputModel():
                             y=y_train,
                             validation_data=([X_test_source_info, X_test_spectra_std], y_test),
                             epochs=24,
+                            batch_size=64,
                             callbacks=callbacks_list)
 
 
@@ -207,8 +213,8 @@ class MixedInputModel():
         return model
 
 def main():
-    df_fluxes = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='fluxes').head(75000)
-    df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='spectral_data').head(75000)
+    df_fluxes = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='fluxes').head(10000)
+    df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='source_info').head(10000)
     df_wavelengths = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='wavelengths')
 
 

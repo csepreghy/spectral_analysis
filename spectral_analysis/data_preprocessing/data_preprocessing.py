@@ -620,6 +620,25 @@ def get_joint_classes(df_source_info, df_fluxes, mainclass):
     #     joint_class = f'{classes[i]}_{subclasses[i]}'
     #     joint_classes.append(joint_class)
 
+def convert_byte_classes(df_fluxes, df_source_info, df_wavelengths):
+    # df_source_info['class'] = [x.decode('utf-8') for x in df_source_info['class']]
+    df_source_info['subClass'] = [x.decode('utf-8') for x in df_source_info['subClass']]
+
+    data_path = '/Users/csepreghyandras/the_universe/projects/spectral-analysis/data/sdss/preprocessed/'
+    filename = 'balanced_spectral_lines_no_bytes.h5'
+
+    print(f'df_source_info = {df_source_info}')
+    df_source_info = df_source_info.drop(columns=['level_0', 'index'])
+    print(f'df_source_info = {df_source_info}')
+    df_source_info = df_source_info.reset_index(drop=True)
+    print(f'df_source_info = {df_source_info}')
+
+    store = pd.HDFStore(data_path + filename)
+    store.put('source_info', df_source_info, format='fixed', data_columns=True)
+    store.put('fluxes', df_fluxes, format='fixed', data_columns=True)
+    store.put('wavelengths', df_wavelengths)
+
+    store.close()
 
 
 def main():
