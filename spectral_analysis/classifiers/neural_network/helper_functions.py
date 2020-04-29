@@ -113,8 +113,11 @@ def evaluate_model(model, X_test, y_test):
 	ax.set_title('Confusion Matrix')
 	plt.show()
   
-def summarize_results():
-	print('hello')
+def unison_shuffled_copies(a, b):
+    assert len(a) == len(b)
+    a, b = np.array(a), np.array(b)
+    p = np.random.permutation(len(a))
+    return a[p], b[p]
 
 def main():
     print('helper_functions main()')
