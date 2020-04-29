@@ -175,12 +175,13 @@ class MixedInputModel():
         input_shapes = {'fluxes': X_train_spectra.shape[1], 
                         'source_info': X_train_source_info.shape[1]}
 
-        
         model = self._build_models(input_shapes=input_shapes, n_classes=self.n_labels)
 
         tensorboard = TensorBoard(log_dir='logs/{}'.format('cnn-mlp_{}'.format(time.time())))
         earlystopping = EarlyStopping(monitor='val_accuracy', patience=13)
-        modelcheckpoint = ModelCheckpoint(filepath='best_model_epoch.{epoch:02d}-{val_loss:.2f}.h5', monitor='val_loss', save_best_only=True),
+        modelcheckpoint = ModelCheckpoint(filepath='best_model_epoch.{epoch:02d}-{val_loss:.2f}.h5',
+                                          monitor='val_loss',
+                                          save_best_only=True)
 
         callbacks_list = [# modelcheckpoint,
                         earlystopping,
@@ -190,6 +191,7 @@ class MixedInputModel():
                             y=y_train,
                             validation_data=([X_test_source_info, X_test_spectra_std], y_test),
                             epochs=24,
+                            batch_size=128,
                             callbacks=callbacks_list)
 
 
@@ -213,7 +215,7 @@ class MixedInputModel():
 
 def main():
     df_fluxes = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='fluxes')
-    df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='spectral_data')
+    df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='source_info')
     df_wavelengths = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='wavelengths')
 
 
