@@ -139,9 +139,11 @@ class MixedInputModel():
 
         final_classifier = Dense(128, activation="relu")(combined)
         final_classifier = Dense(n_classes, activation="sigmoid")(final_classifier)
+
+        optimizer = keras.optimizers.Adam(lr=0.01)
         
         model = Model(inputs=[mlp.input, cnn.input], outputs=final_classifier)
-        model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+        model.compile(loss='categorical_crossentropy', optimizer=optimizer, metrics=['accuracy'])
     
         return model
     
@@ -191,7 +193,7 @@ class MixedInputModel():
                             y=y_train,
                             validation_data=([X_test_source_info, X_test_spectra_std], y_test),
                             epochs=24,
-                            batch_size=128,
+                            batch_size=64,
                             callbacks=callbacks_list)
 
 
@@ -214,9 +216,9 @@ class MixedInputModel():
         return model
 
 def main():
-    df_fluxes = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='fluxes')
-    df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='source_info')
-    df_wavelengths = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='wavelengths')
+    df_fluxes = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='fluxes').head(10000)
+    df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='source_info').head(10000)
+    df_wavelengths = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='wavelengths')
 
 
     print(f'len(df_fluxes1) = {df_fluxes}')
