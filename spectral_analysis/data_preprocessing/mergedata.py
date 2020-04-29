@@ -10,14 +10,13 @@ from tqdm.auto import tqdm
 from spectral_analysis.spectral_analysis.data_preprocessing.data_preprocessing import get_fluxes_from_h5, get_wavelengths_from_h5
 
 def merge_data(filenames):
-    with open('data/sdss/spectra-meta/50-100/' + filenames[0], 'rb') as g:
-        data = pickle.load(g)
-
+    data = pd.read_parquet('data/sdss/spectra-meta/final/' + filenames[0])
+    
     for i in tqdm(range(len(filenames))):
-        with open('data/sdss/spectra-meta/50-100/' + filenames[i], 'rb') as f:
-            x = pickle.load(f)
-            datalist = pd.concat([data, x], ignore_index=True)
-            data = datalist
+        x = pd.read_parquet('data/sdss/spectra-meta/final/' + filenames[i])
+        print(f'x = {type(x)}')
+        datalist = pd.concat([data, x], ignore_index=True)
+        data = datalist
 
     return data
 
@@ -60,25 +59,23 @@ def merge_hdf5_files(filenames, output):
     # store.close()
 
 def main():
-	# path = 'data/sdss/spectra-meta/50-100'
-	# filenames = [f for f in listdir(path) if isfile(join(path, f))]
-	# try: filenames.remove('.DS_Store')
-	# except: print('.DS_Store is not in folder')
+	path = 'data/sdss/spectra-meta/final'
+	filenames = [f for f in listdir(path) if isfile(join(path, f))]
+	try: filenames.remove('.DS_Store')
+	except: print('.DS_Store is not in folder')
 	
-	# print(f'filenames = {filenames}')
+	print(f'filenames = {filenames}')
 
-	# all_data = merge_data(filenames)
-	# print(f'all_data = {all_data}')
-	# all_data.to_parquet('data/sdss/50-100_merged.parquet')
+	all_data = merge_data(filenames)
+	print(f'all_data = {all_data}')
+	all_data.to_parquet('data/sdss/balanced.parquet')
 
-    merge_hdf5_files(['/sdss/preprocessed/0-50_original_fluxes.h5',
-                      '/sdss/preprocessed/50-100_original_fluxes.h5'],
-                      '/sdss/preprocessed/0-100_original_fluxes.h5')
+    # merge_hdf5_files(['/sdss/preprocessed/0-50_original_fluxes.h5',
+    #                   '/sdss/preprocessed/50-100_original_fluxes.h5'],
+    #                   '/sdss/preprocessed/0-100_original_fluxes.h5')
 
 	# df = pd.read_parquet('data/sdss/spectra-meta/0-50_merged.parquet')
 	# print('df parquet', df)
 
 if __name__ == "__main__":
-    fluxes = get_fluxes_from_h5(filename='/sdss/preprocessed/50-100_original_fluxes.h5')
-    print(f'fluxes[0:10000] = {fluxes[10000:20000]}')
-	# main()
+	main()

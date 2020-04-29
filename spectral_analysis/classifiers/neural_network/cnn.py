@@ -15,19 +15,28 @@ from kerastuner.engine.hyperparameters import HyperParameters
 
 import time
 
+from spectral_analysis.data_preprocessing.data_preprocessing import get_joint_classes
+
 LOG_DIR = f"{int(time.time())}"
 
 class CNN:
-    def __init__(self, df_fluxes):
+    def __init__(self, df_fluxes, mainclass=None):
         self.input_length = len(df_fluxes.columns) - 1
+        self.mainclass = mainclass
+
         print(f'self.input_length = {self.input_length}')
 
     def _prepare_data(self, df_source_info, df_fluxes):
         columns = []
 
+        if self.mainclass == None:
+            df_source_info['label'] = [x.decode('utf-8') for x in df_source_info['class']]
+
+        else:
+            df_source_info, df_fluxes = get_joint_classes(df_source_info, df_fluxes, self.mainclass)
+
         df_source_info['class'] = pd.Categorical(df_source_info['class'])
-        df_dummies = pd.get_dummies(df_source_info['class'], prefix='category')
-        df_dummies.columns = ['category_GALAXY', 'category_QSO', 'category_STAR']
+        df_dummies = pd.get_dummies(df_source_info['label'], prefix='label')
         df_source_info = pd.concat([df_source_info, df_dummies], axis=1)
 
         for column in df_source_info.columns:
@@ -38,14 +47,14 @@ class CNN:
         y = []
 
         print(f'df_source_info = {df_source_info}')
+        label_columns = []
+        for column in df_source_info.columns:
+            if 'label_' in column: label_columns.append(column)
+        
+        self.n_labels = len(label_columns)
 
         for _, spectrum in df_source_info[columns].iterrows():
-            category_GALAXY = spectrum["category_GALAXY"]
-            category_QSO = spectrum["category_QSO"]
-            category_STAR = spectrum["category_STAR"]
-
-            y_row = [category_GALAXY, category_QSO, category_STAR]
-
+            y_row = spectrum[label_columns]
             y.append(y_row)
     
         print(f'len(X) = {len(X)}')
@@ -89,14 +98,14 @@ class CNN:
         for i in range(hp.Int('n_dense_layers', 1, 4)):
             model.add(Dense(hp.Choice(f'dense_{i}_filters', values=[16, 32, 64, 128, 256, 512]), activation='relu'))
 
-        model.add(Dense(3, activation=hp.Choice('last_activation', values=['softmax', 'tanh'])))
+        model.add(Dense(self.n_labels, activation=hp.Choice('last_activation', values=['softmax', 'tanh'])))
         model.compile(loss='categorical_crossentropy',
                       optimizer=hp.Choice('optimizer', values=['adam', 'nadam']),
                       metrics=['accuracy'])
 
         return model
 
-    def run(self, df_source_info, df_fluxes):
+    def train(self, df_source_info, df_fluxes):
         X, y = self._prepare_data(df_source_info, df_fluxes)
 
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
@@ -114,17 +123,21 @@ class CNN:
         y_train = np.array(y_train)
         y_test = np.array(y_test)
 
+        print(f'X_train = {X_train.shape}')
+        print(f'y_train = {y_train.shape}')
+        print(f'X_test = {X_test.shape}')
+        print(f'y_test = {y_test.shape}')
         self._fit(X_train, y_train, X_test, y_test)
 
 def main():
-    df_fluxes = pd.read_hdf('data/sdss/preprocessed/0-50_gaussian.h5', key='fluxes')
-    df_source_info = pd.read_hdf('data/sdss/preprocessed/0-50_gaussian.h5', key='spectral_data')
+    df_fluxes = pd.read_hdf('data/sdss/preprocessed/interpolated_1536/0-50_i_fluxes_1536.h5', key='fluxes')
+    df_source_info = pd.read_hdf('data/sdss/preprocessed/interpolated_1536/0-50_i_fluxes_1536.h5', key='source_info')
     
-    df_fluxes = df_fluxes.head(20000)
-    df_source_info = df_source_info.head(20000)
+    df_fluxes = df_fluxes.head(50)
+    df_source_info = df_source_info.head(50)
 
-    cnn = CNN(df_fluxes)
-    cnn.run(df_source_info, df_fluxes)
+    cnn = CNN(df_fluxes, mainclass='QSO')
+    cnn.train(df_source_info, df_fluxes)
 
 if __name__ == "__main__":
     main()

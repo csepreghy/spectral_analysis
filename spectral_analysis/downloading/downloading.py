@@ -89,6 +89,8 @@ def download_spectra(coord_list_url, from_sp, to_sp, save=False):
             df['dec'].append(xid['dec'])
             df['objid'].append(xid['objid'])
 
+            print(f'Downloaded: {i}')
+
         except:
             print('Failed to download at:', i)
             n_errors = n_errors + 1

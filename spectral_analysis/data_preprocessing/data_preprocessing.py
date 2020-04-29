@@ -2,18 +2,17 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import sys
-from skimage import io, filters, feature
-from scipy import ndimage
 import pickle
 from itertools import islice
 from tqdm.auto import tqdm
 
-from spectral_analysis.spectral_analysis.plotify import Plotify
+from skimage import io, filters, feature
+from scipy import ndimage, interpolate
+
+from spectral_analysis.plotify import Plotify
 
 import pathlib
 import os
-
-plotify = Plotify()
 
 CUTOFF_MIN = 3850
 CUTOFF_MAX = 9100
@@ -40,7 +39,7 @@ def apply_gaussian_filter(fluxes, sigma):
     return filters.gaussian(image=fluxes, sigma=sigma)
 
 
-def plot_spectrum(fluxes, wavelengths, save=False, filename=None):
+def plot_spectrum(fluxes, wavelengths, save=False, filename=None, spectrum_title='Spectrum'):
     """
     plot_spectrum()
 
@@ -63,7 +62,7 @@ def plot_spectrum(fluxes, wavelengths, save=False, filename=None):
         The name of the file that will be saved.
     """
 
-    spectrum_title = 'Spectrum'
+
     
     if filename is not None: filename = filename + '.png'
     else: filename = ''
@@ -71,12 +70,13 @@ def plot_spectrum(fluxes, wavelengths, save=False, filename=None):
     print('len(wavelengths)', len(wavelengths))
     print('len(fluxes)', len(fluxes))
 
+    plotify = Plotify(theme='ugly', fontsize=14)
     fig, ax = plotify.plot(x=wavelengths,
                            y=fluxes,
-                           xlabel='Frequencies',
+                           xlabel='Wavelengths (Å)',
                            ylabel='Flux',
                            title=spectrum_title,
-                           figsize=(12, 8),
+                           figsize=(10, 6),
                            show_plot=True,
                            filename=filename,
                            save=save)
@@ -206,8 +206,17 @@ def filter_sources(df, save=False):
         max_value = np.amax(spectrum['wavelength'].tolist())
 
         if min_value < CUTOFF_MIN and max_value > CUTOFF_MAX:
-            row = {'wavelength': spectrum['wavelength'].tolist(),
-                    'flux_list': spectrum['flux_list'].tolist(),
+            row = {'wavelength': spectrum['wavelength'],
+                    'flux_list': spectrum['flux_list'],
+                    'dec': spectrum['dec'],
+                    'ra': spectrum['ra'],
+                    'z': spectrum['z'],
+                    'subClass': spectrum['subClass'],
+                    'fluxObjID': spectrum['fluxObjID'],
+                    'objid': spectrum['objid'],
+                    'plate': spectrum['plate'],
+                    'class': spectrum['class'],
+                    'zErr': spectrum['zErr'],
                     'petroMagErr_u': spectrum['petroMagErr_u'],
                     'petroMagErr_g': spectrum['petroMagErr_g'],
                     'petroMagErr_r': spectrum['petroMagErr_r'],
@@ -217,16 +226,7 @@ def filter_sources(df, save=False):
                     'petroMag_g': spectrum['petroMag_g'],
                     'petroMag_r': spectrum['petroMag_r'],
                     'petroMag_i': spectrum['petroMag_i'],
-                    'petroMag_z': spectrum['petroMag_z'],
-                    'subClass': spectrum['subClass'],
-                    'fluxObjID': spectrum['fluxObjID'],
-                    'objid': spectrum['objid'],
-                    'plate': spectrum['plate'],
-                    'class': spectrum['class'],
-                    'zErr': spectrum['zErr'],
-                    'dec': spectrum['dec'],
-                    'ra': spectrum['ra'],
-                    'z': spectrum['z']}
+                    'petroMag_z': spectrum['petroMag_z']}
 
         rows_after_removal.append(row)
         
@@ -380,6 +380,7 @@ def merge_lines_and_continuum(spectral_lines, continuum):
 
 def remove_bytes_from_class(df):
     classes = df['class'].to_numpy()
+    print(f'classes = {classes}')
     classes = [str(x).replace('b\'', '').replace('\'', '') for x in classes]
     
     df['class'] = classes
@@ -426,18 +427,32 @@ def remove_nested_lists(df, filename):
         The same DataFrame as the input except the double brackets removed
     """
 
-
     flux_lists = df['flux_list'].to_numpy()
     wavelengths = df['wavelength'].to_numpy()
+    
+    df = df.reset_index()
+    print(f'flux_lists = {flux_lists}')
 
     modified_flux_list = []
     modified_wavelengths = []
 
+    index_list = []
+
+    for i in range(len(flux_lists)):
+        if len(list(flux_lists[i][0])) != 3736:
+            index_list.append(i)
+
+    df = df.drop(index_list)
+    df = df.reset_index()
+
+    flux_lists = df['flux_list'].to_numpy()
+    wavelengths = df['wavelength'].to_numpy()
+
     for flux in tqdm(flux_lists):
-        modified_flux_list.append(flux[0])
+        modified_flux_list.append(list(flux[0]))
 
     for wavelength in tqdm(wavelengths):
-        modified_wavelengths.append(wavelength[0])
+        modified_wavelengths.append(list(wavelength[0]))
 
     # new_df = pd.DataFrame({'flux_list': modified_flux_list})
 
@@ -445,16 +460,15 @@ def remove_nested_lists(df, filename):
 
     flux_column_list = []
     for flux_column in range(len(flux_lists[0][0])):
-        flux_column_list.append('flux_' + str(flux_column))
-    
-    wavelength_df = pd.DataFrame({'wavelengths': modified_wavelengths[0]})
-    print(f'wavelength_df = {wavelength_df}') 
-    
-    flux_df = pd.DataFrame({'objid': df['objid']})
-    flux_df[flux_column_list] = pd.DataFrame(modified_flux_list, index=None, columns=flux_column_list)
+        flux_column_list.append(f'flux_str{(flux_column)}')
 
-    print(f'modified_flux_list = {len(modified_flux_list)}')
-    print(f'flux_column_list = {flux_column_list}')
+    wavelength_df = pd.DataFrame({'wavelengths': modified_wavelengths[0]})
+
+    flux_df = pd.DataFrame({'objid': df['objid']})
+
+    print(f'np.array(modified_flux_list).shape = {np.array(modified_flux_list).shape}')
+    flux_df[flux_column_list] = pd.DataFrame(np.array(modified_flux_list), columns=flux_column_list)
+
     print(f'flux_df.values = {flux_df}')
     print(f'df spectral_data = {df}')
 
@@ -531,10 +545,10 @@ def merge_spectral_lines_with_hdf5_data(df_source_info, df_spectral_lines):
     print(f'df_merged.columns = {df_merged.columns}')
 
     data_path = '/Users/csepreghyandras/the_universe/projects/spectral-analysis/data/sdss/preprocessed/'
-    filename = '50-100_original_fluxes_speclines.h5'
+    filename = 'balanced_spectral_lines.h5'
 
-    flux_df = pd.read_hdf('data/sdss/preprocessed/50-100_original_fluxes.h5', key='fluxes')
-    wavelength_df = pd.read_hdf('data/sdss/preprocessed/50-100_original_fluxes.h5', key='wavelengths')
+    flux_df = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='fluxes')
+    wavelength_df = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='wavelengths')
 
     print(f'flux_df = {flux_df}')
     print(f'spectral_lines_expanded = {df_spectral_lines_expanded}')
@@ -548,23 +562,82 @@ def merge_spectral_lines_with_hdf5_data(df_source_info, df_spectral_lines):
 
     store.close()
 
+def interpolate_and_reduce_to(df_fluxes, df_source_info, df_wavelengths, filename, reduce_to=1536):
+    fluxes = np.delete(df_fluxes.values, 0, axis=1)
+    objids = df_fluxes.values[:,0]
+    wavelengths = df_wavelengths.values.flatten()
+
+    new_wavelengths = np.linspace(min(wavelengths), max(wavelengths), reduce_to)
+    f = interpolate.interp1d(wavelengths, fluxes, kind='zero')
+    new_fluxes = f(new_wavelengths)
+
+    flux_column_list = []
+    for flux_column in range(len(new_fluxes[0])):
+        flux_column_list.append(f'flux_{str(flux_column)}')
+
+    plot_spectrum(fluxes[124], wavelengths)
+    plot_spectrum(new_fluxes[124], new_wavelengths)
+
+    # df_new_wavelengths = pd.DataFrame({'wavelengths': new_wavelengths})
+    # df_new_fluxes = pd.DataFrame({'objid': objids})
+    # df_new_fluxes[flux_column_list] = pd.DataFrame(new_fluxes, index=None, columns=flux_column_list)
+
+    # print(f'df_new_fluxes = {df_new_fluxes}')
+    # print(f'wavelengths_df = {df_new_wavelengths}')
+
+    # data_path = '/Users/csepreghyandras/the_universe/projects/spectral-analysis/data/sdss/preprocessed/'
+
+    # store = pd.HDFStore(data_path + filename)
+    # store.put('source_info', df_source_info, format='fixed', data_columns=True)
+    # store.put('fluxes', df_new_fluxes, format='fixed', data_columns=True)
+    # store.put('wavelengths', df_new_wavelengths)
+
+    # store.close()
+    return new_fluxes, new_wavelengths
+
+def get_joint_classes(df_source_info, df_fluxes, mainclass):
+    classes = [x.decode('utf-8') for x in df_source_info['class']]
+    subclasses = [x.decode('utf-8') for x in df_source_info['subClass']]
+    df_source_info['class'] = classes
+    df_source_info['subClass'] = subclasses
+
+    print(len(df_fluxes))
+    print(len(df_source_info))
+    
+    df_fluxes = df_fluxes.loc[df_source_info['class'] == mainclass]
+    df_source_info = df_source_info.loc[df_source_info['class'] == mainclass]
+
+    df_source_info['label'] = df_source_info['subClass']
+
+    print(len(df_fluxes))
+    print(len(df_source_info))
+
+    return df_source_info, df_fluxes
+
+    # joint_classes = []
+    # for i in range(len(classes)):
+    #     if subclasses[i] == '': subclasses[i] = 'NULL'
+    #     joint_class = f'{classes[i]}_{subclasses[i]}'
+    #     joint_classes.append(joint_class)
+
+
 
 def main():
+    df_fluxes = pd.read_hdf('data/sdss/preprocessed/50-100_o_fluxes.h5', key='fluxes').head(2000)
+    df_source_info = pd.read_hdf('data/sdss/preprocessed/50-100_o_fluxes.h5', key='spectral_data').head(2000)
+    df_wavelengths = pd.read_hdf('data/sdss/preprocessed/50-100_o_fluxes.h5', key='wavelengths')
+    print(f'df_source_info = {df_source_info["class"]}')
+    df_source_info['class'] = [x.decode('utf-8') for x in df_source_info['class']]
+    df_fluxes = df_fluxes.loc[df_source_info['class'] == 'GALAXY']
+    df_source_info = df_source_info.loc[df_source_info['class'] == 'GALAXY']
+    print(f'df_fluxes = {df_fluxes}')
 
-    # df_preprocessed = pd.read_pickle('data/sdss/preprocessed/0-50_preprocessed.pkl')
-    # remove_nested_lists(df_preprocessed, '0-50_preprocessed.h5')
-
-    df_source_info = pd.read_hdf('data/sdss/preprocessed/50-100_original_fluxes.h5', key='spectral_data')
-    df_spectral_lines = pd.read_pickle('data/sdss/spectral_lines/spectral_lines_50000_100000.pkl')
-
-    # print(f'df_source_info = {df_source_info}')
-    # print(f'df_spectral_lines = {df_spectral_lines}')
-
-    merge_spectral_lines_with_hdf5_data(df_source_info, df_spectral_lines)
+    print(f'df_source_info[24]["subclass"] = {df_source_info["subClass"].values[17]}')
+    plot_spectrum(df_fluxes.values[17][1:3737], 
+                  df_wavelengths.values,
+                  save=True,
+                  filename='GALAXY_17',
+                  spectrum_title='Example of a Galaxy')
 
 if __name__ == '__main__':
-	# main()
-    df_source_info = pd.read_hdf('data/sdss/preprocessed/50-100_original_fluxes_speclines.h5', key='spectral_data')
-    df_fluxes = pd.read_hdf('data/sdss/preprocessed/50-100_original_fluxes_speclines.h5', key='fluxes')
-    print(f'df_source_info = {df_source_info}')
-    print(f'df_fluxes = {df_fluxes}')
+	main()

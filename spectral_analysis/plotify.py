@@ -5,16 +5,40 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 class Plotify:
-  def __init__(self):
+  def __init__(self, theme='dark', fontsize=12):
     # Basic configuration
     self.use_grid = True
+    self.theme = theme
 
-    plt.style.use('dark_background')
+    rcParams.update({'font.size': fontsize})
 
     # Color Constants
-    self.background_color = '#1C2024'
-    self.grid_color = '#444444'
-    self.legend_color = '#282D33'
+    if self.theme == 'dark':
+        self.c_background = '#1C2024'
+        self.grid_color = '#444444'
+        self.legend_color = '#282D33'
+        self.c_text = '#FFFFFF'
+    
+    elif self.theme == 'light':
+        self.c_background = '#F8F8F8'
+        self.grid_color = '#CDCDCD'
+        self.legend_color = '#A6A6A6'
+        self.c_text = '#666666'
+        rcParams['text.color'] = self.c_text
+        rcParams['axes.labelcolor'] = self.c_text
+        rcParams['xtick.color'] = self.c_text
+        rcParams['ytick.color'] = self.c_text
+    
+    elif self.theme == 'ugly':
+        self.c_background = '#FFFFFF'
+        self.grid_color = '#000000'
+        self.legend_color = '#A6A6A6'
+        self.c_text = '#111111'
+        rcParams['text.color'] = self.c_text
+        rcParams['axes.labelcolor'] = self.c_text
+        rcParams['xtick.color'] = self.c_text
+        rcParams['ytick.color'] = self.c_text
+
     self.c_white = '#FFFFFF'
     self.c_cyan = '#4FB99F'
     self.c_orange = '#F2B134'
@@ -26,26 +50,14 @@ class Plotify:
 
     self.plot_colors = [self.c_orange, self.c_cyan, self.c_red, self.c_green, self.c_blue]
 
-    rcParams.update({'font.sans-serif': 'Arial'})
-
-  def get_colors(self):
-    colors = {
-      'orange': self.c_orange,
-      'cyan': self.c_cyan,
-      'red': self.c_red,
-      'blue': self.c_blue,
-      'green': self.c_green,
-      'pink': self.c_pink,
-      'purple': self.c_purple,
-      'white': self.c_white
-    }
-
-    return colors
+    rcParams.update({'font.sans-serif': 'Arial',
+                     'text.color': self.c_text,
+                     'xtick.color': self.c_text})
 
   def boxplot(self, data, labels, title, ylabel):
     fig, ax = plt.subplots()
-    fig.patch.set_facecolor(self.background_color)
-    ax.set_facecolor(self.background_color)
+    fig.patch.set_facecolor(self.c_background)
+    ax.set_facecolor(self.c_background)
 
     bplot = ax.boxplot(data,
 					   vert=True,
@@ -131,7 +143,7 @@ class Plotify:
       plt.axis('equal')
 
     #plt.savefig((title + str(np.random.rand(1)[0]) + '.png'),
-    #            facecolor=self.background_color, dpi=180)
+    #            facecolor=self.c_background, dpi=180)
 
     if show_plot == True:
       plt.show()
@@ -173,7 +185,7 @@ class Plotify:
     if equal_axis == True:
       plt.axis('equal')
 
-    # plt.savefig((title + str(np.random.rand(1)[0]) + '.png'), facecolor=self.background_color, dpi=180)
+    # plt.savefig((title + str(np.random.rand(1)[0]) + '.png'), facecolor=self.c_background, dpi=180)
     if show == True: plt.show()
 
   def histogram(
@@ -235,7 +247,7 @@ class Plotify:
     if show == True:
       plt.show()
 
-    # plt.savefig((title + str(np.random.rand(1)[0]) + '.png'), facecolor=self.background_color, dpi=120)
+    # plt.savefig((title + str(np.random.rand(1)[0]) + '.png'), facecolor=self.c_background, dpi=120)
 
     return ax
 
@@ -261,9 +273,11 @@ class Plotify:
   ):
     fig, ax = self.get_figax(figsize=figsize)
 
-    ax.set_ylabel(ylabel)
-    ax.set_xlabel(xlabel)
-    ax.set_title(title, pad=20)
+    ax.set_ylabel(ylabel, color=self.c_text)
+    ax.set_xlabel(xlabel, color=self.c_text)
+    ax.set_title(title, pad=20, color=self.c_text)
+    ax.xaxis.label.set_color(self.c_text)
+    ax.yaxis.label.set_color(self.c_text)
 
     if ymin != None: ax.set_ylim(ymin=ymin)
     if ymax != None: ax.set_ylim(ymax=ymax)
@@ -280,7 +294,7 @@ class Plotify:
     if len(x) == 0: plt.plot(x, color=self.c_orange, linewidth=linewidth)
     if len(x) > 0: plt.plot(x, y, color=self.c_orange, linewidth=linewidth)
     
-    if save == True: plt.savefig(('plots/' + filename), facecolor=self.background_color, dpi=180)
+    if save == True: plt.savefig(('plots/' + filename), facecolor=self.c_background, dpi=180)
 
     if show_plot == True: plt.show()
 
@@ -288,24 +302,20 @@ class Plotify:
 
   def get_figax(self, is3d=False, figsize=(8, 6), use_grid=True, nrows=1):
     fig, axs = plt.subplots(nrows=nrows, figsize=figsize)
-    fig.patch.set_facecolor(self.background_color)
-    
-    print(f'axs = {axs}')
+    fig.patch.set_facecolor(self.c_background)
 
     if nrows > 1:
         for ax in axs:
-            ax.set_facecolor(self.background_color)
-            ax.tick_params(colors=self.c_white)
-            ax.xaxis.label.set_color(self.c_white)
-            ax.yaxis.label.set_color(self.c_white)
+            ax.set_facecolor(self.c_background)
             ax.grid(use_grid, color=self.grid_color)
+            for spine in ax.spines.values():
+                spine.set_edgecolor(self.c_text)
 
     else:
-        axs.set_facecolor(self.background_color)
-        axs.tick_params(colors=self.c_white)
-        axs.xaxis.label.set_color(self.c_white)
-        axs.yaxis.label.set_color(self.c_white)
+        axs.set_facecolor(self.c_background)
         axs.grid(use_grid, color=self.grid_color)
+        for spine in axs.spines.values():
+            spine.set_edgecolor(self.c_text)
 
     return fig, axs
 
@@ -317,12 +327,13 @@ class Plotify:
     ax.yaxis.pane.fill = False
     ax.zaxis.pane.fill = False
 
-    fig.patch.set_facecolor(self.background_color)
+    fig.patch.set_facecolor(self.c_background)
 
-    ax.set_facecolor(self.background_color)
-    ax.tick_params(colors=self.c_white)
-    ax.xaxis.label.set_color(self.c_white)
-    ax.yaxis.label.set_color(self.c_white)
+    ax.set_facecolor(self.c_background)
+    ax.tick_params(colors=self.c_text)
+
+    ax.xaxis.label.set_color(self.c_text)
+    ax.yaxis.label.set_color(self.c_text)
     ax.grid(self.use_grid, color=self.grid_color)
 
     return fig, ax

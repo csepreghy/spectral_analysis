@@ -20,7 +20,7 @@ from tensorflow.keras.layers import Dense, Activation, Input, concatenate
 from tensorflow.keras.models import Sequential, Model
 from tensorflow.keras.utils import to_categorical
 
-from spectral_analysis.spectral_analysis.plotify import Plotify
+from spectral_analysis.plotify import Plotify
 
 # This is a mixed input neural network that combines a CNN with an MLP.
 # Inputs:
@@ -35,7 +35,7 @@ from spectral_analysis.spectral_analysis.plotify import Plotify
 # a binary classifier, but it can be easily changed
 # It also automatically scales the data. This should speed up the process of training
 
-def train_test_split(X, test_size, y=None):
+def train_test_split(X, test_size, y=None, objids=None):
     if y is not None and len(X) != len(y): assert('X and y does not have the same length')
 
     n_test = round(len(X) * test_size)
@@ -80,19 +80,19 @@ def get_incorrect_predictions(model, X_test, X_test_spectra, y_test, df):
 	print('len(spectrum_x', len(spectrum_x))
 
 	fig, ax = plotify.plot(x=spectrum_x,
-						   y=spectrum_y,
-						   xlabel='Frequencies',
-						   ylabel='Flux',
-						   title='title',
-  						   figsize=(12, 8),
-    					   show_plot=True,
-    					   filename=('filename'),
-    					   save=False,
-    					   color='orange',
-    					   ymin=-5,
-    					   ymax=12,
-    					   xmin=3800,
-    					   xmax=9100)
+                         y=spectrum_y,
+                         xlabel='Frequencies',
+                         ylabel='Flux',
+                         title='title',
+                         figsize=(12, 8),
+                         show_plot=True,
+                         filename=('filename'),
+                         save=False,
+                         color='orange',
+                         ymin=-5,
+                         ymax=12,
+                         xmin=3800,
+                         xmax=9100)
 
 	plt.plot(x=spectrum_x, y=spectrum_y)
 	plt.show()
@@ -113,8 +113,11 @@ def evaluate_model(model, X_test, y_test):
 	ax.set_title('Confusion Matrix')
 	plt.show()
   
-def summarize_results():
-	print('hello')
+def unison_shuffled_copies(a, b):
+    assert len(a) == len(b)
+    a, b = np.array(a), np.array(b)
+    p = np.random.permutation(len(a))
+    return a[p], b[p]
 
 def main():
     print('helper_functions main()')

@@ -15,35 +15,35 @@ from spectral_analysis.data_preprocessing.get_spectrallines import get_spectrall
 # 3) Merge spectra with table containing meta information ----------------- #
 
 def main():
-    from_sp = 0
-    to_sp 	= 10000
+    from_sp = 20000
+    to_sp 	= 40000
 
     # --------------------------------------------------------------------------- #
     # ----------------------- 1) Get cordinates from query ---------------------- #
     # --------------------------------------------------------------------------- #
 
-    # get_coordinates_from_query(save_metatable=True, save_coordinates=True)
+    # get_coordinates_from_query(save_metatable=True, save_coordinates=True, source_type='STAR')
 
     # --------------------------------------------------------------------------- #
     # ----------------------------- 2) Download Data ---------------------------- #
     # --------------------------------------------------------------------------- #
-    # coord_list_url = str('data/star_coordinate_list.csv')
-    # df_raw_spectra = download_spectra(coord_list_url=coord_list_url,
-    #                                   from_sp=from_sp,
-    #                                   to_sp=to_sp,
-    #                                   save=False)
+    coord_list_url = str('data/star_coordinate_list.csv')
+    df_raw_spectra = download_spectra(coord_list_url=coord_list_url,
+                                      from_sp=from_sp,
+                                      to_sp=to_sp,
+                                      save=False)
 
     # --------------------------------------------------------------------------- #
     # --------- 3) Merge spectra with table containing meta information --------- #
     # --------------------------------------------------------------------------- #
 
-    # df_merged = merge_with_metatable(from_sp=str(from_sp),
-    #                                  to_sp=str(to_sp),
-    #                                  save=True,
-    #                                  df_spectra=df_raw_spectra)
+    df_merged = merge_with_metatable(from_sp=str(from_sp),
+                                     to_sp=str(to_sp),
+                                     save=True,
+                                     df_spectra=df_raw_spectra)
 
-    df = pd.read_pickle('data/sdss/spectra-meta/spectra-meta_0-10000.pkl')
-    print(f'df = {df}')
+    df_merged.to_pickle('data/sdss/spectra-meta/stars/stars_20000-40000.pkl')
+    print(f'df = {df_merged}')
 
 if __name__ == '__main__':
 	main()
