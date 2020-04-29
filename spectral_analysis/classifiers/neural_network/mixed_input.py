@@ -88,7 +88,7 @@ class MixedInputModel():
             X_row.append(spectrum['petroMagErr_i'])
             X_row.append(spectrum['petroMagErr_z'])
 
-            y_row = spectrum[label_columns]
+            if self.mainclass is not None: y_row = spectrum[label_columns]
 
             if self.mainclass is None:
                 label_GALAXY = spectrum['label_GALAXY']
