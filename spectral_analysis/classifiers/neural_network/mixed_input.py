@@ -90,8 +90,15 @@ class MixedInputModel():
 
             y_row = spectrum[label_columns]
 
+            if self.mainclass is None:
+                label_GALAXY = spectrum['label_GALAXY']
+                label_QSO = spectrum['label_QSO']
+                label_STAR = spectrum['label_STAR']
+
+                y_row = [label_GALAXY, label_QSO, label_STAR]
+
             if np.isnan(np.sum(X_row)):
-              raise Exception(f'Found ya! Row: {X_row}')
+                raise Exception(f'Found ya! Row: {X_row}')
 
             X_source_info.append(X_row)
             y.append(y_row)
