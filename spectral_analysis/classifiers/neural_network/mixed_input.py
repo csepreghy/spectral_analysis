@@ -26,8 +26,10 @@ from spectral_analysis.spectral_analysis.classifiers.neural_network.helper_funct
 
 class MixedInputModel():
     def __init__(self, mainclass='NONE', spectral_lines=False):
+        print(f'mainclass = {mainclass}')
         self.mainclass = mainclass
         self.spectral_lines = spectral_lines
+        print(f'self.mainclass = {self.mainclass}')
 
     def _prepare_data(self, df_source_info, df_fluxes):
         columns = []
@@ -87,6 +89,8 @@ class MixedInputModel():
             X_row.append(spectrum['petroMagErr_r'])
             X_row.append(spectrum['petroMagErr_i'])
             X_row.append(spectrum['petroMagErr_z'])
+
+            print(f'self.mainclass = {self.mainclass}')
 
             if self.mainclass == 'NONE':
                 label_GALAXY = spectrum['label_GALAXY']
