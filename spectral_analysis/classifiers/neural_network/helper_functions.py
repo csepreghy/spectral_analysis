@@ -99,22 +99,22 @@ def get_incorrect_predictions(model, X_test, X_test_spectra, y_test, df):
 	plt.show()
 
 def evaluate_model(model, X_test, y_test):
-	classes = ['galaxy', 'quasar', 'star']
-	y_pred = model.predict(X_test)
+    classes = ['galaxy', 'quasar', 'star']
+    y_pred = model.predict(X_test)
 
-	matrix = confusion_matrix(y_test.argmax(axis=1), y_pred.argmax(axis=1))
+    matrix = confusion_matrix(y_test.argmax(axis=1), y_pred.argmax(axis=1))
     print(f'confusion matrix = {matrix}')
 
-	df_cm = pd.DataFrame(matrix,
-						 index=[i for i in classes],
-						 columns=[i for i in classes])
+    # df_cm = pd.DataFrame(matrix,
+    # 					 index=[i for i in classes],
+    # 					 columns=[i for i in classes])
 
-	fig, ax = plt.subplots(figsize=(10,7))
-	sn.heatmap(df_cm, annot=True, annot_kws={"size": 14})
-	ax.set_ylabel('Predicted Class', color='black')
-	ax.set_xlabel('Target Class', color='black')
-	ax.set_title('Confusion Matrix')
-	plt.show()
+    # fig, ax = plt.subplots(figsize=(10,7))
+    # sn.heatmap(df_cm, annot=True, annot_kws={"size": 14})
+    # ax.set_ylabel('Predicted Class', color='black')
+    # ax.set_xlabel('Target Class', color='black')
+    # ax.set_title('Confusion Matrix')
+    # plt.show()
   
 def unison_shuffled_copies(a, b):
     c = list(zip(a, b))

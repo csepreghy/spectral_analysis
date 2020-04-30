@@ -596,11 +596,6 @@ def interpolate_and_reduce_to(df_fluxes, df_source_info, df_wavelengths, filenam
     return new_fluxes, new_wavelengths
 
 def get_joint_classes(df_source_info, df_fluxes, mainclass):
-    classes = [x.decode('utf-8') for x in df_source_info['class']]
-    subclasses = [x.decode('utf-8') for x in df_source_info['subClass']]
-    df_source_info['class'] = classes
-    df_source_info['subClass'] = subclasses
-
     print(len(df_fluxes))
     print(len(df_source_info))
     
