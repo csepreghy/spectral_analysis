@@ -118,21 +118,22 @@ class MixedInputModel():
 
         model.add(Conv1D(filters=256, kernel_size=5, activation='relu', input_shape=(input_length, 1)))
         model.add(Conv1D(filters=128, kernel_size=5, activation='relu'))
+        # model.add(Conv1D(filters=128, kernel_size=5, activation='relu', input_shape=(input_length, 1)))
         model.add(Conv1D(filters=64, kernel_size=3, activation='relu'))
-        model.add(Dropout(0.2))
+        model.add(Dropout(0.5))
         model.add(MaxPooling1D(pool_size=2))
         model.add(Flatten())
-        model.add(Dense(256, activation='relu'))
-        model.add(Dense(128, activation='relu'))
+        model.add(Dense(64, activation='relu'))
+        model.add(Dense(32, activation='relu'))
 
         return model
 
     def _build_mlp(self, input_shape):
         model = Sequential()
 
-        model.add(Dense(1024, input_dim=input_shape, activation='relu', kernel_initializer='he_uniform'))
         model.add(Dense(512, input_dim=input_shape, activation='relu', kernel_initializer='he_uniform'))
         model.add(Dense(256, input_dim=512, activation='relu', kernel_initializer='he_uniform'))
+        # model.add(Dense(256, input_dim=input_shape, activation='relu', kernel_initializer='he_uniform'))
         model.add(Dense(128, input_dim=256, activation='relu', kernel_initializer='he_uniform'))
 
         return model
@@ -145,11 +146,9 @@ class MixedInputModel():
 
         final_classifier = Dense(128, activation="relu")(combined)
         final_classifier = Dense(n_classes, activation="sigmoid")(final_classifier)
-
-        optimizer = keras.optimizers.Adam(lr=0.01)
         
         model = Model(inputs=[mlp.input, cnn.input], outputs=final_classifier)
-        model.compile(loss='categorical_crossentropy', optimizer=optimizer, metrics=['accuracy'])
+        model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
     
         return model
     
@@ -164,15 +163,17 @@ class MixedInputModel():
         X_train_spectra, X_test_spectra = train_test_split(X=X_fluxes, y=None, test_size=0.2)
         X_train_spectra, X_val_spectra = train_test_split(X=X_train_spectra, y=None, test_size=0.2)
 
-        scaler = StandardScaler()
+        scaler_source_info = StandardScaler()
 
-        X_train_source_info = scaler.fit_transform(X_train_source_info)
-        X_test_source_info = scaler.transform(X_test_source_info)
-        X_val_source_info = scaler.transform(X_val_source_info)
+        X_train_source_info = scaler_source_info.fit_transform(X_train_source_info)
+        X_test_source_info = scaler_source_info.transform(X_test_source_info)
+        X_val_source_info = scaler_source_info.transform(X_val_source_info)
 
-        X_train_spectra = scaler.fit_transform(X_train_spectra)
-        X_test_spectra_std = scaler.transform(X_test_spectra)
-        X_val_spectra = scaler.transform(X_val_spectra)
+        scaler_fluxes = StandardScaler()
+
+        X_train_spectra = scaler_fluxes.fit_transform(X_train_spectra)
+        X_test_spectra_std = scaler_fluxes.transform(X_test_spectra)
+        X_val_spectra = scaler_fluxes.transform(X_val_spectra)
 
         X_train_spectra = np.expand_dims(X_train_spectra, axis=2)
         X_test_spectra_std = np.expand_dims(X_test_spectra_std, axis=2)
@@ -181,6 +182,7 @@ class MixedInputModel():
         y_test = np.array(y_test)
 
         print(f'y_test = {y_test}')
+        print(f'y_val = {y_val}')
 
         input_shapes = {'fluxes': X_train_spectra.shape[1], 
                         'source_info': X_train_source_info.shape[1]}
@@ -200,8 +202,8 @@ class MixedInputModel():
         history = model.fit(x=[X_train_source_info, X_train_spectra],
                             y=y_train,
                             validation_data=([X_test_source_info, X_test_spectra_std], y_test),
-                            epochs=100,
-                            batch_size=64,
+                            epochs=5,
+                            # batch_size=32,
                             callbacks=callbacks_list)
 
 
@@ -227,7 +229,6 @@ def main():
     df_fluxes = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='fluxes')
     df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='source_info')
     df_wavelengths = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='wavelengths')
-
 
     print(f'len(df_fluxes1) = {df_fluxes}')
     print(f'len(df_source_info2) = {df_source_info}')

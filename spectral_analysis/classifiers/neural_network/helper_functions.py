@@ -7,6 +7,7 @@ import time as time
 import datetime
 import math
 import seaborn as sn
+import random
 
 # from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
@@ -115,10 +116,16 @@ def evaluate_model(model, X_test, y_test):
 	plt.show()
   
 def unison_shuffled_copies(a, b):
-    assert len(a) == len(b)
-    a, b = np.array(a), np.array(b)
-    p = np.random.permutation(len(a))
-    return a[p], b[p]
+    c = list(zip(a, b))
+    shuffle_along_axis(c, 1)
+    a, b = zip(*c)
+    
+    return a, b
+
+def shuffle_along_axis(a, axis):
+    a = np.array(a)
+    idx = np.random.rand(*a.shape).argsort(axis=axis)
+    return np.take_along_axis(a,idx,axis=axis)
 
 def main():
     print('helper_functions main()')
