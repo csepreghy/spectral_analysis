@@ -97,6 +97,10 @@ class MixedInputModel():
 
             else: y_row = spectrum[label_columns]
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> google-colab
             if np.isnan(np.sum(X_row)):
                 raise Exception(f'Found ya! Row: {X_row}')
 
@@ -131,9 +135,7 @@ class MixedInputModel():
     def _build_mlp(self, input_shape):
         model = Sequential()
 
-        model.add(Dense(512, input_dim=input_shape, activation='relu', kernel_initializer='he_uniform'))
-        model.add(Dense(256, input_dim=512, activation='relu', kernel_initializer='he_uniform'))
-        # model.add(Dense(256, input_dim=input_shape, activation='relu', kernel_initializer='he_uniform'))
+        model.add(Dense(256, input_dim=input_shape, activation='relu', kernel_initializer='he_uniform'))
         model.add(Dense(128, input_dim=256, activation='relu', kernel_initializer='he_uniform'))
 
         return model
@@ -197,10 +199,11 @@ class MixedInputModel():
         history = model.fit(x=[X_train_source_info, X_train_spectra],
                             y=y_train,
                             validation_data=([X_test_source_info, X_test_spectra_std], y_test),
-                            epochs=5,
-                            # batch_size=32,
+                            epochs=10,
+                            batch_size=32,
                             callbacks=callbacks_list)
 
+        print(model.summary())
 
         # evaluate the model
         _, train_acc = model.evaluate([X_train_source_info, X_train_spectra], y_train, verbose=0)
@@ -224,10 +227,6 @@ def main():
     df_fluxes = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='fluxes').head(10000)
     df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='source_info').head(10000)
     df_wavelengths = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='wavelengths')
-
-
-    print(f'len(df_fluxes1) = {df_fluxes}')
-    print(f'len(df_source_info2) = {df_source_info}')
 
     mixed_input_model = MixedInputModel()
     mixed_input_model.train(df_source_info, df_fluxes)
