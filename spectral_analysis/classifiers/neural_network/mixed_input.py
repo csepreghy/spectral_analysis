@@ -31,7 +31,7 @@ class MixedInputModel():
 
     def _prepare_data(self, df_source_info, df_fluxes):
         columns = []
-        if self.mainclass == None:
+        if self.mainclass == 'NONE':
             try: df_source_info['label'] = [x.decode('utf-8') for x in df_source_info['class']]
             except: df_source_info['label'] = df_source_info['class']
 
@@ -95,7 +95,7 @@ class MixedInputModel():
 
                 y_row = [label_GALAXY, label_QSO, label_STAR]
 
-            if self.mainclass != 'NONE': y_row = spectrum[label_columns]
+            else: y_row = spectrum[label_columns]
 
 
             if np.isnan(np.sum(X_row)):
