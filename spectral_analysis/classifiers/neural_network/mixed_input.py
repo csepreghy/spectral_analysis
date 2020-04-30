@@ -26,10 +26,8 @@ from spectral_analysis.spectral_analysis.classifiers.neural_network.helper_funct
 
 class MixedInputModel():
     def __init__(self, mainclass='NONE', spectral_lines=False):
-        print(f'mainclass = {mainclass}')
         self.mainclass = mainclass
         self.spectral_lines = spectral_lines
-        print(f'self.mainclass = {self.mainclass}')
 
     def _prepare_data(self, df_source_info, df_fluxes):
         columns = []
@@ -89,8 +87,6 @@ class MixedInputModel():
             X_row.append(spectrum['petroMagErr_r'])
             X_row.append(spectrum['petroMagErr_i'])
             X_row.append(spectrum['petroMagErr_z'])
-
-            print(f'self.mainclass = {self.mainclass}')
 
             if self.mainclass == 'NONE':
                 label_GALAXY = spectrum['label_GALAXY']
@@ -202,8 +198,8 @@ class MixedInputModel():
         history = model.fit(x=[X_train_source_info, X_train_spectra],
                             y=y_train,
                             validation_data=([X_test_source_info, X_test_spectra_std], y_test),
-                            epochs=5,
-                            # batch_size=32,
+                            epochs=24,
+                            batch_size=64,
                             callbacks=callbacks_list)
 
 
@@ -229,7 +225,6 @@ def main():
     df_fluxes = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='fluxes').head(10000)
     df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='source_info').head(10000)
     df_wavelengths = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='wavelengths')
-
 
     print(f'len(df_fluxes1) = {df_fluxes}')
     print(f'len(df_source_info2) = {df_source_info}')
