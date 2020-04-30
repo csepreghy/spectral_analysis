@@ -103,13 +103,14 @@ def evaluate_model(model, X_test, y_test):
 	y_pred = model.predict(X_test)
 
 	matrix = confusion_matrix(y_test.argmax(axis=1), y_pred.argmax(axis=1))
+    print(f'confusion matrix = {matrix}')
 
 	df_cm = pd.DataFrame(matrix,
 						 index=[i for i in classes],
 						 columns=[i for i in classes])
 
 	fig, ax = plt.subplots(figsize=(10,7))
-	sn.heatmap(df_cm, annot=True, annot_kws={"size": 15}, fmt='g')
+	sn.heatmap(df_cm, annot=True, annot_kws={"size": 14})
 	ax.set_ylabel('Predicted Class', color='black')
 	ax.set_xlabel('Target Class', color='black')
 	ax.set_title('Confusion Matrix')
