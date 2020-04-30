@@ -202,6 +202,7 @@ class MixedInputModel():
                             batch_size=64,
                             callbacks=callbacks_list)
 
+        print(model.summary())
 
         # evaluate the model
         _, train_acc = model.evaluate([X_train_source_info, X_train_spectra], y_train, verbose=0)
@@ -225,9 +226,6 @@ def main():
     df_fluxes = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='fluxes').head(10000)
     df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='source_info').head(10000)
     df_wavelengths = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='wavelengths')
-
-    print(f'len(df_fluxes1) = {df_fluxes}')
-    print(f'len(df_source_info2) = {df_source_info}')
 
     mixed_input_model = MixedInputModel()
     mixed_input_model.train(df_source_info, df_fluxes)
