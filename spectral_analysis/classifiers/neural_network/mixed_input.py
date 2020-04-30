@@ -88,7 +88,7 @@ class MixedInputModel():
             X_row.append(spectrum['petroMagErr_i'])
             X_row.append(spectrum['petroMagErr_z'])
 
-            y_row = spectrum[label_columns]
+            if self.mainclass is not None: y_row = spectrum[label_columns]
 
             if self.mainclass is None:
                 label_GALAXY = spectrum['label_GALAXY']
@@ -158,8 +158,6 @@ class MixedInputModel():
         X_train_source_info, X_test_source_info, y_train, y_test = train_test_split(X=X_source_info, y=y, test_size=0.2)
         X_train_source_info, X_val_source_info, y_train, y_val = train_test_split(X=X_train_source_info, y=y_train, test_size=0.2)
 
-        print(f'X_fluxes = {X_fluxes}')
-
         X_train_spectra, X_test_spectra = train_test_split(X=X_fluxes, y=None, test_size=0.2)
         X_train_spectra, X_val_spectra = train_test_split(X=X_train_spectra, y=None, test_size=0.2)
 
@@ -180,9 +178,6 @@ class MixedInputModel():
 
         y_train = np.array(y_train)
         y_test = np.array(y_test)
-
-        print(f'y_test = {y_test}')
-        print(f'y_val = {y_val}')
 
         input_shapes = {'fluxes': X_train_spectra.shape[1], 
                         'source_info': X_train_source_info.shape[1]}
@@ -226,17 +221,16 @@ class MixedInputModel():
         return model
 
 def main():
-    df_fluxes = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='fluxes')
-    df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='source_info')
+    df_fluxes = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='fluxes').head(10000)
+    df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='source_info').head(10000)
     df_wavelengths = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='wavelengths')
+
 
     print(f'len(df_fluxes1) = {df_fluxes}')
     print(f'len(df_source_info2) = {df_source_info}')
 
     mixed_input_model = MixedInputModel()
     mixed_input_model.train(df_source_info, df_fluxes)
-
-
 
 if __name__ == "__main__":
     main()
