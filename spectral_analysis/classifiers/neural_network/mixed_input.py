@@ -25,7 +25,7 @@ from spectral_analysis.spectral_analysis.plotify import Plotify
 from spectral_analysis.spectral_analysis.classifiers.neural_network.helper_functions import train_test_split, evaluate_model, unison_shuffled_copies
 
 class MixedInputModel():
-    def __init__(self, mainclass=None, spectral_lines=False):
+    def __init__(self, mainclass='NONE', spectral_lines=False):
         self.mainclass = mainclass
         self.spectral_lines = spectral_lines
 
@@ -88,14 +88,15 @@ class MixedInputModel():
             X_row.append(spectrum['petroMagErr_i'])
             X_row.append(spectrum['petroMagErr_z'])
 
-            if self.mainclass is not None: y_row = spectrum[label_columns]
-
-            if self.mainclass is None:
+            if self.mainclass == 'NONE':
                 label_GALAXY = spectrum['label_GALAXY']
                 label_QSO = spectrum['label_QSO']
                 label_STAR = spectrum['label_STAR']
 
                 y_row = [label_GALAXY, label_QSO, label_STAR]
+
+            if self.mainclass != 'NONE': y_row = spectrum[label_columns]
+
 
             if np.isnan(np.sum(X_row)):
                 raise Exception(f'Found ya! Row: {X_row}')
