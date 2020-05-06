@@ -45,30 +45,38 @@ def get_coordinates_from_query(save_metatable=False, save_coordinates=False, sou
                     spec.zWarning = 0 AND spec.class = 'STAR'"
 
     else:
-        query = "select \
+        query = "SELECT\
                     spec.z, spec.ra, spec.dec, spec.specObjID, spec.bestObjID, spec.fluxObjID, spec.targetObjID, spec.plate, \
                     spec.class, spec.subClass, spec.zErr, spho.petroMag_u, spho.petroMag_g, spho.petroMag_r, spho.petroMag_i, \
-                    spho.petroMag_z, spho.petroMagErr_u, spho.petroMagErr_g, spho.petroMagErr_r, spho.petroMagErr_i, spho.petroMagErr_z \
-                    from SpecObjAll AS spec \
+                    spho.petroMag_z, spho.petroMagErr_u, spho.petroMagErr_g, spho.petroMagErr_r, spho.petroMagErr_i, spho.petroMagErr_z, \
+                    em.Flux_Hb_4861, em.Flux_Hb_4861_Err, em.Amplitude_Hb_4861, em.Amplitude_Hb_4861_Err, \
+                    em.Flux_OIII_4958, em.Flux_OIII_4958_Err, em.Amplitude_OIII_4958, em.Amplitude_OIII_4958_Err, \
+                    em.Flux_OIII_5006, em.Flux_OIII_5006_Err, em.Amplitude_OIII_5006, em.Amplitude_OIII_5006_Err, \
+                    em.Flux_Ha_6562, em.Flux_Ha_6562_Err, em.Amplitude_Ha_6562, em.Amplitude_Ha_6562_Err, \
+                    em.Flux_NII_6547, em.Flux_NII_6547_Err, em.Amplitude_NII_6547, em.Amplitude_NII_6547_Err, \
+                    em.Flux_NII_6583, em.Flux_NII_6583_Err, em.Amplitude_NII_6583, em.Amplitude_NII_6583_Err \
+                    FROM SpecObjAll AS spec \
                     JOIN SpecPhotoAll AS spho ON spec.specObjID = spho.specObjID \
-                    where \
-                    spec.zWarning = 0"
+                    JOIN emissionLinesPort AS em ON em.specObjID = spec.specObjID \
+                    WHERE \
+                    spec.zWarning = 0 AND spec.class = 'AGN'"
 
-    res = SDSS.query_sql(query)
+    res = SDSS.query_sql(query, timeout=500)
     df = res.to_pandas()
-    print('df.head()', df.head())
+    print('df', df)
+    print(df.columns)
 
-    df_coordinate_list = pd.DataFrame(df["ra"])
-    df_coordinate_list["dec"]=df["dec"]
+    # df_coordinate_list = pd.DataFrame(df["ra"])
+    # df_coordinate_list["dec"]=df["dec"]
 
-    print(f'df_coordinate_list = {df_coordinate_list}')
-    print(f'df = {df}')
+    # print(f'df_coordinate_list = {df_coordinate_list}')
+    # print(f'df = {df}')
 
-    if save_coordinates:
-        df_coordinate_list.to_csv('data/sdss/star_coordinate_list.csv')
+    # if save_coordinates:
+    #     df_coordinate_list.to_csv('data/sdss/star_coordinate_list.csv')
 
     if save_metatable:
-        df.to_pickle('data/sdss/star_meta_table.pkl')
+        df.to_pickle('data/sdss/qso_meta_table_emissionlines.pkl')
 
     end = time.clock()
     tt = end - start
