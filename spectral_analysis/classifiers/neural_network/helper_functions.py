@@ -22,6 +22,7 @@ from tensorflow.keras.models import Sequential, Model
 from tensorflow.keras.utils import to_categorical
 
 from spectral_analysis.plotify import Plotify
+from spectral_analysis.data_preprocessing.bpt_diagram import plot_bpt_diagram
 
 # This is a mixed input neural network that combines a CNN with an MLP.
 # Inputs:
@@ -36,7 +37,7 @@ from spectral_analysis.plotify import Plotify
 # a binary classifier, but it can be easily changed
 # It also automatically scales the data. This should speed up the process of training
 
-def train_test_split(X, test_size, y=None, objids=None):
+def train_test_split(X, test_size, y=None, objids=None, indeces=None):
     if y is not None and len(X) != len(y): assert('X and y does not have the same length')
 
     n_test = round(len(X) * test_size)
@@ -45,6 +46,12 @@ def train_test_split(X, test_size, y=None, objids=None):
     X_test = X[-n_test:]
     X_train = X[:n_train]
 
+    print(f'indeces = {indeces}')
+
+    if indeces is not None:
+        i_test = indeces[-n_test:]
+        i_train = indeces[:n_train]
+
     print('len(X_train)', len(X_train))
 
     if y is not None:
@@ -52,7 +59,7 @@ def train_test_split(X, test_size, y=None, objids=None):
         y_train = y[:n_train]
         print(f'len(y_train) = {len(y_train)}')
 
-    if y is not None: return X_train, X_test, y_train, y_test
+    if y is not None: return X_train, X_test, y_train, y_test, i_train, i_test
 
     else: return X_train, X_test
 
@@ -98,12 +105,17 @@ def get_incorrect_predictions(model, X_test, X_test_spectra, y_test, df):
 	plt.plot(x=spectrum_x, y=spectrum_y)
 	plt.show()
 
-def evaluate_model(model, X_test, y_test):
+def evaluate_model(model, X_test, y_test, df_source_info, indeces):
     classes = ['galaxy', 'quasar', 'star']
     y_pred = model.predict(X_test)
 
     matrix = confusion_matrix(y_test.argmax(axis=1), y_pred.argmax(axis=1))
     print(f'confusion matrix = {matrix}')
+
+    print(f'df_source_info[indeces] = {df_source_info.loc[indeces]}')
+
+    plot_bpt_diagram(df_source_info.loc[indeces])
+
 
     # df_cm = pd.DataFrame(matrix,
     # 					 index=[i for i in classes],

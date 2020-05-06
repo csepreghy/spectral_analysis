@@ -668,9 +668,35 @@ def merge_emission_lines():
     
     print(df_emission_lines)
 
-    df_merged = pd.merge(df_source_info, df_emission_lines, on=['fluxObjID'])
-    print(df_merged)
-    print(df_merged.columns)
+    df_merged_source = pd.merge(df_source_info, df_emission_lines, on=['fluxObjID'], how='left')
+    df_merged_source_fluxes = pd.merge(df_merged_source, df_fluxes, on=['objid'])
+    df_merged_source_fluxes = df_merged_source_fluxes.dropna().reset_index()
+    df_fluxes = df_merged_source_fluxes.drop(columns=[
+        'petroMag_u', 'petroMag_g', 'petroMag_r', 'petroMag_i', 'petroMag_z', 'petroMagErr_u',
+        'petroMagErr_g', 'petroMagErr_r', 'petroMagErr_i', 'petroMagErr_z', 'z', 'zErr', 'plate',
+        'index', 'class', 'subClass', 'ra', 'dec', 'bestObjID', 'targetObjID', 'Flux_Hb_4861', 
+        'Flux_Hb_4861_Err', 'Amplitude_Hb_4861', 'Amplitude_Hb_4861_Err', 'Flux_OIII_4958',
+        'Flux_OIII_4958_Err', 'Amplitude_OIII_4958', 'Amplitude_OIII_4958_Err', 'Flux_OIII_5006',
+        'Flux_OIII_5006_Err', 'Amplitude_OIII_5006', 'Amplitude_OIII_5006_Err', 'Flux_Ha_6562',
+        'Flux_Ha_6562_Err', 'Amplitude_Ha_6562', 'Amplitude_Ha_6562_Err', 'Flux_NII_6547', 
+        'Flux_NII_6547_Err', 'Amplitude_NII_6547', 'Amplitude_NII_6547_Err', 'Flux_NII_6583',
+        'Flux_NII_6583_Err', 'Amplitude_NII_6583', 'Amplitude_NII_6583_Err', 'fluxObjID',
+        'spectral_line_1', 'spectral_line_2', 'spectral_line_3', 'spectral_line_4', 'spectral_line_5',
+        'spectral_line_6', 'spectral_line_7', 'spectral_line_8', 'spectral_line_9', 'spectral_line_10',
+        'spectral_line_11', 'spectral_line_12', 'spectral_line_13', 'spectral_line_0', 'specObjID'
+    ])
+
+    flux_column_list = []
+    for flux_column in range(3736):
+        flux_column_list.append(f'flux_str{(flux_column)}')
+
+    df_merged = df_merged_source_fluxes.drop(columns=flux_column_list)
+
+    print(f'df_fluxes = {df_fluxes}')
+    print(f'df_fluxes.columns = {df_fluxes.columns}')
+
+    print(df_merged_source_fluxes)
+    print(df_merged_source_fluxes.columns)
 
     data_path = '/Users/csepreghyandras/the_universe/projects/spectral-analysis/data/sdss/preprocessed/'
     filename = 'balanced_with_emission_lines.h5'

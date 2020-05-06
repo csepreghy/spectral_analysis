@@ -30,7 +30,8 @@ class MixedInputModel():
         self.spectral_lines = spectral_lines
 
     def _prepare_data(self, df_source_info, df_fluxes):
-        columns = []
+        self.df_source_info = df_source_info
+        
         if self.mainclass == 'NONE':
             try: df_source_info['label'] = [x.decode('utf-8') for x in df_source_info['class']]
             except: df_source_info['label'] = df_source_info['class']
@@ -43,6 +44,7 @@ class MixedInputModel():
         df_dummies = pd.get_dummies(df_source_info['label'], prefix='label')
         df_source_info = pd.concat([df_source_info, df_dummies], axis=1)
 
+        columns = []
         for column in df_source_info.columns:
             if column not in ['class', 'dec', 'ra', 'plate', 'wavelength', 'objid', 'subClass', 'label']:
                 columns.append(column)
@@ -106,12 +108,12 @@ class MixedInputModel():
         array_sum = np.sum(X_source_info)
         array_has_nan = np.isnan(array_sum)
 
-        print('array_has_nan', array_has_nan)
 
-        X_source_info, X_fluxes = unison_shuffled_copies(X_source_info, X_fluxes)
+        indeces = list(range(len(X_source_info)))
+        X_source_info, X_fluxes, indeces = shuffle_in_unison(X_source_info, X_fluxes, indeces)
         
 
-        return X_source_info, X_fluxes, y
+        return X_source_info, X_fluxes, y, indeces
 
     def _build_cnn(self, input_length):
         model = Sequential()
@@ -151,15 +153,18 @@ class MixedInputModel():
         return model
     
     def train(self, df_source_info, df_fluxes):
-        X_source_info, X_fluxes, y = self._prepare_data(df_source_info, df_fluxes)
+        X_source_info, X_fluxes, y, indeces = self._prepare_data(df_source_info, df_fluxes)
 
-        X_train_source_info, X_test_source_info, y_train, y_test = train_test_split(X=X_source_info, y=y, test_size=0.2)
-        X_train_source_info, X_val_source_info, y_train, y_val = train_test_split(X=X_train_source_info, y=y_train, test_size=0.2)
+        X_train_source_info, X_test_source_info, y_train, y_test, self.i_train, self.i_test = train_test_split(X=X_source_info, y=y, test_size=0.2, indeces=indeces)
+        X_train_source_info, X_val_source_info, y_train, y_val, self.i_train, self.i_test = train_test_split(X=X_train_source_info, y=y_train, test_size=0.2, indeces=self.i_train)
 
         X_train_spectra, X_test_spectra = train_test_split(X=X_fluxes, y=None, test_size=0.2)
         X_train_spectra, X_val_spectra = train_test_split(X=X_train_spectra, y=None, test_size=0.2)
 
         scaler_source_info = StandardScaler()
+
+        print(f'len(i_train) = {len(self.i_train)}')
+        print(f'len(i_test) = {len(self.i_test)}')
 
         X_train_source_info = scaler_source_info.fit_transform(X_train_source_info)
         X_test_source_info = scaler_source_info.transform(X_test_source_info)
@@ -195,7 +200,7 @@ class MixedInputModel():
         history = model.fit(x=[X_train_source_info, X_train_spectra],
                             y=y_train,
                             validation_data=([X_test_source_info, X_test_spectra_std], y_test),
-                            epochs=10,
+                            epochs=3,
                             batch_size=32,
                             callbacks=callbacks_list)
 
@@ -215,27 +220,21 @@ class MixedInputModel():
 
         evaluate_model(model=model,
                        X_test=[X_test_source_info, X_test_spectra_std],
-                       y_test=y_test)
+                       y_test=y_test,
+                       df_source_info=self.df_source_info,
+                       indeces=self.i_test)
 
         return model
 
 def main():
-    # df_fluxes = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='fluxes')
-    # df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='source_info')
-    # df_wavelengths = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='wavelengths')
+    df_fluxes = pd.read_hdf('data/sdss/preprocessed/balanced_with_emission_lines.h5', key='fluxes').head(10)
+    df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced_with_emission_lines.h5', key='source_info').head(10)
+    df_wavelengths = pd.read_hdf('data/sdss/preprocessed/balanced_with_emission_lines.h5', key='wavelengths')
 
-    # mixed_input_model = MixedInputModel(mainclass='GALAXY')
-    # mixed_input_model.train(df_source_info, df_fluxes)
+    print(f'df_source_info = {df_source_info}')
 
-    a = ['A1', 'B1', 'C1', 'D1', 'E1', 'F1', 'G1', 'H1', 'I1', 'J1']
-    b = ['A2', 'B2', 'C2', 'D2', 'E2', 'F2', 'G2', 'H2', 'I2', 'J2']
-    c = ['A3', 'B3', 'C3', 'D3', 'E3', 'F3', 'G3', 'H3', 'I3', 'J3']
-
-    a, b, c = shuffle_in_unison(a, b, c)
-    print(a)
-    print(b)
-    print(c)
-
+    mixed_input_model = MixedInputModel(mainclass='GALAXY')
+    mixed_input_model.train(df_source_info, df_fluxes)
 
 if __name__ == "__main__":
     main()
