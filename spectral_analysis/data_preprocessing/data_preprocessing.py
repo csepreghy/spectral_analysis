@@ -653,5 +653,34 @@ def main():
                   filename='GALAXY_17',
                   spectrum_title='Example of a Galaxy')
 
+def merge_emission_lines():
+    df_fluxes = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='fluxes')
+    df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='source_info')
+    df_wavelengths = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='wavelengths')
+
+    print(f'df_source_info = {df_source_info}')
+
+    df_emission_lines = pd.read_pickle('data/sdss/meta_table_emissionlines.pkl')
+    df_emission_lines = df_emission_lines.drop(columns=['petroMag_u', 'petroMag_g', 'petroMag_r', 'petroMag_i',
+                                                        'petroMag_z', 'petroMagErr_u', 'petroMagErr_g', 'petroMagErr_r',
+                                                        'petroMagErr_i', 'petroMagErr_z', 'z', 'zErr', 'plate',
+                                                        'class', 'subClass', 'ra', 'dec', 'bestObjID', 'targetObjID'])
+    
+    print(df_emission_lines)
+
+    df_merged = pd.merge(df_source_info, df_emission_lines, on=['fluxObjID'])
+    print(df_merged)
+    print(df_merged.columns)
+
+    data_path = '/Users/csepreghyandras/the_universe/projects/spectral-analysis/data/sdss/preprocessed/'
+    filename = 'balanced_with_emission_lines.h5'
+
+    store = pd.HDFStore(data_path + filename)
+    store.put('source_info', df_merged, format='fixed', data_columns=True)
+    store.put('fluxes', df_fluxes, format='fixed', data_columns=True)
+    store.put('wavelengths', df_wavelengths)
+
+
 if __name__ == '__main__':
-	main()
+    merge_emission_lines()
+	# main()
