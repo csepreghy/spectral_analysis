@@ -81,20 +81,20 @@ def get_incorrect_predictions(model, X_test, X_test_spectra, y_test, df):
 	print('len(spectrum_x', len(spectrum_x))
 
 	fig, ax = plotify.plot(x=spectrum_x,
-                         y=spectrum_y,
-                         xlabel='Frequencies',
-                         ylabel='Flux',
-                         title='title',
-                         figsize=(12, 8),
-                         show_plot=True,
-                         filename=('filename'),
-                         save=False,
-                         color='orange',
-                         ymin=-5,
-                         ymax=12,
-                         xmin=3800,
-                         xmax=9100)
-
+                           y=spectrum_y,
+                           xlabel='Frequencies',
+                           ylabel='Flux',
+                           title='title',
+                           figsize=(12, 8),
+                           show_plot=True,
+                           filename=('filename'),
+                           save=False,
+                           color='orange',
+                           ymin=-5,
+                           ymax=12,
+                           xmin=3800,
+                           xmax=9100)
+  
 	plt.plot(x=spectrum_x, y=spectrum_y)
 	plt.show()
 
@@ -116,12 +116,15 @@ def evaluate_model(model, X_test, y_test):
     # ax.set_title('Confusion Matrix')
     # plt.show()
   
-def unison_shuffled_copies(a, b):
-    c = list(zip(a, b))
-    shuffle_along_axis(c, 1)
-    a, b = zip(*c)
-    
-    return a, b
+def shuffle_in_unison(a, b, c):
+    rng_state = np.random.get_state()
+    np.random.shuffle(a)
+    np.random.set_state(rng_state)
+    np.random.shuffle(b)
+    np.random.set_state(rng_state)
+    np.random.shuffle(c)
+
+    return a, b, c
 
 def shuffle_along_axis(a, axis):
     a = np.array(a)

@@ -22,7 +22,7 @@ from tensorflow.keras.utils import to_categorical
 
 from spectral_analysis.data_preprocessing.data_preprocessing import remove_bytes_from_class, get_fluxes_from_h5, get_joint_classes
 from spectral_analysis.plotify import Plotify
-from spectral_analysis.classifiers.neural_network.helper_functions import train_test_split, evaluate_model, unison_shuffled_copies
+from spectral_analysis.classifiers.neural_network.helper_functions import train_test_split, evaluate_model, shuffle_in_unison
 
 class MixedInputModel():
     def __init__(self, mainclass='NONE', spectral_lines=False):
@@ -57,7 +57,7 @@ class MixedInputModel():
                 if 'label_' in column: label_columns.append(column)
             
             self.n_labels = len(label_columns)
-            print(f'label_columns = {len(label_columns)}')
+            print(f'label_columns = {label_columns}')
 
         else: self.n_labels = 3
 
@@ -209,9 +209,9 @@ class MixedInputModel():
 
         # get_incorrect_predictions(X_test=[X_test_source_info, X_test_spectra_std],
         #                           X_test_spectra=X_test_spectra,
-       #                            model=model,
-       #                            y_test=y_test,
-       #                            df=df)
+        #                           model=model,
+        #                           y_test=y_test,
+        #                           df=df)
 
         evaluate_model(model=model,
                        X_test=[X_test_source_info, X_test_spectra_std],
@@ -220,12 +220,22 @@ class MixedInputModel():
         return model
 
 def main():
-    df_fluxes = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='fluxes')
-    df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='source_info')
-    df_wavelengths = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='wavelengths')
+    # df_fluxes = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='fluxes')
+    # df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='source_info')
+    # df_wavelengths = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='wavelengths')
 
-    mixed_input_model = MixedInputModel(mainclass='STAR')
-    mixed_input_model.train(df_source_info, df_fluxes)
+    # mixed_input_model = MixedInputModel(mainclass='GALAXY')
+    # mixed_input_model.train(df_source_info, df_fluxes)
+
+    a = ['A1', 'B1', 'C1', 'D1', 'E1', 'F1', 'G1', 'H1', 'I1', 'J1']
+    b = ['A2', 'B2', 'C2', 'D2', 'E2', 'F2', 'G2', 'H2', 'I2', 'J2']
+    c = ['A3', 'B3', 'C3', 'D3', 'E3', 'F3', 'G3', 'H3', 'I3', 'J3']
+
+    a, b, c = shuffle_in_unison(a, b, c)
+    print(a)
+    print(b)
+    print(c)
+
 
 if __name__ == "__main__":
     main()
