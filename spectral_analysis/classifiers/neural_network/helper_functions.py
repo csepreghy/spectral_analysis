@@ -77,7 +77,6 @@ def get_incorrect_predictions(model, X_test_fluxes, X_test_spectra, raw_X_test_s
         else: correct_indeces.append(i)
 
     # indices = [i for i in enumerate(predictions) if predictions[i] != y_test[i]]
-    print(f'correct_indeces = {correct_indeces}')
     wrong_predictions = []
     for i in wrong_indeces:
         wrong_prediction = {'spectrum': X_test_spectra[i],
@@ -132,7 +131,7 @@ def get_incorrect_predictions(model, X_test_fluxes, X_test_spectra, raw_X_test_s
     
     for i, correct_prediction in enumerate(correct_predictions[0:100]):
         fluxes = correct_predictions[i]['spectrum']
-        raw_fluxes = correct_prediction[i]['raw_spectrum']
+        raw_fluxes = correct_predictions[i]['raw_spectrum']
         wavelengths = df_wavelengths.values
         fig, ax = plotify.get_figax()
         source_info = df_source_info_test.iloc[i]

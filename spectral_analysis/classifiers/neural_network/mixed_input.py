@@ -25,12 +25,14 @@ from spectral_analysis.plotify import Plotify
 from spectral_analysis.classifiers.neural_network.helper_functions import train_test_split, evaluate_model, shuffle_in_unison, get_incorrect_predictions
 
 class MixedInputModel():
-    def __init__(self, mainclass='NONE', spectral_lines=False, df_wavelengths=None, gaussian=False, epochs=2):
+    def __init__(self, mainclass='NONE', spectral_lines=False, df_wavelengths=None, gaussian=False, epochs=2, load_model=False, model_path=None):
         self.mainclass = mainclass
         self.spectral_lines = spectral_lines
         self.df_wavelengths = df_wavelengths
         self.gaussian = gaussian
         self.epochs = epochs
+        self.load_model = load_model
+        self.model_path = model_path
 
     def _prepare_data(self, df_source_info, df_fluxes):
         self.df_source_info = df_source_info
@@ -65,7 +67,6 @@ class MixedInputModel():
         X_fluxes = np.delete(df_fluxes.values, 0, axis=1)
         self.raw_X_fluxes = X_fluxes
         if self.gaussian == True:
-            print('kakkanat\n\n\n')
             X_fluxes_gaussian = []
             for X_flux in X_fluxes:
                 X_flux_gaussian = apply_gaussian_filter(X_flux, sigma=4)
@@ -212,58 +213,83 @@ class MixedInputModel():
                         'source_info': X_train_source_info.shape[1]}
 
         model = self._build_models(input_shapes=input_shapes, n_classes=self.n_labels)
-
-        tensorboard = TensorBoard(log_dir='logs/{}'.format('cnn-mlp_{}'.format(time.time())))
-        earlystopping = EarlyStopping(monitor='val_accuracy', patience=8)
-        modelcheckpoint = ModelCheckpoint(filepath='best_model_epoch.{epoch:02d}-{val_loss:.2f}.h5',
-                                          monitor='val_loss',
-                                          save_best_only=True)
-
-        callbacks_list = [# modelcheckpoint,
-                        earlystopping,
-                        tensorboard]
-
-        history = model.fit(x=[X_train_source_info, X_train_fluxes],
-                            y=y_train,
-                            validation_data=([X_test_source_info_std, X_test_fluxes_std], y_test),
-                            epochs=self.epochs,
-                            batch_size=32,
-                            callbacks=callbacks_list)
-
         print(model.summary())
 
-        # evaluate the model
-        _, train_acc = model.evaluate([X_train_source_info, X_train_fluxes], y_train, verbose=0)
-        _, test_acc = model.evaluate([X_test_source_info_std, X_test_fluxes_std], y_test, verbose=0)
 
-        print('Train: %.3f, Test: %.3f' % (train_acc, test_acc))
+        if self.load_model == True:
+            model.load_weights(self.model_path)
+            _, train_acc = model.evaluate([X_train_source_info, X_train_fluxes], y_train, verbose=0)
+            _, test_acc = model.evaluate([X_test_source_info_std, X_test_fluxes_std], y_test, verbose=0)
+            print('Train: %.3f, Test: %.3f' % (train_acc, test_acc))
 
-        get_incorrect_predictions(model=model,
-                                  X_test_fluxes=[X_test_source_info_std, X_test_fluxes_std],
-                                  X_test_spectra=X_test_fluxes,
-                                  raw_X_test_spectra=raw_X_test_fluxes,
-                                  y_test=y_test,
-                                  df_source_info_test=df_source_info_test,
-                                  df_wavelengths=df_wavelengths,
-                                  gaussian=True)
+            evaluate_model(model=model,
+                           X_test=[X_test_source_info_std, X_test_fluxes_std],
+                           y_test=y_test,
+                           df_source_info=self.df_source_info,
+                           indeces=self.i_test,
+                           classes=self.label_columns)
+                           
+            get_incorrect_predictions(model=model,
+                                      X_test_fluxes=[X_test_source_info_std, X_test_fluxes_std],
+                                      X_test_spectra=X_test_fluxes,
+                                      raw_X_test_spectra=raw_X_test_fluxes,
+                                      y_test=y_test,
+                                      df_source_info_test=df_source_info_test,
+                                      df_wavelengths=df_wavelengths,
+                                      gaussian=self.gaussian)
+  
+        
+        elif self.load_model == False:
+            tensorboard = TensorBoard(log_dir='logs/{}'.format('mixed-input{}'.format(time.time())))
+            earlystopping = EarlyStopping(monitor='val_accuracy', patience=8)
+            modelcheckpoint = ModelCheckpoint(filepath='logs/mixed_input_gauss4_epoch50k.{epoch:02d}-{val_loss:.2f}.h5',
+                                              monitor='val_loss',
+                                              save_best_only=True)
 
-        evaluate_model(model=model,
-                       X_test=[X_test_source_info_std, X_test_fluxes_std],
-                       y_test=y_test,
-                       df_source_info=self.df_source_info,
-                       indeces=self.i_test,
-                       classes=self.label_columns)
+            callbacks_list = [modelcheckpoint,
+                              earlystopping,
+                              tensorboard]
+
+            history = model.fit(x=[X_train_source_info, X_train_fluxes],
+                                y=y_train,
+                                validation_data=([X_test_source_info_std, X_test_fluxes_std], y_test),
+                                epochs=self.epochs,
+                                batch_size=32,
+                                callbacks=callbacks_list)
+
+            # evaluate the model
+            _, train_acc = model.evaluate([X_train_source_info, X_train_fluxes], y_train, verbose=0)
+            _, test_acc = model.evaluate([X_test_source_info_std, X_test_fluxes_std], y_test, verbose=0)
+
+            print('Train: %.3f, Test: %.3f' % (train_acc, test_acc))
+            
+            evaluate_model(model=model,
+                           X_test=[X_test_source_info_std, X_test_fluxes_std],
+                           y_test=y_test,
+                           df_source_info=self.df_source_info,
+                           indeces=self.i_test,
+                           classes=self.label_columns)
+
+            get_incorrect_predictions(model=model,
+                                      X_test_fluxes=[X_test_source_info_std, X_test_fluxes_std],
+                                      X_test_spectra=X_test_fluxes,
+                                      raw_X_test_spectra=raw_X_test_fluxes,
+                                      y_test=y_test,
+                                      df_source_info_test=df_source_info_test,
+                                      df_wavelengths=df_wavelengths,
+                                      gaussian=self.gaussian)
+
 
         return model
 
 def main():
-    df_fluxes = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='fluxes').head(20000)
-    df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='source_info').head(20000)
+    df_fluxes = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='fluxes').head(50000)
+    df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='source_info').head(50000)
     df_wavelengths = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='wavelengths')
 
     print(f'df_source_info = {df_source_info}')
 
-    mixed_input_model = MixedInputModel(gaussian=True, epochs=10)
+    mixed_input_model = MixedInputModel(gaussian=True, epochs=3, load_model=False, model_path='logs/mixed_input_gauss4_epoch.07-0.10.h5')
     mixed_input_model.train(df_source_info, df_fluxes, df_wavelengths)
 
 if __name__ == "__main__":
