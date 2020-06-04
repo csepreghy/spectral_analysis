@@ -30,7 +30,7 @@ class CNN:
         columns = []
 
         if self.mainclass == None:
-            df_source_info['label'] = [x.decode('utf-8') for x in df_source_info['class']]
+            df_source_info['label'] = df_source_info['class']
 
         else:
             df_source_info, df_fluxes = get_joint_classes(df_source_info, df_fluxes, self.mainclass)
@@ -69,14 +69,17 @@ class CNN:
                              max_trials=10,
                              executions_per_trial=1,
                              directory='logs/keras-tuner/',
-                             project_name='autoencoder')
+                             project_name='cnn')
     
+        print(f'X_train = {X_train}')
+        print(f'y_train = {y_train}')
+
         tuner.search(x=X_train,
                      y=y_train,
                      epochs=20,
-                     batch_size=64,
+                     batch_size=32,
                      validation_data=(X_test, y_test),
-                     callbacks=[EarlyStopping('val_accuracy', patience=3)])
+                     callbacks=[EarlyStopping('val_accuracy', patience=5)])
 
     def _build_model(self, hp):
         model = Sequential()
@@ -130,13 +133,10 @@ class CNN:
         self._fit(X_train, y_train, X_test, y_test)
 
 def main():
-    df_fluxes = pd.read_hdf('data/sdss/preprocessed/interpolated_1536/0-50_i_fluxes_1536.h5', key='fluxes')
-    df_source_info = pd.read_hdf('data/sdss/preprocessed/interpolated_1536/0-50_i_fluxes_1536.h5', key='source_info')
-    
-    df_fluxes = df_fluxes.head(50)
-    df_source_info = df_source_info.head(50)
+    df_fluxes = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='fluxes')
+    df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='source_info')
 
-    cnn = CNN(df_fluxes, mainclass='QSO')
+    cnn = CNN(df_fluxes)
     cnn.train(df_source_info, df_fluxes)
 
 if __name__ == "__main__":
