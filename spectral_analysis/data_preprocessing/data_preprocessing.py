@@ -74,7 +74,7 @@ def plot_spectrum(fluxes, wavelengths, save=False, filename=None, spectrum_title
     fig, ax = plotify.plot(x=wavelengths,
                            y=fluxes,
                            xlabel='Wavelengths (Å)',
-                           ylabel='Flux',
+                           ylabel=r'Flux ($10^{-17} erg cm^{-2} s^{-1} \AA^{-1}$)',
                            title=spectrum_title,
                            figsize=(10, 6),
                            show_plot=True,
@@ -708,5 +708,38 @@ def merge_emission_lines():
 
 
 if __name__ == '__main__':
-    merge_emission_lines()
+    df_fluxes = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='fluxes').head(2000)
+    df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='source_info').head(2000)
+    df_wavelengths = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='wavelengths')
+    print(f'df_source_info = {df_source_info["class"]}')
+
+    nth = 24
+
+    df_fluxes = df_fluxes.loc[df_source_info['class'] == 'QSO']
+    df_source_info = df_source_info.loc[df_source_info['class'] == 'QSO']
+
+    original_fluxes = df_fluxes.values[nth][1:3737]
+    gaussian_fluxes_8 = apply_gaussian_filter(df_fluxes.values[nth][1:3737], 8)
+    gaussian_fluxes_4 = apply_gaussian_filter(df_fluxes.values[nth][1:3737], 4)
+
+
+    qso_ra = df_source_info.iloc[[nth]]['ra'].values[0]
+    qso_dec = df_source_info.iloc[[nth]]['dec'].values[0]
+    qso_plate = df_source_info.iloc[[nth]]['plate'].values[0]
+
+    plotify = Plotify(theme='ugly')
+
+    _, axs = plotify.get_figax(nrows=2, figsize=(8, 8))
+    axs[0].plot(df_wavelengths.values, original_fluxes, color=plotify.c_orange, linewidth=0.8)
+    axs[1].plot(df_wavelengths.values, gaussian_fluxes_4, color=plotify.c_orange, linewidth=0.8)
+    axs[0].set_title(f'ra = {qso_ra}, dec = {qso_dec}, plate = {qso_plate}', fontsize=14)
+    axs[1].set_title(r'with Gaussian convolution, $\sigma = 4$')
+    axs[0].set_ylabel(r'$F_{\lambda[10^{-17} erg \: cm^{-2}s^{-1} Å^{-1}]}$', fontsize=14)
+    axs[1].set_ylabel(r'$F_{\lambda[10^{-17} erg \: cm^{-2}s^{-1} Å^{-1}]}$', fontsize=14)
+    axs[1].set_xlabel('Wavelength (Å)')
+
+    plt.subplots_adjust(hspace=0.4)
+    plt.savefig('plots/GAUSSIAN_24_4', facecolor=plotify.c_background, dpi=180)
+    plt.show()
+
 	# main()
