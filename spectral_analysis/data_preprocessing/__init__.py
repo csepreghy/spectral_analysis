@@ -72,9 +72,9 @@ def main():
     # df_source_info['class'] = [x.decode('utf-8') for x in df_source_info['class']]
 
 
-    df_fluxes =  pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines_no_bytes.h5', key='fluxes')
-    df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines_no_bytes.h5', key='source_info')
-    df_wavelengths = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines_no_bytes.h5', key='wavelengths')
+    df_fluxes =  pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='fluxes')
+    df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='source_info')
+    df_wavelengths = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='wavelengths')
 
 
 
@@ -104,6 +104,8 @@ def main():
     print(f'df_fluxes.columns = {df_fluxes.columns}')
     print(f'df_source_info.columns = {df_source_info.columns}')
     print(f'len = df_source_info.columns = {len(df_source_info.columns)}')
+
+    print(f'df_wavelengths = {df_wavelengths}')
 
 
 # ---------------------------------------------------------------------------- #

@@ -20,17 +20,30 @@ from tensorflow.keras.layers import Dense, Dropout, Activation, Flatten, Conv1D,
 from tensorflow.keras.models import Sequential, Model
 from tensorflow.keras.utils import to_categorical
 
-from spectral_analysis.spectral_analysis.data_preprocessing.data_preprocessing import remove_bytes_from_class, get_fluxes_from_h5, get_joint_classes
+from spectral_analysis.spectral_analysis.data_preprocessing.data_preprocessing import remove_bytes_from_class, get_fluxes_from_h5, get_joint_classes, apply_gaussian_filter
 from spectral_analysis.spectral_analysis.plotify import Plotify
-from spectral_analysis.spectral_analysis.classifiers.neural_network.helper_functions import train_test_split, evaluate_model, unison_shuffled_copies
+from spectral_analysis.spectral_analysis.classifiers.neural_network.helper_functions import train_test_split, evaluate_model, shuffle_in_unison, get_incorrect_predictions
 
 class MixedInputModel():
-    def __init__(self, mainclass='NONE', spectral_lines=False):
+    def __init__(self, mainclass='NONE', spectral_lines=False, df_wavelengths=None, gaussian=False):
         self.mainclass = mainclass
         self.spectral_lines = spectral_lines
+        self.df_wavelengths = df_wavelengths
+        self.gaussian = gaussian
+        print(f'self.gaussian = {self.gaussian}')
 
     def _prepare_data(self, df_source_info, df_fluxes):
-        columns = []
+        self.df_source_info = df_source_info
+
+        quasars = df_source_info.loc[df_source_info['class'] == 'QSO']
+        print(f'len(quasars) = {len(quasars)}')
+
+        galaxies = df_source_info.loc[df_source_info['class'] == 'GALAXY']
+        print(f'len(galaxies) = {len(galaxies)}')
+
+        stars = df_source_info.loc[df_source_info['class'] == 'STAR']
+        print(f'len(stars) = {len(stars)}')
+        
         if self.mainclass == 'NONE':
             try: df_source_info['label'] = [x.decode('utf-8') for x in df_source_info['class']]
             except: df_source_info['label'] = df_source_info['class']
@@ -43,21 +56,32 @@ class MixedInputModel():
         df_dummies = pd.get_dummies(df_source_info['label'], prefix='label')
         df_source_info = pd.concat([df_source_info, df_dummies], axis=1)
 
+        columns = []
         for column in df_source_info.columns:
             if column not in ['class', 'dec', 'ra', 'plate', 'wavelength', 'objid', 'subClass', 'label']:
                 columns.append(column)
 
         X_source_info = []
         X_fluxes = np.delete(df_fluxes.values, 0, axis=1)
+        self.raw_X_fluxes = X_fluxes
+        if self.gaussian == True:
+            print('kakkanat\n\n\n')
+            X_fluxes_gaussian = []
+            for X_flux in X_fluxes:
+                X_flux_gaussian = apply_gaussian_filter(X_flux, sigma=4)
+                X_fluxes_gaussian.append(X_flux_gaussian)
+            
+            X_fluxes = X_fluxes_gaussian
+        
         y = []
 
         if self.mainclass is not None:
-            label_columns = []
+            self.label_columns = []
             for column in df_source_info.columns:
-                if 'label_' in column: label_columns.append(column)
+                if 'label_' in column: self.label_columns.append(column)
             
-            self.n_labels = len(label_columns)
-            print(f'label_columns = {len(label_columns)}')
+            self.n_labels = len(self.label_columns)
+            print(f'self.label_columns = {self.label_columns}')
 
         else: self.n_labels = 3
 
@@ -95,7 +119,7 @@ class MixedInputModel():
 
                 y_row = [label_GALAXY, label_QSO, label_STAR]
 
-            else: y_row = spectrum[label_columns]
+            else: y_row = spectrum[self.label_columns]
 
             if np.isnan(np.sum(X_row)):
                 raise Exception(f'Found ya! Row: {X_row}')
@@ -106,12 +130,10 @@ class MixedInputModel():
         array_sum = np.sum(X_source_info)
         array_has_nan = np.isnan(array_sum)
 
-        print('array_has_nan', array_has_nan)
+        indeces = list(range(len(X_source_info)))
+        # X_source_info, X_fluxes, indeces = shuffle_in_unison(np.array(X_source_info), np.array(X_fluxes), indeces)
 
-        X_source_info, X_fluxes = unison_shuffled_copies(X_source_info, X_fluxes)
-        
-
-        return X_source_info, X_fluxes, y
+        return X_source_info, X_fluxes, y, indeces
 
     def _build_cnn(self, input_length):
         model = Sequential()
@@ -150,34 +172,43 @@ class MixedInputModel():
     
         return model
     
-    def train(self, df_source_info, df_fluxes):
-        X_source_info, X_fluxes, y = self._prepare_data(df_source_info, df_fluxes)
+    def train(self, df_source_info, df_fluxes, df_wavelengths):
+        X_source_info, X_fluxes, y, indeces = self._prepare_data(df_source_info, df_fluxes)
+        
+        X_train_source_info, X_test_source_info, y_train, y_test, self.i_train, self.i_test = train_test_split(X=X_source_info, y=y, test_size=0.2, indeces=indeces)
+        X_train_source_info, X_val_source_info, y_train, y_val, self.i_train, self.i_val = train_test_split(X=X_train_source_info, y=y_train, test_size=0.2, indeces=self.i_train)
 
-        X_train_source_info, X_test_source_info, y_train, y_test = train_test_split(X=X_source_info, y=y, test_size=0.2)
-        X_train_source_info, X_val_source_info, y_train, y_val = train_test_split(X=X_train_source_info, y=y_train, test_size=0.2)
-
-        X_train_spectra, X_test_spectra = train_test_split(X=X_fluxes, y=None, test_size=0.2)
-        X_train_spectra, X_val_spectra = train_test_split(X=X_train_spectra, y=None, test_size=0.2)
-
+        X_train_fluxes, X_test_fluxes = train_test_split(X=X_fluxes, y=None, test_size=0.2)
+        X_train_fluxes, X_val_fluxes = train_test_split(X=X_train_fluxes, y=None, test_size=0.2)
+        
+        # To get the same train test split for raw spectra after gaussian smoothing
+        raw_X_train_fluxes, raw_X_test_fluxes = train_test_split(X=self.raw_X_fluxes, y=None, test_size=0.2)
+        raw_X_train_fluxes, raw_X_val_fluxes = train_test_split(X=raw_X_train_fluxes, y=None, test_size=0.2)
+        
         scaler_source_info = StandardScaler()
 
+        # print(f'X_train_source_info = {X_train_source_info}')
+        # print(f'X_train_fluxes = {X_train_fluxes}')
+
         X_train_source_info = scaler_source_info.fit_transform(X_train_source_info)
-        X_test_source_info = scaler_source_info.transform(X_test_source_info)
+        X_test_source_info_std = scaler_source_info.transform(X_test_source_info)
         X_val_source_info = scaler_source_info.transform(X_val_source_info)
 
         scaler_fluxes = StandardScaler()
 
-        X_train_spectra = scaler_fluxes.fit_transform(X_train_spectra)
-        X_test_spectra_std = scaler_fluxes.transform(X_test_spectra)
-        X_val_spectra = scaler_fluxes.transform(X_val_spectra)
+        X_train_fluxes = scaler_fluxes.fit_transform(X_train_fluxes)
+        X_test_fluxes_std = scaler_fluxes.transform(X_test_fluxes)
+        X_val_fluxes = scaler_fluxes.transform(X_val_fluxes)
 
-        X_train_spectra = np.expand_dims(X_train_spectra, axis=2)
-        X_test_spectra_std = np.expand_dims(X_test_spectra_std, axis=2)
+        X_train_fluxes = np.expand_dims(X_train_fluxes, axis=2)
+        X_test_fluxes_std = np.expand_dims(X_test_fluxes_std, axis=2)
 
         y_train = np.array(y_train)
         y_test = np.array(y_test)
 
-        input_shapes = {'fluxes': X_train_spectra.shape[1], 
+        df_source_info_test = df_source_info.iloc[self.i_test]
+
+        input_shapes = {'fluxes': X_train_fluxes.shape[1], 
                         'source_info': X_train_source_info.shape[1]}
 
         model = self._build_models(input_shapes=input_shapes, n_classes=self.n_labels)
@@ -192,40 +223,48 @@ class MixedInputModel():
                         earlystopping,
                         tensorboard]
 
-        history = model.fit(x=[X_train_source_info, X_train_spectra],
+        history = model.fit(x=[X_train_source_info, X_train_fluxes],
                             y=y_train,
-                            validation_data=([X_test_source_info, X_test_spectra_std], y_test),
-                            epochs=10,
+                            validation_data=([X_test_source_info_std, X_test_fluxes_std], y_test),
+                            epochs=5,
                             batch_size=32,
                             callbacks=callbacks_list)
 
         print(model.summary())
 
         # evaluate the model
-        _, train_acc = model.evaluate([X_train_source_info, X_train_spectra], y_train, verbose=0)
-        _, test_acc = model.evaluate([X_test_source_info, X_test_spectra_std], y_test, verbose=0)
+        _, train_acc = model.evaluate([X_train_source_info, X_train_fluxes], y_train, verbose=0)
+        _, test_acc = model.evaluate([X_test_source_info_std, X_test_fluxes_std], y_test, verbose=0)
 
         print('Train: %.3f, Test: %.3f' % (train_acc, test_acc))
 
-        # get_incorrect_predictions(X_test=[X_test_source_info, X_test_spectra_std],
-        #                           X_test_spectra=X_test_spectra,
-       #                            model=model,
-       #                            y_test=y_test,
-       #                            df=df)
+        get_incorrect_predictions(model=model,
+                                  X_test_fluxes=[X_test_source_info_std, X_test_fluxes_std],
+                                  X_test_spectra=X_test_fluxes,
+                                  raw_X_test_spectra=raw_X_test_fluxes,
+                                  y_test=y_test,
+                                  df_source_info_test=df_source_info_test,
+                                  df_wavelengths=df_wavelengths,
+                                  gaussian=True)
 
         evaluate_model(model=model,
-                       X_test=[X_test_source_info, X_test_spectra_std],
-                       y_test=y_test)
+                       X_test=[X_test_source_info_std, X_test_fluxes_std],
+                       y_test=y_test,
+                       df_source_info=self.df_source_info,
+                       indeces=self.i_test,
+                       classes=self.label_columns)
 
         return model
 
 def main():
-    df_fluxes = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='fluxes')
-    df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='source_info')
+    df_fluxes = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='fluxes').head(20000)
+    df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='source_info').head(20000)
     df_wavelengths = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='wavelengths')
 
-    mixed_input_model = MixedInputModel(mainclass='STAR')
-    mixed_input_model.train(df_source_info, df_fluxes)
+    print(f'df_source_info = {df_source_info}')
+
+    mixed_input_model = MixedInputModel(gaussian=True)
+    mixed_input_model.train(df_source_info, df_fluxes, df_wavelengths)
 
 if __name__ == "__main__":
     main()
