@@ -3,10 +3,11 @@ import pandas as pd
 from spectral_analysis.plotify import Plotify
 import matplotlib.pyplot as plt
 
-def plot_bpt_diagram(df_source_info):
+def plot_bpt_diagram(df_source_info, labels, y_pred, y_test):
     print(f'{df_source_info}')
-    df_source_info = df_source_info.drop(df_source_info[df_source_info['Flux_NII_6547'] < 0].index).reset_index()
-    print(df_source_info)
+    # df_source_info = df_source_info.drop(df_source_info[df_source_info['Flux_NII_6547'] < 0].index).reset_index()
+    indeces_to_drop = list(df_source_info[df_source_info['Flux_NII_6547'] < 0].index)
+    print(f'indeces_to_drop = {indeces_to_drop}')
 
     Hb = df_source_info['Flux_Hb_4861']
     Ha = df_source_info['Flux_Ha_6562']
@@ -23,8 +24,26 @@ def plot_bpt_diagram(df_source_info):
     xvals = np.log10(np.divide(N2, Ha))
 
     plotify = Plotify(theme='ugly')
+    plotify_colors = ['#1B3A58', '#4FB99F', '#F2B134', '#ED553B', '#62BF04', '#189BF2', '#F8CB24', '#FF697C', '#EEA5FF']
+
+    predictions = []
+    for pred in y_pred:
+        predictions.append(list(pred).index(max(pred)))
+    
+    y_test_labels = []
+    for real_class in y_test:
+        y_test_labels.append(labels[list(real_class).index(max(real_class))])
+
+    print(f'predictions = {len(predictions)}')
+    print(f'predictions = {predictions}')
+    print(f'y_pred = {len(y_pred)}')
+
+    colors = []
+    for pred in predictions:
+        colors.append(plotify_colors[pred])
+
     _, ax = plotify.get_figax()
-    ax.scatter(xvals, yvals, s=0.2, alpha=0.8, c=plotify.c_orange, label='Sources')
+    ax.scatter(xvals, yvals, s=1, alpha=1, c=colors, label='Sources')
     ax.set_xlabel(r'$ log([NII] / H\alpha$)', fontsize=16)
     ax.set_ylabel(r'$ log([OIII] / H\beta$)', fontsize=16)
 
