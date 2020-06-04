@@ -25,12 +25,12 @@ from spectral_analysis.plotify import Plotify
 from spectral_analysis.classifiers.neural_network.helper_functions import train_test_split, evaluate_model, shuffle_in_unison, get_incorrect_predictions
 
 class MixedInputModel():
-    def __init__(self, mainclass='NONE', spectral_lines=False, df_wavelengths=None, gaussian=False):
+    def __init__(self, mainclass='NONE', spectral_lines=False, df_wavelengths=None, gaussian=False, epochs=2):
         self.mainclass = mainclass
         self.spectral_lines = spectral_lines
         self.df_wavelengths = df_wavelengths
         self.gaussian = gaussian
-        print(f'self.gaussian = {self.gaussian}')
+        self.epochs = epochs
 
     def _prepare_data(self, df_source_info, df_fluxes):
         self.df_source_info = df_source_info
@@ -226,7 +226,7 @@ class MixedInputModel():
         history = model.fit(x=[X_train_source_info, X_train_fluxes],
                             y=y_train,
                             validation_data=([X_test_source_info_std, X_test_fluxes_std], y_test),
-                            epochs=5,
+                            epochs=self.epochs,
                             batch_size=32,
                             callbacks=callbacks_list)
 
@@ -263,7 +263,7 @@ def main():
 
     print(f'df_source_info = {df_source_info}')
 
-    mixed_input_model = MixedInputModel(gaussian=True)
+    mixed_input_model = MixedInputModel(gaussian=True, epochs=10)
     mixed_input_model.train(df_source_info, df_fluxes, df_wavelengths)
 
 if __name__ == "__main__":
