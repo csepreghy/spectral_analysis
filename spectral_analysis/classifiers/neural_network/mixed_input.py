@@ -69,7 +69,7 @@ class MixedInputModel():
         if self.gaussian == True:
             X_fluxes_gaussian = []
             for X_flux in X_fluxes:
-                X_flux_gaussian = apply_gaussian_filter(X_flux, sigma=8)
+                X_flux_gaussian = apply_gaussian_filter(X_flux, sigma=4)
                 X_fluxes_gaussian.append(X_flux_gaussian)
             
             X_fluxes = X_fluxes_gaussian
@@ -279,12 +279,11 @@ class MixedInputModel():
                                       df_wavelengths=df_wavelengths,
                                       gaussian=self.gaussian)
 
-
         return model
 
 def main():
-    df_fluxes = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='fluxes').head(16000)
-    df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='source_info').head(16000)
+    df_fluxes = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='fluxes').head(1000)
+    df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='source_info').head(1000)
     df_wavelengths = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='wavelengths')
 
     mixed_input_model = MixedInputModel(gaussian=True, epochs=5, load_model=False, model_path='logs/mixed_input_gauss4_epoch90k.03-0.06.h5')
