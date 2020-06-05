@@ -69,7 +69,7 @@ class MixedInputModel():
         if self.gaussian == True:
             X_fluxes_gaussian = []
             for X_flux in X_fluxes:
-                X_flux_gaussian = apply_gaussian_filter(X_flux, sigma=4)
+                X_flux_gaussian = apply_gaussian_filter(X_flux, sigma=8)
                 X_fluxes_gaussian.append(X_flux_gaussian)
             
             X_fluxes = X_fluxes_gaussian
@@ -241,12 +241,12 @@ class MixedInputModel():
         
         elif self.load_model == False:
             tensorboard = TensorBoard(log_dir='logs/{}'.format('mixed-input{}'.format(time.time())))
-            earlystopping = EarlyStopping(monitor='val_accuracy', patience=8)
-            modelcheckpoint = ModelCheckpoint(filepath='logs/mixed_input_gauss4_epoch50k.{epoch:02d}-{val_loss:.2f}.h5',
-                                              monitor='val_loss',
-                                              save_best_only=True)
+            earlystopping = EarlyStopping(monitor='val_accuracy', patience=10)
+            modelcheckpoint = ModelCheckpoint(filepath='logs/mixed_input_32k-50epoch.epoch{epoch:02d}-val_loss_{val_loss:.2f}.h5',
+                                             monitor='val_loss',
+                                             save_best_only=True)
 
-            callbacks_list = [modelcheckpoint,
+            callbacks_list = [#modelcheckpoint,
                               earlystopping,
                               tensorboard]
 
@@ -283,13 +283,11 @@ class MixedInputModel():
         return model
 
 def main():
-    df_fluxes = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='fluxes').head(50000)
-    df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='source_info').head(50000)
+    df_fluxes = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='fluxes').head(16000)
+    df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='source_info').head(16000)
     df_wavelengths = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='wavelengths')
 
-    print(f'df_source_info = {df_source_info}')
-
-    mixed_input_model = MixedInputModel(gaussian=True, epochs=3, load_model=False, model_path='logs/mixed_input_gauss4_epoch.07-0.10.h5')
+    mixed_input_model = MixedInputModel(gaussian=True, epochs=5, load_model=False, model_path='logs/mixed_input_gauss4_epoch90k.03-0.06.h5')
     mixed_input_model.train(df_source_info, df_fluxes, df_wavelengths)
 
 if __name__ == "__main__":
