@@ -25,6 +25,7 @@ from spectral_analysis.plotify import Plotify
 from spectral_analysis.data_preprocessing.bpt_diagram import plot_bpt_diagram
 
 
+
 # This is a mixed input neural network that combines a CNN with an MLP.
 # Inputs:
 #    - df: pandas dataframe with training data
@@ -235,9 +236,10 @@ def main():
     # print(b)
     # print(c)
 
-    x1 = [0.915, 0.975, 0.979, 0.982, 0.991, 0.985, 0.988, 0.967]
-    x2 = [0.855, 0.983, 0.983, 0.981, 0.986, 0.982, 0.988, 0.911]
-    x3 = [0.800, 0.988, 0.980, 0.978, 0.986, 0.982, 0.987, 0.957]
+    train = pd.read_csv('data/tensorboard-logs/mixed-input_train-tag-epoch_accuracy.csv')
+    validation = pd.read_csv('data/tensorboard-logs/mixed-input_validation-tag-epoch_accuracy.csv')
+
+    print(f'train = {train}')
 
 if __name__ == "__main__":
 	main()
