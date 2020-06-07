@@ -24,6 +24,7 @@ from tensorflow.keras.utils import to_categorical
 from spectral_analysis.plotify import Plotify
 from spectral_analysis.data_preprocessing.bpt_diagram import plot_bpt_diagram
 
+
 # This is a mixed input neural network that combines a CNN with an MLP.
 # Inputs:
 #    - df: pandas dataframe with training data
@@ -217,22 +218,26 @@ def shuffle_along_axis(a, axis):
     return np.take_along_axis(a,idx,axis=axis)
 
 def main():
-    a = np.array([['A1', 'A2', 'A3', 'A4'],
-         ['B1', 'B2', 'B3', 'B4'],
-         ['C1', 'C2', 'C3', 'C4'],
-         ['D1', 'D2', 'D3', 'D4']])
+    # a = np.array([['A1', 'A2', 'A3', 'A4'],
+    #      ['B1', 'B2', 'B3', 'B4'],
+    #      ['C1', 'C2', 'C3', 'C4'],
+    #      ['D1', 'D2', 'D3', 'D4']])
     
-    b = np.array([['AA1', 'AA2', 'AA3', 'AA4'],
-         ['BB1', 'BB2', 'BB3', 'BB4'],
-         ['CC1', 'CC2', 'CC3', 'CC4'],
-         ['DD1', 'DD2', 'DD3', 'DD4']])
+    # b = np.array([['AA1', 'AA2', 'AA3', 'AA4'],
+    #      ['BB1', 'BB2', 'BB3', 'BB4'],
+    #      ['CC1', 'CC2', 'CC3', 'CC4'],
+    #      ['DD1', 'DD2', 'DD3', 'DD4']])
     
-    c = [1, 2, 3, 4]
+    # c = [1, 2, 3, 4]
 
-    a, b, c = shuffle_in_unison(a, b, c)
-    print(a)
-    print(b)
-    print(c)
+    # a, b, c = shuffle_in_unison(a, b, c)
+    # print(a)
+    # print(b)
+    # print(c)
+
+    x1 = [0.915, 0.975, 0.979, 0.982, 0.991, 0.985, 0.988, 0.967]
+    x2 = [0.855, 0.983, 0.983, 0.981, 0.986, 0.982, 0.988, 0.911]
+    x3 = [0.800, 0.988, 0.980, 0.978, 0.986, 0.982, 0.987, 0.957]
 
 if __name__ == "__main__":
 	main()
