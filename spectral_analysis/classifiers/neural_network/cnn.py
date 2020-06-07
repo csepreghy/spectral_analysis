@@ -133,8 +133,8 @@ class CNN:
         self._fit(X_train, y_train, X_test, y_test)
 
 def main():
-    df_fluxes = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='fluxes')
-    df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='source_info')
+    df_fluxes = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='fluxes').head(5000)
+    df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='source_info').head(5000)
 
     cnn = CNN(df_fluxes)
     cnn.train(df_source_info, df_fluxes)

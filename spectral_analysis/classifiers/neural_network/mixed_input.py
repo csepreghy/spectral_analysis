@@ -166,10 +166,12 @@ class MixedInputModel():
         combined = concatenate([cnn.output, mlp.output])
 
         final_classifier = Dense(128, activation="relu")(combined)
-        final_classifier = Dense(n_classes, activation="sigmoid")(final_classifier)
+        final_classifier = Dense(n_classes, activation="softmax")(final_classifier)
+
+        optimizer = tf.keras.optimizers.Adam(learning_rate=0.001)
         
         model = Model(inputs=[mlp.input, cnn.input], outputs=final_classifier)
-        model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+        model.compile(loss='categorical_crossentropy', optimizer=optimizer, metrics=['accuracy'])
     
         return model
     
@@ -282,11 +284,11 @@ class MixedInputModel():
         return model
 
 def main():
-    df_fluxes = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='fluxes').head(1000)
-    df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='source_info').head(1000)
+    df_fluxes = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='fluxes').head(32000)
+    df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='source_info').head(32000)
     df_wavelengths = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='wavelengths')
 
-    mixed_input_model = MixedInputModel(gaussian=True, epochs=5, load_model=False, model_path='logs/mixed_input_gauss4_epoch90k.03-0.06.h5')
+    mixed_input_model = MixedInputModel(mainclass='GALAXY', gaussian=False, epochs=100, load_model=False, model_path='logs/mixed_input_gauss4_epoch32k.03-0.06.h5')
     mixed_input_model.train(df_source_info, df_fluxes, df_wavelengths)
 
 if __name__ == "__main__":
