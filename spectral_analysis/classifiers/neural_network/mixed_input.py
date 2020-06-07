@@ -168,7 +168,7 @@ class MixedInputModel():
         final_classifier = Dense(128, activation="relu")(combined)
         final_classifier = Dense(n_classes, activation="softmax")(final_classifier)
 
-        optimizer = tf.keras.optimizers.Adam(learning_rate=0.001)
+        optimizer = tf.keras.optimizers.Adam(learning_rate=0.0001)
         
         model = Model(inputs=[mlp.input, cnn.input], outputs=final_classifier)
         model.compile(loss='categorical_crossentropy', optimizer=optimizer, metrics=['accuracy'])
@@ -244,7 +244,7 @@ class MixedInputModel():
         elif self.load_model == False:
             tensorboard = TensorBoard(log_dir='logs/{}'.format('mixed-input{}'.format(time.time())))
             earlystopping = EarlyStopping(monitor='val_accuracy', patience=10)
-            modelcheckpoint = ModelCheckpoint(filepath='logs/mixed_input_32k-50epoch.epoch{epoch:02d}-val_loss_{val_loss:.2f}.h5',
+            modelcheckpoint = ModelCheckpoint(filepath='logs/mixed_input_5k-10epoch.epoch{epoch:02d}-val_loss_{val_loss:.2f}.h5',
                                              monitor='val_loss',
                                              save_best_only=True)
 
@@ -256,6 +256,7 @@ class MixedInputModel():
                                 y=y_train,
                                 validation_data=([X_test_source_info_std, X_test_fluxes_std], y_test),
                                 epochs=self.epochs,
+                                verbose=0,
                                 batch_size=32,
                                 callbacks=callbacks_list)
 
@@ -284,11 +285,11 @@ class MixedInputModel():
         return model
 
 def main():
-    df_fluxes = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='fluxes').head(32000)
-    df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='source_info').head(32000)
+    df_fluxes = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='fluxes').head(5000)
+    df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='source_info').head(5000)
     df_wavelengths = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='wavelengths')
 
-    mixed_input_model = MixedInputModel(mainclass='GALAXY', gaussian=False, epochs=100, load_model=False, model_path='logs/mixed_input_gauss4_epoch32k.03-0.06.h5')
+    mixed_input_model = MixedInputModel(mainclass='GALAXY', gaussian=False, epochs=10, load_model=False, model_path='logs/mixed_input_gauss4_epoch32k.03-0.06.h5')
     mixed_input_model.train(df_source_info, df_fluxes, df_wavelengths)
 
 if __name__ == "__main__":
