@@ -243,13 +243,13 @@ class MixedInputModel():
         
         elif self.load_model == False:
             tensorboard = TensorBoard(log_dir='logs/{}'.format('mixed-input{}'.format(time.time())))
-            earlystopping = EarlyStopping(monitor='val_accuracy', patience=10)
-            modelcheckpoint = ModelCheckpoint(filepath='logs/mixed_input_5k-10epoch.epoch{epoch:02d}-val_loss_{val_loss:.2f}.h5',
+            earlystopping = EarlyStopping(monitor='val_accuracy', patience=50)
+            modelcheckpoint = ModelCheckpoint(filepath='logs/mixed_input_32k-50epoch.epoch{epoch:02d}-val_loss_{val_loss:.2f}.h5',
                                              monitor='val_loss',
                                              save_best_only=True)
 
             callbacks_list = [#modelcheckpoint,
-                              earlystopping,
+                              # earlystopping,
                               tensorboard]
 
             history = model.fit(x=[X_train_source_info, X_train_fluxes],
