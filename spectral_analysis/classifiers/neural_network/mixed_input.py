@@ -143,7 +143,6 @@ class MixedInputModel():
         model.add(Conv1D(filters=128, kernel_size=5, activation='relu'))
         # model.add(Conv1D(filters=128, kernel_size=5, activation='relu', input_shape=(input_length, 1)))
         model.add(Conv1D(filters=64, kernel_size=3, activation='relu'))
-        model.add(Dropout(0.5))
         model.add(MaxPooling1D(pool_size=2))
         model.add(Flatten())
         model.add(Dense(64, activation='relu'))
@@ -155,7 +154,10 @@ class MixedInputModel():
         model = Sequential()
 
         model.add(Dense(256, input_dim=input_shape, activation='relu', kernel_initializer='he_uniform'))
+        model.add(Dropout(0.5))
         model.add(Dense(128, input_dim=256, activation='relu', kernel_initializer='he_uniform'))
+        model.add(Dropout(0.5))
+        model.add(Dense(64, input_dim=158, activation='relu', kernel_initializer='he_uniform'))
 
         return model
 
@@ -248,7 +250,7 @@ class MixedInputModel():
                                              monitor='val_loss',
                                              save_best_only=True)
 
-            callbacks_list = [#modelcheckpoint,
+            callbacks_list = [modelcheckpoint,
                               # earlystopping,
                               tensorboard]
 
@@ -284,8 +286,9 @@ class MixedInputModel():
         return model
 
 def main():
-    df_fluxes = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='fluxes').head(5000)
-    df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='source_info').head(5000)
+
+    df_fluxes = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='fluxes').head(10000)
+    df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='source_info').head(10000)
     df_wavelengths = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='wavelengths')
 
     mixed_input_model = MixedInputModel(mainclass='GALAXY', gaussian=False, epochs=10, load_model=False, model_path='logs/mixed_input_gauss4_epoch32k.03-0.06.h5')
