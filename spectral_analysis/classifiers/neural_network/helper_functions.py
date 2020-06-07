@@ -236,10 +236,16 @@ def main():
     # print(b)
     # print(c)
 
-    train = pd.read_csv('data/tensorboard-logs/mixed-input_train-tag-epoch_accuracy.csv')
-    validation = pd.read_csv('data/tensorboard-logs/mixed-input_validation-tag-epoch_accuracy.csv')
+    train = pd.read_csv('data/tensorboard-logs/mixed-input_train-tag-epoch_accuracy.csv')['Value'].values
+    validation = pd.read_csv('data/tensorboard-logs/mixed-input_validation-tag-epoch_accuracy.csv')['Value'].values
 
-    print(f'train = {train}')
+    plotify = Plotify(theme='ugly')
+    fig, ax = plotify.get_figax()
+
+    xs = list(range(33))
+
+    ax.plot(xs, train)
+    plt.show()
 
 if __name__ == "__main__":
 	main()
