@@ -197,7 +197,7 @@ def evaluate_model(model, X_test, y_test, df_source_info, indeces, classes):
     # ax.set_title('Confusion Matrix')
     # plt.show()
   
-def shuffle_in_unison(a, b, indeces):
+def shuffle_in_unison(a, b, c, indeces):
     print(f'a.shape = {a.shape}')
     print(f'b.shape = {b.shape}')
     arr = np.array([10, 20, 30, 40, 50])
@@ -209,9 +209,11 @@ def shuffle_in_unison(a, b, indeces):
     np.random.set_state(rng_state)
     np.random.shuffle(b)
     np.random.set_state(rng_state)
+    np.random.shuffle(c)
+    np.random.set_state(rng_state)
     np.random.shuffle(indeces)
 
-    return a, b, indeces
+    return a, b, c, indeces
 
 def shuffle_along_axis(a, axis):
     a = np.array(a)
