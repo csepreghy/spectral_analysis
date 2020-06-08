@@ -161,10 +161,10 @@ class MixedInputModel():
     def _build_mlp(self, input_shape):
         model = Sequential()
 
-        model.add(Dense(256, input_dim=input_shape, activation='relu', kernel_initializer='he_uniform'))
-        model.add(Dropout(0.5))
-        model.add(Dense(128, input_dim=256, activation='relu', kernel_initializer='he_uniform'))
-        model.add(Dropout(0.5))
+        # model.add(Dense(256, input_dim=input_shape, activation='relu', kernel_initializer='he_uniform'))
+        # model.add(Dropout(0.5))
+        model.add(Dense(128, input_dim=input_shape, activation='relu', kernel_initializer='he_uniform'))
+        # model.add(Dropout(0.5))
         model.add(Dense(64, input_dim=158, activation='relu', kernel_initializer='he_uniform'))
 
         return model
