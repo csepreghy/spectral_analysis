@@ -138,11 +138,9 @@ class MixedInputModel():
         print(f'X_source_info = {X_source_info}')
         print(f'X_fluxes = {X_fluxes}')
         
-        X_source_info, X_fluxes, y, indeces = shuffle_in_unison(X_source_info, X_fluxes, y, indeces)
+        X_source_info, X_fluxes, indeces = shuffle_in_unison(X_source_info, X_fluxes, indeces)
         print(f'X_source_info = {X_source_info}')
         print(f'X_fluxes = {X_fluxes}')
-
-
 
         return X_source_info, X_fluxes, y, indeces
 
@@ -166,7 +164,7 @@ class MixedInputModel():
         # model.add(Dense(256, input_dim=input_shape, activation='relu', kernel_initializer='he_uniform'))
         # model.add(Dropout(0.5))
         model.add(Dense(128, input_dim=input_shape, activation='relu', kernel_initializer='he_uniform'))
-        # model.add(Dropout(0.5))
+        model.add(Dropout(0.5))
         model.add(Dense(64, input_dim=158, activation='relu', kernel_initializer='he_uniform'))
 
         return model
@@ -269,7 +267,7 @@ class MixedInputModel():
                                 validation_data=([X_test_source_info_std, X_test_fluxes_std], y_test),
                                 epochs=self.epochs,
                                 batch_size=32)
-                                #callbacks=callbacks_list)
+                                callbacks=callbacks_list)
 
             # evaluate the model
             _, train_acc = model.evaluate([X_train_source_info_std, X_train_fluxes_std], y_train)
@@ -297,8 +295,8 @@ class MixedInputModel():
 
 def main():
 
-    df_fluxes = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='fluxes').head(6400)
-    df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='source_info').head(6400)
+    df_fluxes = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='fluxes').head(16000)
+    df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='source_info').head(16000)
     df_wavelengths = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='wavelengths')
 
     mixed_input_model = MixedInputModel(gaussian=False, epochs=3, load_model=False, model_path='logs/mixed_input_gauss4_epoch32k.03-0.06.h5')
