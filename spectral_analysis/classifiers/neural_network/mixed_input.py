@@ -170,7 +170,7 @@ class MixedInputModel():
         final_classifier = Dense(128, activation="relu")(combined)
         final_classifier = Dense(n_classes, activation="softmax")(final_classifier)
 
-        optimizer = tf.keras.optimizers.Adam(learning_rate=0.0001)
+        optimizer = tf.keras.optimizers.Adam(learning_rate=0.001)
         
         model = Model(inputs=[mlp.input, cnn.input], outputs=final_classifier)
         model.compile(loss='categorical_crossentropy', optimizer=optimizer, metrics=['accuracy'])
