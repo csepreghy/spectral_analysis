@@ -138,9 +138,11 @@ class MixedInputModel():
         print(f'X_source_info = {X_source_info}')
         print(f'X_fluxes = {X_fluxes}')
         
-        X_source_info, X_fluxes, indeces = shuffle_in_unison(X_source_info, X_fluxes, indeces)
+        X_source_info, X_fluxes, y, indeces = shuffle_in_unison(X_source_info, X_fluxes, y, indeces)
         print(f'X_source_info = {X_source_info}')
         print(f'X_fluxes = {X_fluxes}')
+
+
 
         return X_source_info, X_fluxes, y, indeces
 
@@ -295,8 +297,8 @@ class MixedInputModel():
 
 def main():
 
-    df_fluxes = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='fluxes').head(16000)
-    df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='source_info').head(16000)
+    df_fluxes = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='fluxes').head(6400)
+    df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='source_info').head(6400)
     df_wavelengths = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='wavelengths')
 
     mixed_input_model = MixedInputModel(gaussian=False, epochs=3, load_model=False, model_path='logs/mixed_input_gauss4_epoch32k.03-0.06.h5')
