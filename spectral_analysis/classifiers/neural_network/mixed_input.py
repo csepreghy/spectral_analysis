@@ -132,7 +132,15 @@ class MixedInputModel():
         array_has_nan = np.isnan(array_sum)
 
         indeces = list(range(len(X_source_info)))
-        X_source_info, X_fluxes, indeces = shuffle_in_unison(np.array(X_source_info), np.array(X_fluxes), indeces)
+        X_source_info = np.array(X_source_info)
+        X_fluxes = np.array(X_fluxes)
+        
+        print(f'X_source_info = {X_source_info}')
+        print(f'X_fluxes = {X_fluxes}')
+        
+        X_source_info, X_fluxes, indeces = shuffle_in_unison(X_source_info, X_fluxes, indeces)
+        print(f'X_source_info = {X_source_info}')
+        print(f'X_fluxes = {X_fluxes}')
 
         return X_source_info, X_fluxes, y, indeces
 
@@ -153,10 +161,10 @@ class MixedInputModel():
     def _build_mlp(self, input_shape):
         model = Sequential()
 
-        model.add(Dense(256, input_dim=input_shape, activation='relu', kernel_initializer='he_uniform'))
-        model.add(Dropout(0.5))
-        model.add(Dense(128, input_dim=256, activation='relu', kernel_initializer='he_uniform'))
-        model.add(Dropout(0.5))
+        # model.add(Dense(256, input_dim=input_shape, activation='relu', kernel_initializer='he_uniform'))
+        # model.add(Dropout(0.5))
+        model.add(Dense(128, input_dim=input_shape, activation='relu', kernel_initializer='he_uniform'))
+        # model.add(Dropout(0.5))
         model.add(Dense(64, input_dim=158, activation='relu', kernel_initializer='he_uniform'))
 
         return model
@@ -195,13 +203,13 @@ class MixedInputModel():
         # print(f'X_train_source_info = {X_train_source_info}')
         # print(f'X_train_fluxes = {X_train_fluxes}')
 
-        X_train_source_info = scaler_source_info.fit_transform(X_train_source_info)
+        X_train_source_info_std = scaler_source_info.fit_transform(X_train_source_info)
         X_test_source_info_std = scaler_source_info.transform(X_test_source_info)
-        X_val_source_info = scaler_source_info.transform(X_val_source_info)
+        X_val_source_info_std = scaler_source_info.transform(X_val_source_info)
 
         scaler_fluxes = StandardScaler()
 
-        X_train_fluxes = scaler_fluxes.fit_transform(X_train_fluxes)
+        X_train_fluxes_std = scaler_fluxes.fit_transform(X_train_fluxes)
         X_test_fluxes_std = scaler_fluxes.transform(X_test_fluxes)
         X_val_fluxes = scaler_fluxes.transform(X_val_fluxes)
 
@@ -214,7 +222,7 @@ class MixedInputModel():
         df_source_info_test = df_source_info.iloc[self.i_test]
 
         input_shapes = {'fluxes': X_train_fluxes.shape[1], 
-                        'source_info': X_train_source_info.shape[1]}
+                        'source_info': X_train_source_info_std.shape[1]}
 
         model = self._build_models(input_shapes=input_shapes, n_classes=self.n_labels)
         print(model.summary())
@@ -222,7 +230,7 @@ class MixedInputModel():
 
         if self.load_model == True:
             model.load_weights(self.model_path)
-            _, train_acc = model.evaluate([X_train_source_info, X_train_fluxes], y_train, verbose=0)
+            _, train_acc = model.evaluate([X_train_source_info_std, X_train_fluxes_std], y_train, verbose=0)
             _, test_acc = model.evaluate([X_test_source_info_std, X_test_fluxes_std], y_test, verbose=0)
             print('Train: %.3f, Test: %.3f' % (train_acc, test_acc))
 
@@ -233,14 +241,14 @@ class MixedInputModel():
                            indeces=self.i_test,
                            classes=self.label_columns)
                            
-            get_incorrect_predictions(model=model,
-                                      X_test_fluxes=[X_test_source_info_std, X_test_fluxes_std],
-                                      X_test_spectra=X_test_fluxes,
-                                      raw_X_test_spectra=raw_X_test_fluxes,
-                                      y_test=y_test,
-                                      df_source_info_test=df_source_info_test,
-                                      df_wavelengths=df_wavelengths,
-                                      gaussian=self.gaussian)
+            # get_incorrect_predictions(model=model,
+            #                           X_test_fluxes=[X_test_source_info_std, X_test_fluxes_std],
+            #                           X_test_spectra=X_test_fluxes,
+            #                           raw_X_test_spectra=raw_X_test_fluxes,
+            #                           y_test=y_test,
+            #                           df_source_info_test=df_source_info_test,
+            #                           df_wavelengths=df_wavelengths,
+            #                           gaussian=self.gaussian)
   
         
         elif self.load_model == False:
@@ -254,16 +262,16 @@ class MixedInputModel():
                               # earlystopping,
                               tensorboard]
 
-            history = model.fit(x=[X_train_source_info, X_train_fluxes],
+            history = model.fit(x=[X_train_source_info_std, X_train_fluxes_std],
                                 y=y_train,
                                 validation_data=([X_test_source_info_std, X_test_fluxes_std], y_test),
                                 epochs=self.epochs,
-                                batch_size=32,
-                                callbacks=callbacks_list)
+                                batch_size=32)
+                                #callbacks=callbacks_list)
 
             # evaluate the model
-            _, train_acc = model.evaluate([X_train_source_info, X_train_fluxes], y_train, verbose=0)
-            _, test_acc = model.evaluate([X_test_source_info_std, X_test_fluxes_std], y_test, verbose=0)
+            _, train_acc = model.evaluate([X_train_source_info_std, X_train_fluxes_std], y_train)
+            _, test_acc = model.evaluate([X_test_source_info_std, X_test_fluxes_std], y_test)
 
             print('Train: %.3f, Test: %.3f' % (train_acc, test_acc))
             
@@ -287,13 +295,11 @@ class MixedInputModel():
 
 def main():
 
-
-    df_fluxes = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='fluxes').head(12000)
-    df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='source_info').head(12000)
+    df_fluxes = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='fluxes').head(16000)
+    df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='source_info').head(16000)
     df_wavelengths = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='wavelengths')
 
-    mixed_input_model = MixedInputModel(mainclass='GALAXY', gaussian=False, epochs=3, load_model=False, model_path='logs/mixed_input_gauss4_epoch32k.03-0.06.h5')
-
+    mixed_input_model = MixedInputModel(gaussian=False, epochs=3, load_model=False, model_path='logs/mixed_input_gauss4_epoch32k.03-0.06.h5')
     mixed_input_model.train(df_source_info, df_fluxes, df_wavelengths)
 
 if __name__ == "__main__":
