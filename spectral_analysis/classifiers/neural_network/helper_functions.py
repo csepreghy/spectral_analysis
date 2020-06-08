@@ -219,33 +219,33 @@ def shuffle_along_axis(a, axis):
     return np.take_along_axis(a,idx,axis=axis)
 
 def main():
-    # a = np.array([['A1', 'A2', 'A3', 'A4'],
-    #      ['B1', 'B2', 'B3', 'B4'],
-    #      ['C1', 'C2', 'C3', 'C4'],
-    #      ['D1', 'D2', 'D3', 'D4']])
+    a = np.array([['A1', 'A2', 'A3', 'A4'],
+         ['B1', 'B2', 'B3', 'B4'],
+         ['C1', 'C2', 'C3', 'C4'],
+         ['D1', 'D2', 'D3', 'D4']])
     
-    # b = np.array([['AA1', 'AA2', 'AA3', 'AA4'],
-    #      ['BB1', 'BB2', 'BB3', 'BB4'],
-    #      ['CC1', 'CC2', 'CC3', 'CC4'],
-    #      ['DD1', 'DD2', 'DD3', 'DD4']])
+    b = np.array([['AA1', 'AA2', 'AA3', 'AA4'],
+         ['BB1', 'BB2', 'BB3', 'BB4'],
+         ['CC1', 'CC2', 'CC3', 'CC4'],
+         ['DD1', 'DD2', 'DD3', 'DD4']])
     
-    # c = [1, 2, 3, 4]
+    c = [1, 2, 3, 4]
 
-    # a, b, c = shuffle_in_unison(a, b, c)
-    # print(a)
-    # print(b)
-    # print(c)
+    a, b, c = shuffle_in_unison(a, b, c)
+    print(a)
+    print(b)
+    print(c)
 
-    train = pd.read_csv('data/tensorboard-logs/mixed-input_train-tag-epoch_accuracy.csv')['Value'].values
-    validation = pd.read_csv('data/tensorboard-logs/mixed-input_validation-tag-epoch_accuracy.csv')['Value'].values
+    # train = pd.read_csv('data/tensorboard-logs/mixed-input_train-tag-epoch_accuracy.csv')['Value'].values
+    # validation = pd.read_csv('data/tensorboard-logs/mixed-input_validation-tag-epoch_accuracy.csv')['Value'].values
+    # xs = list(range(33))
 
-    plotify = Plotify(theme='ugly')
-    fig, ax = plotify.get_figax()
+    # plotify = Plotify(theme='ugly')
+    # fig, ax = plotify.get_figax()
 
-    xs = list(range(33))
 
-    ax.plot(xs, train)
-    plt.show()
+    # ax.plot(xs, train)
+    # plt.show()
 
 if __name__ == "__main__":
 	main()
