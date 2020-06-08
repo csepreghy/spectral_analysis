@@ -266,7 +266,7 @@ class MixedInputModel():
                                 y=y_train,
                                 validation_data=([X_test_source_info_std, X_test_fluxes_std], y_test),
                                 epochs=self.epochs,
-                                batch_size=32)
+                                batch_size=32,
                                 callbacks=callbacks_list)
 
             # evaluate the model
