@@ -138,7 +138,7 @@ class MixedInputModel():
         print(f'X_source_info = {X_source_info}')
         print(f'X_fluxes = {X_fluxes}')
         
-        X_source_info, X_fluxes, indeces = shuffle_in_unison(X_source_info, X_fluxes, indeces)
+        X_source_info, X_fluxes, y, indeces = shuffle_in_unison(X_source_info, X_fluxes, y, indeces)
         print(f'X_source_info = {X_source_info}')
         print(f'X_fluxes = {X_fluxes}')
 
