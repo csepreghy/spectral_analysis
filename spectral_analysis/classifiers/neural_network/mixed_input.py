@@ -136,11 +136,9 @@ class MixedInputModel():
         X_fluxes = np.array(X_fluxes)
         
         print(f'X_source_info = {X_source_info}')
-        print(f'X_fluxes = {X_fluxes}')
+        print(f'X_fluxes.shape = {X_fluxes.shape}')
         
         X_source_info, X_fluxes, y, indeces = shuffle_in_unison(X_source_info, X_fluxes, y, indeces)
-        print(f'X_source_info = {X_source_info}')
-        print(f'X_fluxes = {X_fluxes}')
 
         return X_source_info, X_fluxes, y, indeces
 
@@ -213,7 +211,7 @@ class MixedInputModel():
         X_test_fluxes_std = scaler_fluxes.transform(X_test_fluxes)
         X_val_fluxes = scaler_fluxes.transform(X_val_fluxes)
 
-        X_train_fluxes = np.expand_dims(X_train_fluxes, axis=2)
+        X_train_fluxes_std = np.expand_dims(X_train_fluxes_std, axis=2)
         X_test_fluxes_std = np.expand_dims(X_test_fluxes_std, axis=2)
 
         y_train = np.array(y_train)
@@ -255,8 +253,8 @@ class MixedInputModel():
             tensorboard = TensorBoard(log_dir='logs/{}'.format('mixed-input{}'.format(time.time())))
             earlystopping = EarlyStopping(monitor='val_accuracy', patience=50)
             modelcheckpoint = ModelCheckpoint(filepath='logs/mixed_input_32k-50epoch.epoch{epoch:02d}-val_loss_{val_loss:.2f}.h5',
-                                             monitor='val_loss',
-                                             save_best_only=True)
+                                              monitor='val_loss',
+                                              save_best_only=True)
 
             callbacks_list = [modelcheckpoint,
                               # earlystopping,
@@ -264,7 +262,7 @@ class MixedInputModel():
 
             history = model.fit(x=[X_train_source_info_std, X_train_fluxes_std],
                                 y=y_train,
-                                validation_data=([X_test_source_info_std, X_test_fluxes_std], y_test),
+                                validation_data=([X_val_source_info_std, X_test_fluxes_std], y_val),
                                 epochs=self.epochs,
                                 batch_size=32,
                                 callbacks=callbacks_list)
@@ -295,11 +293,16 @@ class MixedInputModel():
 
 def main():
 
-    df_fluxes = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='fluxes').head(16000)
-    df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='source_info').head(16000)
+    df_fluxes = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='fluxes').head(1600)
+    df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='source_info').head(1600)
     df_wavelengths = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='wavelengths')
 
-    mixed_input_model = MixedInputModel(gaussian=False, epochs=3, load_model=False, model_path='logs/mixed_input_gauss4_epoch32k.03-0.06.h5')
+    mixed_input_model = MixedInputModel(gaussian=False,
+                                        epochs=3,
+                                        load_model=False,
+                                        model_path='logs/mixed_input_gauss4_epoch32k.03-0.06.h5',
+                                        spectral_lines=True)
+
     mixed_input_model.train(df_source_info, df_fluxes, df_wavelengths)
 
 if __name__ == "__main__":
