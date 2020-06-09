@@ -216,6 +216,7 @@ class MixedInputModel():
 
         y_train = np.array(y_train)
         y_test = np.array(y_test)
+        y_val = np.array(y_val)
 
         df_source_info_test = df_source_info.iloc[self.i_test]
 
@@ -262,7 +263,7 @@ class MixedInputModel():
 
             history = model.fit(x=[X_train_source_info_std, X_train_fluxes_std],
                                 y=y_train,
-                                validation_data=([X_val_source_info_std, X_test_fluxes_std], y_val),
+                                validation_data=([X_val_source_info_std, X_val_fluxes], y_val),
                                 epochs=self.epochs,
                                 batch_size=32,
                                 callbacks=callbacks_list)
@@ -293,12 +294,12 @@ class MixedInputModel():
 
 def main():
 
-    df_fluxes = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='fluxes').head(1600)
-    df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='source_info').head(1600)
+    df_fluxes = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='fluxes').head(3200)
+    df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='source_info').head(3200)
     df_wavelengths = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='wavelengths')
 
     mixed_input_model = MixedInputModel(gaussian=False,
-                                        epochs=3,
+                                        epochs=2,
                                         load_model=False,
                                         model_path='logs/mixed_input_gauss4_epoch32k.03-0.06.h5',
                                         spectral_lines=True)
