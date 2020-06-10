@@ -73,7 +73,7 @@ class CNN:
         model.add(Conv1D(filters=64),
                          kernel_size=3,
                          activation='relu',
-                         input_shape=(self.input_length, 1)))
+                         input_shape=(self.input_length, 1))
 
         for i in range(2):
             model.add(Conv1D(filters=128, 256, 512),
