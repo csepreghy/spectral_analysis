@@ -54,7 +54,7 @@ class CNN:
         return X, y
 
 
-    def _fit(self, X_train, y_train, X_test, y_test, y_val):
+    def _fit(self, X_train, y_train, X_test, y_test, X_val, y_val):
         tuner = RandomSearch(self._build_model,
                              objective='val_accuracy',
                              max_trials=10,
@@ -64,9 +64,9 @@ class CNN:
     
         tuner.search(x=X_train,
                      y=y_train,
-                     epochs=20,
-                     batch_size=64,
-                     validation_data=(X_test, y_val),
+                     epochs=10,
+                     batch_size=32,
+                     validation_data=(X_val, y_val),
                      callbacks=[EarlyStopping('val_accuracy', patience=3)])
 
     def _build_model(self, hp):
@@ -113,14 +113,14 @@ class CNN:
         y_train = np.array(y_train)
         y_test = np.array(y_test)
 
-        self._fit(X_train, y_train, X_test, y_test, y_val)
+        self._fit(X_train, y_train, X_test, y_test, X_val, y_val)
 
 def main():
     df_fluxes = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='fluxes')
     df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='source_info')
     
-    df_fluxes = df_fluxes.head(20000)
-    df_source_info = df_source_info.head(20000)
+    df_fluxes = df_fluxes.head(200)
+    df_source_info = df_source_info.head(200)
 
     cnn = CNN(df_fluxes)
     cnn.run(df_source_info, df_fluxes)
