@@ -94,7 +94,7 @@ class CNN:
                              kernel_size=hp.Choice(f'conv_{i}_filters_kernel_size', values=[3, 5, 7, 9]),
                              activation='relu'))
 
-            model.add(MaxPooling1D(pool_size=.hp.Int('max_pool_size', 1, 4)))
+            model.add(MaxPooling1D(pool_size=hp.Int('max_pool_size', 1, 4)))
         
         model.add(Flatten())
 
