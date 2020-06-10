@@ -18,9 +18,8 @@ import time
 LOG_DIR = f"{int(time.time())}"
 
 class CNN:
-    def __init__(self, df_fluxes, max_trials, epochs):
+    def __init__(self, df_fluxes, epochs):
         self.input_length = len(df_fluxes.columns) - 1
-        self.max_trials = max_trials
         self.epochs = epochs
 
     def _prepare_data(self, df_source_info, df_fluxes):
@@ -53,52 +52,42 @@ class CNN:
 
 
     def _fit(self, X_train, y_train, X_test, y_test, X_val, y_val):
-        tuner = RandomSearch(self._build_model,
-                             objective='val_accuracy',
-                             max_trials=self.max_trials,
-                             executions_per_trial=1,
-                             directory='logs/keras-tuner/',
-                             project_name='cnn')
-
-        tuner.search_space_summary()
-    
-        tuner.search(x=X_train,
-                     y=y_train,
-                     epochs=self.epochs,
-                     batch_size=32,
-                     validation_data=(X_val, y_val),
-                     callbacks=[EarlyStopping('val_accuracy', patience=4)])
-        
-        print(tuner.results_summary())
-        model = tuner.get_best_models(num_models=1)[0]
+        model = self._build_model
         print(model.summary())
+
+        history = model.fit(x=X_train,
+                            y=y_train,
+                            epochs=self.epochs,
+                            batch_size=32,
+                            validation_data=(X_val, y_val),
+                            callbacks=[EarlyStopping('val_accuracy', patience=10)])
 
         # Evaluate Best Model #
         _, train_acc = model.evaluate(X_train, y_train, verbose=0)
         _, test_acc = model.evaluate(X_test, y_test, verbose=0)
         print('Train: %.3f, Test: %.3f' % (train_acc, test_acc))
 
-    def _build_model(self, hp):
+    def _build_model(self):
         model = Sequential()
 
-        model.add(Conv1D(filters=hp.Choice('conv_filters_input_layer', values=[32, 64, 128, 256, 512], default=256),
-                         kernel_size=hp.Choice('kernel_size_input_layer', values=[3, 5, 7, 9]),
+        model.add(Conv1D(filters=64),
+                         kernel_size=3,
                          activation='relu',
                          input_shape=(self.input_length, 1)))
 
-        for i in range(hp.Int('n_cnn_layers', 1, 4)):
-            model.add(Conv1D(filters=hp.Choice(f'conv_{i}_filters', values=[16, 32, 64, 128, 256, 512], default=256),
-                             kernel_size=hp.Choice(f'conv_{i}_filters_kernel_size', values=[3, 5, 7, 9]),
+        for i in range(2):
+            model.add(Conv1D(filters=128, 256, 512),
+                             kernel_size=3,
                              activation='relu'))
 
-            model.add(MaxPooling1D(pool_size=hp.Int('max_pool_size', 1, 4)))
+            model.add(MaxPooling1D(pool_size=2))
         
         model.add(Flatten())
 
-        for i in range(hp.Int('n_dense_layers', 1, 4)):
-            model.add(Dense(hp.Choice(f'dense_{i}_filters', values=[16, 32, 64, 128, 256, 512]), activation='relu'))
+        for i in range(2):
+            model.add(Dense(128, activation='relu'))
 
-        model.add(Dense(3, activation=hp.Choice('last_activation', values=['softmax', 'tanh'])))
+        model.add(Dense(3, activation='softmax'))
         model.compile(loss='categorical_crossentropy',
                       optimizer='adam',
                       metrics=['accuracy'])
@@ -134,7 +123,7 @@ def main():
     df_fluxes = df_fluxes.head(40)
     df_source_info = df_source_info.head(40)
 
-    cnn = CNN(df_fluxes, max_trials=1, epochs=2)
+    cnn = CNN(df_fluxes, epochs=2)
     cnn.run(df_source_info, df_fluxes)
 
 if __name__ == "__main__":
