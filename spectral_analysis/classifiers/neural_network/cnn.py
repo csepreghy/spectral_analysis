@@ -18,9 +18,10 @@ import time
 LOG_DIR = f"{int(time.time())}"
 
 class CNN:
-    def __init__(self, df_fluxes):
+    def __init__(self, df_fluxes, max_trials, epochs):
         self.input_length = len(df_fluxes.columns) - 1
-        print(f'self.input_length = {self.input_length}')
+        self.max_trials = max_trials
+        self.epochs = epochs
 
     def _prepare_data(self, df_source_info, df_fluxes):
         columns = []
@@ -57,22 +58,28 @@ class CNN:
     def _fit(self, X_train, y_train, X_test, y_test, X_val, y_val):
         tuner = RandomSearch(self._build_model,
                              objective='val_accuracy',
-                             max_trials=10,
+                             max_trials=self.max_trials,
                              executions_per_trial=1,
                              directory='logs/keras-tuner/',
-                             project_name='autoencoder')
+                             project_name='cnn')
 
-        print(f'X_train = {X_train}')
-        print(f'y_train = {y_train}')
-        print(f'X_val = {X_val}')
-        print(f'y_val = {y_val}')
+        tuner.search_space_summary()
     
         tuner.search(x=X_train,
                      y=y_train,
-                     epochs=10,
+                     epochs=self.epochs,
                      batch_size=32,
                      validation_data=(X_val, y_val),
-                     callbacks=[EarlyStopping('val_accuracy', patience=3)])
+                     callbacks=[EarlyStopping('val_accuracy', patience=4)])
+        
+        tuner.results_summary()
+        model = tuner.get_best_models(num_models=1)
+        print(model.summary())
+
+        # Evaluate Best Model #
+        _, train_acc = model.evaluate([X_train_source_info_std, X_train_fluxes_std], y_train, verbose=0)
+        _, test_acc = model.evaluate([X_test_source_info_std, X_test_fluxes_std], y_test, verbose=0)
+        print('Train: %.3f, Test: %.3f' % (train_acc, test_acc))
 
     def _build_model(self, hp):
         model = Sequential()
@@ -129,7 +136,7 @@ def main():
     df_fluxes = df_fluxes.head(40)
     df_source_info = df_source_info.head(40)
 
-    cnn = CNN(df_fluxes)
+    cnn = CNN(df_fluxes, max_trials=2, epochs=2)
     cnn.run(df_source_info, df_fluxes)
 
 if __name__ == "__main__":
