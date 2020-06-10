@@ -48,9 +48,6 @@ class CNN:
             y_row = [category_GALAXY, category_QSO, category_STAR]
 
             y.append(y_row)
-    
-        print(f'len(X) = {len(X)}')
-        print(f'len(y) = {len(y)}')
 
         return X, y
 
@@ -73,7 +70,7 @@ class CNN:
                      callbacks=[EarlyStopping('val_accuracy', patience=4)])
         
         tuner.results_summary()
-        model = tuner.get_best_models(num_models=1)
+        model = tuner.get_best_models(num_models=1)[0]
         print(model.summary())
 
         # Evaluate Best Model #
