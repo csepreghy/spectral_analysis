@@ -76,9 +76,7 @@ class CNN:
                          input_shape=(self.input_length, 1))
 
         for i in range(2):
-            model.add(Conv1D(filters=128, 256, 512),
-                             kernel_size=3,
-                             activation='relu'))
+            model.add(Conv1D(filters=128, kernel_size=3, activation='relu'))
 
             model.add(MaxPooling1D(pool_size=2))
         
