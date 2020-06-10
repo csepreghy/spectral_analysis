@@ -230,30 +230,33 @@ def main():
     
     train_loss = pd.read_csv('data/tensorboard-logs/mixed-input-train-loss.csv')['Value'].values
     validation_loss = pd.read_csv('data/tensorboard-logs/mixed-input_validation-loss.csv')['Value'].values
-    xs = list(range(60))
+    xs = np.array(list(range(60)))
 
     plotify = Plotify(theme='ugly')
-    fig, ax = plt.subplots()
+    fig, ax = plotify.get_figax()
 
     
     ax.plot(xs, train, '--', color=plotify.c_blue)
     ax.plot(xs, validation, color=plotify.c_blue)
     ax.set_xlabel('Number of Epochs')
-    ax.set_ylabel('Accuracy', color=plotify.c_blue)
+    ax.set_ylabel('accuracy', color=plotify.c_blue)
     ax.tick_params(axis='y', labelcolor=plotify.c_blue)
     ax.xaxis.set_major_locator(ticker.MultipleLocator(5))
+    ax.xaxis.set_major_locator(ticker.MultipleLocator(5))
+    ax.set_ylim(0.88,1.01)
 
     ax2 = ax.twinx()  # instantiate a second axes that shares the same x-axis
-
-
     ax2.set_ylabel('loss', color=plotify.c_orange)  # we already handled the x-label with ax1
-    ax.plot(xs, train_loss, '--', color=plotify.c_orange)
-    ax.plot(xs, validation_loss, color=plotify.c_orange)
+    ax2.plot(xs, train_loss, '--', color=plotify.c_orange)
+    ax2.plot(xs, validation_loss, color=plotify.c_orange)
     ax2.tick_params(axis='y', labelcolor=plotify.c_orange)
+    ax2.set_ylim(-0.01,0.3)
     
+    ax.set_title('Mixed-input NN Training on 51,200 sources', pad=10)
     fig.tight_layout()
 
     plt.title('Mixed-input NN Training on 51,200 sources')
+    plt.savefig('plots/training_accuracies')
     plt.show()
 
 if __name__ == "__main__":
