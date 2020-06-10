@@ -70,7 +70,7 @@ class CNN:
     def _build_model(self):
         model = Sequential()
 
-        model.add(Conv1D(filters=64),
+        model.add(Conv1D(filters=64,
                          kernel_size=3,
                          activation='relu',
                          input_shape=(self.input_length, 1))
