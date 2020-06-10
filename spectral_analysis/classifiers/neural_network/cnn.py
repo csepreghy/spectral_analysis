@@ -54,7 +54,7 @@ class CNN:
         return X, y
 
 
-    def _fit(self, X_train, y_train, X_test, y_test):
+    def _fit(self, X_train, y_train, X_test, y_test, y_val):
         tuner = RandomSearch(self._build_model,
                              objective='val_accuracy',
                              max_trials=10,
@@ -113,7 +113,7 @@ class CNN:
         y_train = np.array(y_train)
         y_test = np.array(y_test)
 
-        self._fit(X_train, y_train, X_test, y_test)
+        self._fit(X_train, y_train, X_test, y_test, y_val)
 
 def main():
     df_fluxes = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='fluxes')
