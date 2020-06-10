@@ -61,6 +61,11 @@ class CNN:
                              executions_per_trial=1,
                              directory='logs/keras-tuner/',
                              project_name='autoencoder')
+
+        print(f'X_train = {X_train}')
+        print(f'y_train = {y_train}')
+        print(f'X_val = {X_val}')
+        print(f'y_val = {y_val}')
     
         tuner.search(x=X_train,
                      y=y_train,
@@ -109,9 +114,11 @@ class CNN:
 
         X_train = np.expand_dims(X_train, axis=2)
         X_test = np.expand_dims(X_test, axis=2)
+        X_val = np.expand_dims(X_val, axis=2)
 
         y_train = np.array(y_train)
         y_test = np.array(y_test)
+        y_val = np.array(y_val)
 
         self._fit(X_train, y_train, X_test, y_test, X_val, y_val)
 
@@ -119,8 +126,8 @@ def main():
     df_fluxes = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='fluxes')
     df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='source_info')
     
-    df_fluxes = df_fluxes.head(200)
-    df_source_info = df_source_info.head(200)
+    df_fluxes = df_fluxes.head(40)
+    df_source_info = df_source_info.head(40)
 
     cnn = CNN(df_fluxes)
     cnn.run(df_source_info, df_fluxes)
