@@ -77,8 +77,8 @@ class CNN:
         print(model.summary())
 
         # Evaluate Best Model #
-        _, train_acc = model.evaluate([X_train_source_info_std, X_train_fluxes_std], y_train, verbose=0)
-        _, test_acc = model.evaluate([X_test_source_info_std, X_test_fluxes_std], y_test, verbose=0)
+        _, train_acc = model.evaluate(X_train, y_train, verbose=0)
+        _, test_acc = model.evaluate(X_test, y_test, verbose=0)
         print('Train: %.3f, Test: %.3f' % (train_acc, test_acc))
 
     def _build_model(self, hp):
@@ -94,7 +94,8 @@ class CNN:
                              kernel_size=hp.Choice(f'conv_{i}_filters_kernel_size', values=[3, 5, 7, 9]),
                              activation='relu'))
 
-        model.add(MaxPooling1D(pool_size=2))
+            model.add(MaxPooling1D(pool_size=.hp.Int('max_pool_size', 1, 4)))
+        
         model.add(Flatten())
 
         for i in range(hp.Int('n_dense_layers', 1, 4)):
@@ -136,7 +137,7 @@ def main():
     df_fluxes = df_fluxes.head(40)
     df_source_info = df_source_info.head(40)
 
-    cnn = CNN(df_fluxes, max_trials=2, epochs=2)
+    cnn = CNN(df_fluxes, max_trials=1, epochs=2)
     cnn.run(df_source_info, df_fluxes)
 
 if __name__ == "__main__":
