@@ -67,6 +67,27 @@ class CNN:
 		_, test_acc = model.evaluate(X_test, y_test, verbose=0)
 		print('Train: %.3f, Test: %.3f' % (train_acc, test_acc))
 
+	def _build_model(self):
+		model = Sequential()
+
+		model.add(Conv1D(filters=64,
+							kernel_size=3,
+							activation='relu',
+							input_shape=(self.input_length, 1)))
+
+		for i in range(2):
+			model.add(Conv1D(filters=128, kernel_size=3, activation='relu'))
+			model.add(MaxPooling1D(pool_size=2))
+
+		model.add(Flatten())
+
+		for i in range(2):
+			model.add(Dense(128, activation='relu'))
+
+		model.add(Dense(3, activation='softmax'))
+		model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+
+		return model
 
 	def run(self, df_source_info, df_fluxes):
 		X, y = self._prepare_data(df_source_info, df_fluxes)
