@@ -52,7 +52,7 @@ class CNN:
 
 
     def _fit(self, X_train, y_train, X_test, y_test, X_val, y_val):
-        model = self._build_model
+        model = self._build_model()
         print(model.summary())
 
         history = model.fit(x=X_train,
