@@ -69,7 +69,7 @@ class CNN:
                      validation_data=(X_val, y_val),
                      callbacks=[EarlyStopping('val_accuracy', patience=4)])
         
-        tuner.results_summary()
+        print(tuner.results_summary())
         model = tuner.get_best_models(num_models=1)[0]
         print(model.summary())
 
