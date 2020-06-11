@@ -66,6 +66,7 @@ class CNN:
                      y=y_train,
                      epochs=self.epochs,
                      batch_size=32,
+                     verbose=0,
                      validation_data=(X_val, y_val),
                      callbacks=[EarlyStopping('val_accuracy', patience=4)])
         
