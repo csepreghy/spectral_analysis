@@ -79,26 +79,47 @@ class CNN:
         print('Train: %.3f, Test: %.3f' % (train_acc, test_acc))
 
     def _build_model(self, hp):
+        hyperparameters = {
+            'n_conv_layers': hp.Int('n_conv_layers', 1, 4),
+            'input_conv_layer_filters': hp.Choice('input_conv_layer_filters', values=[32, 64, 128, 256, 512], default=256),
+            'input_conv_layer_kernel_size': hp.Choice('input_conv_layer_kernel_size', values=[3, 5, 7, 9]),
+            'n_dense_layers': hp.Int('n_dense_layers', 1, 4),
+            'last_activation': hp.Choice('last_activation', ['softmax', 'tanh']),
+            'optimizer': hp.Choice('optimizer', values=['adam', 'nadam', 'rmsprop'])
+        }
+        
+        for i in range(hyperparameters['n_conv_layers']):
+            hyperparameters[f'conv_layer_{i}_filters'] = hp.Choice(f'conv_layer_{i}_filters',
+                                                                   values=[32, 64, 128, 256, 512],
+                                                                   default=256)
+            hyperparameters[f'conv_layer_{i}_kernel_size'] = hp.Choice(f'conv_layer_{i}_kernel_size',
+                                                                       values=[3, 5, 7, 9])
+        for i in range(hyperparameters['n_dense_layers']):
+            hyperparameters[f'dense_layer_{i}_nodes'] = hp.Choice(f'dense_layer_{i}_nodes',
+                                                                   values=[32, 64, 128, 256, 512],
+                                                                   default=256)
+
+               
         model = Sequential()
 
-        model.add(Conv1D(filters=hp.Choice('conv_filters_input_layer', values=[32, 64, 128, 256, 512], default=256),
-                         kernel_size=hp.Choice('kernel_size_input_layer', values=[3, 5, 7, 9]),
+        model.add(Conv1D(filters=hyperparameters['input_conv_layer_filters'],
+                         kernel_size=hyperparameters['input_conv_layer_kernel_size'],
                          activation='relu',
                          input_shape=(self.input_length, 1)))
 
-        for i in range(hp.Int('n_cnn_layers', 1, 4)):
-            model.add(Conv1D(filters=hp.Choice(f'conv_{i}_filters', values=[16, 32, 64, 128, 256, 512], default=256),
-                             kernel_size=hp.Choice(f'conv_{i}_filters_kernel_size', values=[3, 5, 7, 9]),
+        for i in range(hyperparameters['n_conv_layers']):
+            model.add(Conv1D(filters=hyperparameters[f'conv_layer_{i}_filters'],
+                             kernel_size=hyperparameters[f'conv_layer_{i}_kernel_size'],
                              activation='relu'))
 
             model.add(MaxPooling1D(pool_size=hp.Int('max_pool_size', 1, 4)))
         
         model.add(Flatten())
 
-        for i in range(hp.Int('n_dense_layers', 1, 4)):
-            model.add(Dense(hp.Choice(f'dense_{i}_filters', values=[16, 32, 64, 128, 256, 512]), activation='relu'))
+        for i in range(hyperparameters['n_dense_layers']):
+            model.add(Dense(hyperparameters[f'dense_layer_{i}_nodes']))
 
-        model.add(Dense(3, activation=hp.Choice('last_activation', values=['softmax', 'tanh'])))
+        model.add(Dense(3, activation=hyperparameters['last_activation']))
         model.compile(loss='categorical_crossentropy',
                       optimizer='adam',
                       metrics=['accuracy'])
