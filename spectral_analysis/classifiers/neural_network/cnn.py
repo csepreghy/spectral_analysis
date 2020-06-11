@@ -84,20 +84,20 @@ class CNN:
             'n_conv_layers': hp.Int('n_conv_layers', 1, 4),
             'input_conv_layer_filters': hp.Choice('input_conv_layer_filters', values=[32, 64, 128, 256, 512], default=256),
             'input_conv_layer_kernel_size': hp.Choice('input_conv_layer_kernel_size', values=[3, 5, 7, 9]),
-            'n_dense_layers': hp.Int('n_dense_layers', 1, 4),
-            'last_activation': hp.Choice('last_activation', ['softmax', 'tanh']),
-            'optimizer': hp.Choice('optimizer', values=['adam', 'nadam', 'rmsprop'])
+            'n_dense_layers': hp.Int('n_dense_layers', 2, 4),
+            'last_activation': hp.Choice('last_activation', ['softmax']),
+            'learning_rate': hp.Choice('learning_rate', values=[1e-2, 1e-3, 1e-4])
         }
         
         for i in range(hyperparameters['n_conv_layers']):
             hyperparameters[f'conv_layer_{i}_filters'] = hp.Choice(f'conv_layer_{i}_filters',
-                                                                   values=[32, 64, 128, 256, 512],
+                                                                   values=[64, 128, 256, 512],
                                                                    default=256)
             hyperparameters[f'conv_layer_{i}_kernel_size'] = hp.Choice(f'conv_layer_{i}_kernel_size',
                                                                        values=[3, 5, 7, 9])
         for i in range(hyperparameters['n_dense_layers']):
             hyperparameters[f'dense_layer_{i}_nodes'] = hp.Choice(f'dense_layer_{i}_nodes',
-                                                                   values=[32, 64, 128, 256, 512],
+                                                                   values=[64, 128, 256, 512],
                                                                    default=256)
 
                
@@ -122,7 +122,7 @@ class CNN:
 
         model.add(Dense(3, activation=hyperparameters['last_activation']))
         model.compile(loss='categorical_crossentropy',
-                      optimizer='adam',
+                      optimizer=keras.optimizers.Adam(hyperparameters['learning_rate'])
                       metrics=['accuracy'])
 
         return model
