@@ -4,7 +4,7 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 
-from tensorflow.keras.optimizers import SGD
+from tensorflow.keras.optimizers import SGD, Adam
 from tensorflow.keras.callbacks import History, EarlyStopping
 from tensorflow.keras.layers import Dense, Dropout, Activation, Flatten, Conv1D, MaxPooling1D, Input
 from tensorflow.keras.models import Sequential, Model
@@ -122,7 +122,7 @@ class CNN:
 
         model.add(Dense(3, activation=hyperparameters['last_activation']))
         model.compile(loss='categorical_crossentropy',
-                      optimizer=keras.optimizers.Adam(hyperparameters['learning_rate'])
+                      optimizer=Adam(hyperparameters['learning_rate']),
                       metrics=['accuracy'])
 
         return model
