@@ -107,12 +107,13 @@ class CNN:
                          kernel_size=hyperparameters['input_conv_layer_kernel_size'],
                          activation='relu',
                          input_shape=(self.input_length, 1)))
+        model.add(Dropout(0.1))
 
         for i in range(hyperparameters['n_conv_layers']):
             model.add(Conv1D(filters=hyperparameters[f'conv_layer_{i}_filters'],
                              kernel_size=hyperparameters[f'conv_layer_{i}_kernel_size'],
                              activation='relu'))
-
+            model.add(Dropout(0.1))
             model.add(MaxPooling1D(pool_size=hp.Int('max_pool_size', 1, 4)))
         
         model.add(Flatten())
