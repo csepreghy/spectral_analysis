@@ -147,11 +147,13 @@ class MixedInputModel():
 
         model.add(Conv1D(filters=256, kernel_size=5, activation='relu', input_shape=(input_length, 1)))
         model.add(Conv1D(filters=128, kernel_size=5, activation='relu'))
-        # model.add(Conv1D(filters=128, kernel_size=5, activation='relu', input_shape=(input_length, 1)))
+        model.add(Dropout(0.1))
         model.add(Conv1D(filters=64, kernel_size=3, activation='relu'))
+        model.add(Dropout(0.1))
         model.add(MaxPooling1D(pool_size=2))
         model.add(Flatten())
         model.add(Dense(64, activation='relu'))
+        model.add(Dropout(0.5))
         model.add(Dense(32, activation='relu'))
 
         return model
