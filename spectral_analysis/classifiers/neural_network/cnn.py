@@ -81,11 +81,10 @@ class CNN:
 
     def _build_model(self, hp):
         hyperparameters = {
-            'n_conv_layers': hp.Int('n_conv_layers', 1, 4),
+            'n_conv_layers': hp.Int('n_conv_layers', 2, 8),
             'input_conv_layer_filters': hp.Choice('input_conv_layer_filters', values=[32, 64, 128, 256, 512], default=256),
-            'input_conv_layer_kernel_size': hp.Choice('input_conv_layer_kernel_size', values=[3, 5, 7, 9]),
-            'n_dense_layers': hp.Int('n_dense_layers', 2, 4),
-            'last_activation': hp.Choice('last_activation', ['softmax']),
+            'input_conv_layer_kernel_size': hp.Choice('input_conv_layer_kernel_size', values=[3, 5, 7]),
+            'n_dense_layers': hp.Int('n_dense_layers', 2, 8),
             'learning_rate': hp.Choice('learning_rate', values=[1e-2, 1e-3, 1e-4])
         }
         
@@ -120,7 +119,7 @@ class CNN:
         for i in range(hyperparameters['n_dense_layers']):
             model.add(Dense(hyperparameters[f'dense_layer_{i}_nodes']))
 
-        model.add(Dense(3, activation=hyperparameters['last_activation']))
+        model.add(Dense(3, activation='softmax'))
         model.compile(loss='categorical_crossentropy',
                       optimizer=Adam(hyperparameters['learning_rate']),
                       metrics=['accuracy'])
