@@ -69,7 +69,7 @@ class CNN:
                      verbose=0,
                      validation_data=(X_val, y_val),
                      callbacks=[EarlyStopping('val_accuracy', patience=4)])
-        
+        print('Kakkanat\n\n\n\n\n\n Kakkanat')
         print(tuner.results_summary())
         model = tuner.get_best_models(num_models=1)[0]
         print(model.summary())
@@ -83,7 +83,7 @@ class CNN:
         hyperparameters = {
             'n_conv_layers': hp.Int('n_conv_layers', 2, 8),
             'input_conv_layer_filters': hp.Choice('input_conv_layer_filters', values=[32, 64, 128, 256, 512], default=256),
-            'input_conv_layer_kernel_size': hp.Choice('input_conv_layer_kernel_size', values=[3, 5, 7]),
+            'input_conv_layer_kernel_size': hp.Choice('input_conv_layer_kernel_size', values=[3, 5, 7, 9]),
             'n_dense_layers': hp.Int('n_dense_layers', 2, 8),
             'learning_rate': hp.Choice('learning_rate', values=[1e-2, 1e-3, 1e-4])
         }

@@ -22,8 +22,8 @@ from tensorflow.keras.layers import Dense, Activation, Input, concatenate
 from tensorflow.keras.models import Sequential, Model
 from tensorflow.keras.utils import to_categorical
 
-from spectral_analysis.spectral_analysis.plotify import Plotify
-from spectral_analysis.spectral_analysis.data_preprocessing.bpt_diagram import plot_bpt_diagram
+from spectral_analysis.plotify import Plotify
+from spectral_analysis.data_preprocessing.bpt_diagram import plot_bpt_diagram
 
 
 
@@ -236,30 +236,32 @@ def main():
     fig, ax = plotify.get_figax()
 
     
-    ax.plot(xs, train, color=plotify.c_orange, label='training loss')
-    ax.plot(xs, validation, color=plotify.c_blue, label='validation loss')
+    ax.plot(xs, train, color=plotify.c_orange, label='training accuracy')
+    ax.plot(xs, validation, color=plotify.c_blue, label='validation accuracy')
     ax.set_xlabel('Number of Epochs')
-    ax.set_ylabel('accuracy')
-    ax.tick_params(axis='y', labelcolor=plotify.c_blue)
+    ax.set_ylabel('Accuracy')
     ax.xaxis.set_major_locator(ticker.MultipleLocator(5))
-    ax.set_ylim(0.88,1.01)
+    ax.set_ylim(0.825,1.01)
     plt.legend()
-    ax.set_title('Mixed-input NN Training on 51,200 sources', pad=10)
+    ax.set_title('Mixed-input NN Training on 51,200 sources')
+    ttl = ax.title
+    ttl.set_position([0.5, 1.025])
     fig.tight_layout()
     plt.savefig('plots/training_accuracies')
     plt.show()
 
     fig, ax = plotify.get_figax()
-    ax = ax.twinx()
-    ax.set_ylabel('loss', color=plotify.c_orange)  # we already handled the x-label with ax1
+    ax.set_ylabel('Loss')  # we already handled the x-label with ax1
     ax.plot(xs, train_loss, color=plotify.c_orange, label='training loss')
     ax.plot(xs, validation_loss, color=plotify.c_blue, label='validation loss')
     ax.xaxis.set_major_locator(ticker.MultipleLocator(5))
-    # ax.set_ylim(-0.01,0.3)
-    
-    ax.set_title('Mixed-input NN Training on 51,200 sources', pad=10)
+    ax.set_ylim(-0.01,0.4)
+    ax.set_xlabel('Number of Epochs')
+    ax.set_title('Mixed-input NN Training on 51,200 sources')
+    ttl = ax.title
+    ttl.set_position([0.5, 1.025])
+    plt.tight_layout()
     plt.legend()
-    fig.tight_layout()
 
     plt.title('Mixed-input NN Training on 51,200 sources')
     plt.savefig('plots/training_losses')
