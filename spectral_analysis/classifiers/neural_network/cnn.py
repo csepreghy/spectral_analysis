@@ -18,10 +18,11 @@ import time
 LOG_DIR = f"{int(time.time())}"
 
 class CNN:
-    def __init__(self, df_fluxes, max_trials, epochs):
+    def __init__(self, df_fluxes, max_trials, epochs, batch_size):
         self.input_length = len(df_fluxes.columns) - 1
         self.max_trials = max_trials
         self.epochs = epochs
+        self.batch_size = batch_size
 
     def _prepare_data(self, df_source_info, df_fluxes):
         columns = []
@@ -65,7 +66,7 @@ class CNN:
         tuner.search(x=X_train,
                      y=y_train,
                      epochs=self.epochs,
-                     batch_size=32,
+                     batch_size=self.batch_size,
                      verbose=0,
                      validation_data=(X_val, y_val),
                      callbacks=[EarlyStopping('val_accuracy', patience=4)])
@@ -155,7 +156,7 @@ def main():
     df_fluxes = df_fluxes.head(40)
     df_source_info = df_source_info.head(40)
 
-    cnn = CNN(df_fluxes, max_trials=1, epochs=2)
+    cnn = CNN(df_fluxes, max_trials=1, epochs=2, batch_size=32)
     cnn.run(df_source_info, df_fluxes)
 
 if __name__ == "__main__":
