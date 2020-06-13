@@ -166,7 +166,6 @@ class MixedInputModel():
         model.add(Dense(128, input_dim=input_shape, activation='relu', kernel_initializer='he_uniform'))
         model.add(Dropout(0.5))
         model.add(Dense(64, input_dim=158, activation='relu', kernel_initializer='he_uniform'))
-        model.add(BatchNormalization(axis=1))
 
         return model
 
