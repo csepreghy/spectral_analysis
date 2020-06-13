@@ -16,7 +16,7 @@ import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras.optimizers import SGD
 from tensorflow.keras.callbacks import History, TensorBoard, EarlyStopping, ModelCheckpoint
-from tensorflow.keras.layers import Dense, Dropout, Activation, Flatten, Conv1D, MaxPooling1D, Input, concatenate
+from tensorflow.keras.layers import Dense, Dropout, Activation, Flatten, Conv1D, MaxPooling1D, Input, concatenate, BatchNormalization
 from tensorflow.keras.models import Sequential, Model
 from tensorflow.keras.utils import to_categorical
 
@@ -164,6 +164,7 @@ class MixedInputModel():
         model.add(Dense(128, input_dim=input_shape, activation='relu', kernel_initializer='he_uniform'))
         model.add(Dropout(0.5))
         model.add(Dense(64, input_dim=158, activation='relu', kernel_initializer='he_uniform'))
+        model.add(BatchNormalization(axis=1))
 
         return model
 
