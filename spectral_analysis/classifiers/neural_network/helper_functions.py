@@ -101,7 +101,7 @@ def get_incorrect_predictions(model, X_test_fluxes, X_test_spectra, raw_X_test_s
 
     plotify = Plotify(theme='ugly')
 
-    for i, wrong_prediction in enumerate(wrong_predictions[0:50]):
+    for i, wrong_prediction in enumerate(wrong_predictions[0:25]):
         fluxes = wrong_predictions[i]['spectrum']
         raw_fluxes = wrong_predictions[i]['raw_spectrum']
         wavelengths = df_wavelengths.values
@@ -133,7 +133,7 @@ def get_incorrect_predictions(model, X_test_fluxes, X_test_spectra, raw_X_test_s
             plt.savefig(f'plots/wrong_predictions/gaussian8_wrong_prediction_{i}.png', dpi=150)
 
     
-    for i, correct_prediction in enumerate(correct_predictions[0:50]):
+    for i, correct_prediction in enumerate(correct_predictions[0:25]):
         fluxes = correct_predictions[i]['spectrum']
         raw_fluxes = correct_predictions[i]['raw_spectrum']
         wavelengths = df_wavelengths.values
@@ -225,11 +225,11 @@ def shuffle_along_axis(a, axis):
 def main():
 
 
-    train = pd.read_csv('data/tensorboard-logs/mixed-input_train_accuracy.csv')['Value'].values
-    validation = pd.read_csv('data/tensorboard-logs/mixed-input_validation_accuracy.csv')['Value'].values
+    train = pd.read_csv('data/tensorboard-logs/mixed-input-train-accuracy-kaki.csv')['Value'].values
+    validation = pd.read_csv('data/tensorboard-logs/mixed-input-validation-accuracy-kaki.csv')['Value'].values
     
-    train_loss = pd.read_csv('data/tensorboard-logs/mixed-input-train-loss.csv')['Value'].values
-    validation_loss = pd.read_csv('data/tensorboard-logs/mixed-input_validation-loss.csv')['Value'].values
+    train_loss = pd.read_csv('data/tensorboard-logs/mixed-input-train-loss-kaki.csv')['Value'].values
+    validation_loss = pd.read_csv('data/tensorboard-logs/mixed-input-validation-loss-kaki.csv')['Value'].values
     xs = np.array(list(range(60)))
 
     plotify = Plotify(theme='ugly')
@@ -247,7 +247,7 @@ def main():
     ttl = ax.title
     ttl.set_position([0.5, 1.025])
     fig.tight_layout()
-    plt.savefig('plots/training_accuracies')
+    plt.savefig('plots/training_accuracies_kaki')
     plt.show()
 
     fig, ax = plotify.get_figax()
@@ -264,7 +264,7 @@ def main():
     plt.legend()
 
     plt.title('Mixed-input NN Training on 51,200 sources')
-    plt.savefig('plots/training_losses')
+    plt.savefig('plots/training_losses_kaki')
     plt.show()
 
 if __name__ == "__main__":

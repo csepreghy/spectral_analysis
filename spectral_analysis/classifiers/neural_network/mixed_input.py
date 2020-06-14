@@ -283,14 +283,14 @@ class MixedInputModel():
                            indeces=self.i_test,
                            classes=self.label_columns)
 
-            # get_incorrect_predictions(model=model,
-            #                           X_test_fluxes=[X_test_source_info_std, X_test_fluxes_std],
-            #                           X_test_spectra=X_test_fluxes,
-            #                           raw_X_test_spectra=raw_X_test_fluxes,
-            #                           y_test=y_test,
-            #                           df_source_info_test=df_source_info_test,
-            #                           df_wavelengths=df_wavelengths,
-            #                           gaussian=self.gaussian)
+            get_incorrect_predictions(model=model,
+                                      X_test_fluxes=[X_test_source_info_std, X_test_fluxes_std],
+                                      X_test_spectra=X_test_fluxes,
+                                      raw_X_test_spectra=raw_X_test_fluxes,
+                                      y_test=y_test,
+                                      df_source_info_test=df_source_info_test,
+                                      df_wavelengths=df_wavelengths,
+                                      gaussian=self.gaussian)
 
         return model
 
