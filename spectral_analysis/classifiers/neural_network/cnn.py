@@ -120,6 +120,7 @@ class CNN:
 
         for i in range(hyperparameters['n_dense_layers']):
             model.add(Dense(hyperparameters[f'dense_layer_{i}_nodes']))
+            model.add(Dropout(0.5))
 
         model.add(Dense(3, activation='softmax'))
         model.compile(loss='categorical_crossentropy',
