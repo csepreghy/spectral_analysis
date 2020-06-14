@@ -101,7 +101,7 @@ def get_incorrect_predictions(model, X_test_fluxes, X_test_spectra, raw_X_test_s
 
     plotify = Plotify(theme='ugly')
 
-    for i, wrong_prediction in enumerate(wrong_predictions[0:50]):
+    for i, wrong_prediction in enumerate(wrong_predictions[0:25]):
         fluxes = wrong_predictions[i]['spectrum']
         raw_fluxes = wrong_predictions[i]['raw_spectrum']
         wavelengths = df_wavelengths.values
@@ -133,7 +133,7 @@ def get_incorrect_predictions(model, X_test_fluxes, X_test_spectra, raw_X_test_s
             plt.savefig(f'plots/wrong_predictions/gaussian8_wrong_prediction_{i}.png', dpi=150)
 
     
-    for i, correct_prediction in enumerate(correct_predictions[0:50]):
+    for i, correct_prediction in enumerate(correct_predictions[0:25]):
         fluxes = correct_predictions[i]['spectrum']
         raw_fluxes = correct_predictions[i]['raw_spectrum']
         wavelengths = df_wavelengths.values
