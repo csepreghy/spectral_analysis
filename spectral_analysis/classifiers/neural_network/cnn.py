@@ -83,8 +83,8 @@ class CNN:
     def _build_model(self, hp):
         hyperparameters = {
             'n_conv_layers': hp.Int('n_conv_layers', 2, 7),
-            'conv_layer_1_filters': hp.Choice('input_conv_layer_filters', values=[64, 128, 256, 512], default=256),
-            'conv_layer_1_kernel_size': hp.Choice('input_conv_layer_kernel_size', values=[3, 5, 7]),
+            'conv_layer_1_filters': hp.Choice('conv_layer_1_filters', values=[64, 128, 256, 512], default=256),
+            'conv_layer_1_kernel_size': hp.Choice('conv_layer_1_kernel_size', values=[3, 5, 7]),
             'n_dense_layers': hp.Int('n_dense_layers', 2, 7),
             'learning_rate': hp.Choice('learning_rate', values=[1e-3, 1e-4])
         }
