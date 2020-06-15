@@ -114,7 +114,7 @@ class CNN:
                              kernel_size=hyperparameters[f'conv_layer_{i}_kernel_size'],
                              activation='relu'))
             model.add(Dropout(0.1))
-            model.add(MaxPooling1D(pool_size=hp.Int('max_pool_size', 1, 4)))
+            if i < 5: model.add(MaxPooling1D(pool_size=hp.Int('max_pool_size', 1, 4)))
         
         model.add(Flatten())
 
