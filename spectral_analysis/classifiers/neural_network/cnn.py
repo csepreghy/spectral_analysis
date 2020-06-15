@@ -82,10 +82,10 @@ class CNN:
 
     def _build_model(self, hp):
         hyperparameters = {
-            'n_conv_layers': hp.Int('n_conv_layers', 3, 6),
-            'input_conv_layer_filters': hp.Choice('input_conv_layer_filters', values=[32, 64, 128, 256, 512], default=256),
-            'input_conv_layer_kernel_size': hp.Choice('input_conv_layer_kernel_size', values=[5]),
-            'n_dense_layers': hp.Int('n_dense_layers', 2, 6),
+            'n_conv_layers': hp.Int('n_conv_layers', 2, 6),
+            'input_conv_layer_filters': hp.Choice('input_conv_layer_filters', values=[64, 128, 256, 512], default=256),
+            'input_conv_layer_kernel_size': hp.Choice('input_conv_layer_kernel_size', values=[3, 5, 7]),
+            'n_dense_layers': hp.Int('n_dense_layers', 2, 5),
             'learning_rate': hp.Choice('learning_rate', values=[1e-3, 1e-4])
         }
         
@@ -94,7 +94,7 @@ class CNN:
                                                                    values=[64, 128, 256, 512],
                                                                    default=256)
             hyperparameters[f'conv_layer_{i}_kernel_size'] = hp.Choice(f'conv_layer_{i}_kernel_size',
-                                                                       values=[5])
+                                                                       values=[3, 5, 7])
         for i in range(hyperparameters['n_dense_layers']):
             hyperparameters[f'dense_layer_{i}_nodes'] = hp.Choice(f'dense_layer_{i}_nodes',
                                                                    values=[64, 128, 256, 512],
