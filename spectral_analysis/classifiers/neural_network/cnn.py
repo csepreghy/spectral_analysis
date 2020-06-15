@@ -97,6 +97,7 @@ class CNN:
             hyperparameters[f'conv_layer_{i}_kernel_size'] = hp.Choice(f'conv_layer_{i}_kernel_size',
                                                                        values=[3, 5, 7])
         for i in range(hyperparameters['n_dense_layers'] - 1):
+            i = i + 1
             hyperparameters[f'dense_layer_{i}_nodes'] = hp.Choice(f'dense_layer_{i}_nodes',
                                                                    values=[64, 128, 256, 512],
                                                                    default=256)
@@ -104,8 +105,8 @@ class CNN:
                
         model = Sequential()
 
-        model.add(Conv1D(filters=hyperparameters['input_conv_layer_filters'],
-                         kernel_size=hyperparameters['input_conv_layer_kernel_size'],
+        model.add(Conv1D(filters=hyperparameters['conv_layer_1_filters'],
+                         kernel_size=hyperparameters['conv_layer_1_kernel_size'],
                          activation='relu',
                          input_shape=(self.input_length, 1)))
         model.add(Dropout(0.1))
@@ -121,7 +122,7 @@ class CNN:
         model.add(Flatten())
 
         for i in range(hyperparameters['n_dense_layers']):
-            i = i + 2
+            i = i + 1
             model.add(Dense(hyperparameters[f'dense_layer_{i}_nodes']))
             model.add(Dropout(0.5))
 
