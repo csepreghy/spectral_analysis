@@ -225,11 +225,11 @@ def shuffle_along_axis(a, axis):
 def main():
 
 
-    train = pd.read_csv('data/tensorboard-logs/mixed-input-train-accuracy-kaki.csv')['Value'].values
-    validation = pd.read_csv('data/tensorboard-logs/mixed-input-validation-accuracy-kaki.csv')['Value'].values
+    train = pd.read_csv('data/tensorboard-logs/subclass-mixed-input-subclass_train-tag-epoch_accuracy.csv')['Value'].values
+    validation = pd.read_csv('data/tensorboard-logs/subclass-mixed-input-subclass_validation-tag-epoch_accuracy.csv')['Value'].values
     
-    train_loss = pd.read_csv('data/tensorboard-logs/mixed-input-train-loss-kaki.csv')['Value'].values
-    validation_loss = pd.read_csv('data/tensorboard-logs/mixed-input-validation-loss-kaki.csv')['Value'].values
+    train_loss = pd.read_csv('data/tensorboard-logs/subclass-mixed-input-subclass_train-tag-epoch_loss.csv')['Value'].values
+    validation_loss = pd.read_csv('data/tensorboard-logs/subclass-mixed-input-subclass_validation-tag-epoch_loss.csv')['Value'].values
     xs = np.array(list(range(60)))
 
     plotify = Plotify(theme='ugly')
@@ -241,13 +241,13 @@ def main():
     ax.set_xlabel('Number of Epochs')
     ax.set_ylabel('Accuracy')
     ax.xaxis.set_major_locator(ticker.MultipleLocator(5))
-    ax.set_ylim(0.825,1.01)
+    ax.set_ylim(0.65,1.0)
     plt.legend()
-    ax.set_title('Mixed-input NN Training on 51,200 sources')
+    ax.set_title('Mixed-input NN Training on 51,200 sources (Galaxy Subclasses)')
     ttl = ax.title
     ttl.set_position([0.5, 1.025])
     fig.tight_layout()
-    plt.savefig('plots/training_accuracies_kaki')
+    plt.savefig('plots/training_accuracies_galaxies')
     plt.show()
 
     fig, ax = plotify.get_figax()
@@ -255,7 +255,7 @@ def main():
     ax.plot(xs, train_loss, color=plotify.c_orange, label='training loss')
     ax.plot(xs, validation_loss, color=plotify.c_blue, label='validation loss')
     ax.xaxis.set_major_locator(ticker.MultipleLocator(5))
-    ax.set_ylim(-0.01,0.4)
+    ax.set_ylim(0,1)
     ax.set_xlabel('Number of Epochs')
     ax.set_title('Mixed-input NN Training on 51,200 sources')
     ttl = ax.title
@@ -263,8 +263,8 @@ def main():
     plt.tight_layout()
     plt.legend()
 
-    plt.title('Mixed-input NN Training on 51,200 sources')
-    plt.savefig('plots/training_losses_kaki')
+    plt.title('Mixed-input NN Training on 51,200 sources (Galaxy Subclasses)')
+    plt.savefig('plots/training_losses_galaxies')
     plt.show()
 
 if __name__ == "__main__":
