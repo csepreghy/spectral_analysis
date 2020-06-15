@@ -82,21 +82,21 @@ class CNN:
 
     def _build_model(self, hp):
         hyperparameters = {
-            'n_conv_layers': hp.Int('n_conv_layers', 2, 6),
-            'input_conv_layer_filters': hp.Choice('input_conv_layer_filters', values=[64, 128, 256, 512], default=256),
-            'input_conv_layer_kernel_size': hp.Choice('input_conv_layer_kernel_size', values=[3, 5, 7]),
-            'n_dense_layers': hp.Int('n_dense_layers', 2, 5),
+            'n_conv_layers': hp.Int('n_conv_layers', 2, 7),
+            'conv_layer_1_filters': hp.Choice('input_conv_layer_filters', values=[64, 128, 256, 512], default=256),
+            'conv_layer_1_kernel_size': hp.Choice('input_conv_layer_kernel_size', values=[3, 5, 7]),
+            'n_dense_layers': hp.Int('n_dense_layers', 2, 7),
             'learning_rate': hp.Choice('learning_rate', values=[1e-3, 1e-4])
         }
         
-        for i in range(hyperparameters['n_conv_layers']):
-            hyperparameters[f'conv_layer_{i}_filters'] = hp.Choice(f'conv_layer_{i}_filters',
+        for i in range(hyperparameters['n_conv_layers'] - 1):
+            hyperparameters[f'conv_layer_{i+2}_filters'] = hp.Choice(f'conv_layer_{i}_filters',
                                                                    values=[64, 128, 256, 512],
                                                                    default=256)
-            hyperparameters[f'conv_layer_{i}_kernel_size'] = hp.Choice(f'conv_layer_{i}_kernel_size',
+            hyperparameters[f'conv_layer_{i+2}_kernel_size'] = hp.Choice(f'conv_layer_{i}_kernel_size',
                                                                        values=[3, 5, 7])
-        for i in range(hyperparameters['n_dense_layers']):
-            hyperparameters[f'dense_layer_{i}_nodes'] = hp.Choice(f'dense_layer_{i}_nodes',
+        for i in range(hyperparameters['n_dense_layers'] - 1):
+            hyperparameters[f'dense_layer_{i+2}_nodes'] = hp.Choice(f'dense_layer_{i}_nodes',
                                                                    values=[64, 128, 256, 512],
                                                                    default=256)
 
