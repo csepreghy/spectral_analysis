@@ -111,6 +111,7 @@ class CNN:
         model.add(Dropout(0.1))
 
         for i in range(hyperparameters['n_conv_layers']):
+            i = i + 2
             model.add(Conv1D(filters=hyperparameters[f'conv_layer_{i}_filters'],
                              kernel_size=hyperparameters[f'conv_layer_{i}_kernel_size'],
                              activation='relu'))
@@ -120,6 +121,7 @@ class CNN:
         model.add(Flatten())
 
         for i in range(hyperparameters['n_dense_layers']):
+            i = i + 2
             model.add(Dense(hyperparameters[f'dense_layer_{i}_nodes']))
             model.add(Dropout(0.5))
 
