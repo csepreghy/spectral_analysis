@@ -4,7 +4,7 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 
-from tensorflow.keras.optimizers import SGD
+from tensorflow.keras.optimizers import SGD, Adam
 from tensorflow.keras.callbacks import History, EarlyStopping
 from tensorflow.keras.layers import Dense, Dropout, Activation, Flatten, Conv1D, MaxPooling1D, Input
 from tensorflow.keras.models import Sequential, Model
@@ -70,22 +70,47 @@ class CNN:
 	def _build_model(self):
 		model = Sequential()
 
-		model.add(Conv1D(filters=64,
-							kernel_size=3,
-							activation='relu',
-							input_shape=(self.input_length, 1)))
-
-		for i in range(2):
-			model.add(Conv1D(filters=128, kernel_size=3, activation='relu'))
-			model.add(MaxPooling1D(pool_size=2))
+		model.add(Conv1D(filters=512,
+						 kernel_size=7,
+						 activation='relu',
+						 input_shape=(self.input_length, 1)))
+		
+		model.add(Dropout(0.1))
+		model.add(Conv1D(filters=512, kernel_size=5, activation='relu'))
+		model.add(Dropout(0.1))
+		model.add(MaxPooling1D(pool_size=2))
+		model.add(Conv1D(filters=512, kernel_size=3, activation='relu'))
+		model.add(Dropout(0.1))
+		model.add(MaxPooling1D(pool_size=2))
+		model.add(Conv1D(filters=256, kernel_size=7, activation='relu'))
+		model.add(Dropout(0.1))
+		model.add(MaxPooling1D(pool_size=2))
+		model.add(Conv1D(filters=64, kernel_size=7, activation='relu'))
+		model.add(Dropout(0.1))
+		model.add(Conv1D(filters=128, kernel_size=5, activation='relu'))
+		model.add(Dropout(0.1))
+		model.add(Conv1D(filters=128, kernel_size=7, activation='relu'))
+		model.add(Dropout(0.1))
+		model.add(Conv1D(filters=512, kernel_size=3, activation='relu'))
+		model.add(Dropout(0.1))
 
 		model.add(Flatten())
 
-		for i in range(2):
-			model.add(Dense(128, activation='relu'))
+		model.add(Dense(64, activation='relu'))
+		model.add(Dropout(0.5))
+		model.add(Dense(128, activation='relu'))
+		model.add(Dropout(0.5))
+		model.add(Dense(512, activation='relu'))
+		model.add(Dropout(0.5))
+		model.add(Dense(512, activation='relu'))
+		model.add(Dropout(0.5))
+		model.add(Dense(64, activation='relu'))
+		model.add(Dropout(0.5))
+		model.add(Dense(64, activation='relu'))
+		model.add(Dropout(0.5))
 
 		model.add(Dense(3, activation='softmax'))
-		model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+		model.compile(loss='categorical_crossentropy', optimizer=Adam(0.0001), metrics=['accuracy'])
 
 		return model
 
