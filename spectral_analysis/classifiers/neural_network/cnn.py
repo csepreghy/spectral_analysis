@@ -99,8 +99,8 @@ class CNN:
                 hyperparameters[f'conv_layer_{i}_filters'] = hp.Choice(f'conv_layer_{i}_filters',
                                                                     values=[64, 128, 256],
                                                                     default=256)
-                hyperparameters[f'conv_layer_{i}_kernel_size'] = hp.Choice(f'conv_layer_{i}_kernel_size',
-                                                                        values=[3, 5, 7])
+            hyperparameters[f'conv_layer_{i}_kernel_size'] = hp.Choice(f'conv_layer_{i}_kernel_size',
+                                                                    values=[3, 5, 7])
         for i in range(hyperparameters['n_dense_layers'] - 1):
             i = i + 1
             hyperparameters[f'dense_layer_{i}_nodes'] = hp.Choice(f'dense_layer_{i}_nodes',
