@@ -92,8 +92,6 @@ class CNN:
 		model.add(Dropout(0.1))
 		model.add(Conv1D(filters=128, kernel_size=7, activation='relu'))
 		model.add(Dropout(0.1))
-		model.add(Conv1D(filters=512, kernel_size=3, activation='relu'))
-		model.add(Dropout(0.1))
 
 		model.add(Flatten())
 
@@ -104,8 +102,6 @@ class CNN:
 		model.add(Dense(512, activation='relu'))
 		model.add(Dropout(0.5))
 		model.add(Dense(512, activation='relu'))
-		model.add(Dropout(0.5))
-		model.add(Dense(64, activation='relu'))
 		model.add(Dropout(0.5))
 		model.add(Dense(64, activation='relu'))
 		model.add(Dropout(0.5))
