@@ -5,7 +5,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 
 from tensorflow.keras.optimizers import SGD, Adam
-from tensorflow.keras.callbacks import History, EarlyStopping
+from tensorflow.keras.callbacks import History, EarlyStopping, TensorBoard
 from tensorflow.keras.layers import Dense, Dropout, Activation, Flatten, Conv1D, MaxPooling1D, Input
 from tensorflow.keras.models import Sequential, Model
 from tensorflow.keras.utils import to_categorical
@@ -60,7 +60,7 @@ class CNN:
 							epochs=self.epochs,
 							batch_size=32,
 							validation_data=(X_val, y_val),
-							callbacks=[EarlyStopping('val_accuracy', patience=10),
+							callbacks=[EarlyStopping('val_accuracy', patience=50),
 									   TensorBoard(log_dir='logs/cnn')])
 
 		# Evaluate Best Model #
