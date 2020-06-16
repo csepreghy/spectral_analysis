@@ -82,27 +82,30 @@ class CNN:
 
     def _build_model(self, hp):
         hyperparameters = {
-            'n_conv_layers': hp.Int('n_conv_layers', 2, 7),
+            'n_conv_layers': hp.Int('n_conv_layers', 2, 6),
             'conv_layer_1_filters': hp.Choice('conv_layer_1_filters', values=[64, 128, 256, 512], default=256),
             'conv_layer_1_kernel_size': hp.Choice('conv_layer_1_kernel_size', values=[3, 5, 7]),
-            'n_dense_layers': hp.Int('n_dense_layers', 2, 7),
+            'n_dense_layers': hp.Int('n_dense_layers', 2, 6),
             'learning_rate': hp.Choice('learning_rate', values=[1e-3, 1e-4])
         }
         
         for i in range(hyperparameters['n_conv_layers'] - 1):
             i = i + 2
-            hyperparameters[f'conv_layer_{i}_filters'] = hp.Choice(f'conv_layer_{i}_filters',
-                                                                   values=[64, 128, 256, 512],
-                                                                   default=256)
-            hyperparameters[f'conv_layer_{i}_kernel_size'] = hp.Choice(f'conv_layer_{i}_kernel_size',
-                                                                       values=[3, 5, 7])
+            if i < 4:
+                hyperparameters[f'conv_layer_{i}_filters'] = hp.Choice(f'conv_layer_{i}_filters',
+                                                                    values=[64, 128, 256, 512],
+                                                                    default=256)
+            else:
+                hyperparameters[f'conv_layer_{i}_filters'] = hp.Choice(f'conv_layer_{i}_filters',
+                                                                    values=[64, 128, 256],
+                                                                    default=256)
+                hyperparameters[f'conv_layer_{i}_kernel_size'] = hp.Choice(f'conv_layer_{i}_kernel_size',
+                                                                        values=[3, 5, 7])
         for i in range(hyperparameters['n_dense_layers'] - 1):
             i = i + 1
             hyperparameters[f'dense_layer_{i}_nodes'] = hp.Choice(f'dense_layer_{i}_nodes',
                                                                    values=[64, 128, 256, 512],
                                                                    default=256)
-
-               
         model = Sequential()
 
         model.add(Conv1D(filters=hyperparameters['conv_layer_1_filters'],
