@@ -15,6 +15,10 @@ from kerastuner.engine.hyperparameters import HyperParameters
 
 import time
 
+from spectral_analysis.spectral_analysis.data_preprocessing.data_preprocessing import remove_bytes_from_class, get_fluxes_from_h5, get_joint_classes, apply_gaussian_filter
+from spectral_analysis.spectral_analysis.plotify import Plotify
+from spectral_analysis.spectral_analysis.classifiers.neural_network.helper_functions import train_test_split, evaluate_model, shuffle_in_unison, get_incorrect_predictions
+
 LOG_DIR = f"{int(time.time())}"
 
 class CNN:
@@ -28,6 +32,7 @@ class CNN:
 		df_source_info['class'] = pd.Categorical(df_source_info['class'])
 		df_dummies = pd.get_dummies(df_source_info['class'], prefix='category')
 		df_dummies.columns = ['category_GALAXY', 'category_QSO', 'category_STAR']
+		self.label_columns = ['category_GALAXY', 'category_QSO', 'category_STAR']
 		df_source_info = pd.concat([df_source_info, df_dummies], axis=1)
 
 		for column in df_source_info.columns:
@@ -68,42 +73,45 @@ class CNN:
 		_, test_acc = model.evaluate(X_test, y_test, verbose=0)
 		print('Train: %.3f, Test: %.3f' % (train_acc, test_acc))
 
+		evaluate_model(model=model,
+     				   X_test=X_test,
+     				   y_test=y_test,
+     			       classes=self.label_columns)
+
 	def _build_model(self):
 		model = Sequential()
 
-		model.add(Conv1D(filters=512,
+		model.add(Conv1D(filters=256,
 						 kernel_size=7,
 						 activation='relu',
 						 input_shape=(self.input_length, 1)))
 		
 		model.add(Dropout(0.1))
-		model.add(Conv1D(filters=512, kernel_size=5, activation='relu'))
-		model.add(Dropout(0.1))
-		model.add(MaxPooling1D(pool_size=2))
-		model.add(Conv1D(filters=512, kernel_size=3, activation='relu'))
-		model.add(Dropout(0.1))
-		model.add(MaxPooling1D(pool_size=2))
-		model.add(Conv1D(filters=256, kernel_size=7, activation='relu'))
-		model.add(Dropout(0.1))
-		model.add(MaxPooling1D(pool_size=2))
 		model.add(Conv1D(filters=64, kernel_size=7, activation='relu'))
 		model.add(Dropout(0.1))
+		model.add(MaxPooling1D(pool_size=3))
+		model.add(Conv1D(filters=512, kernel_size=3, activation='relu'))
+		model.add(Dropout(0.1))
+		model.add(MaxPooling1D(pool_size=3))
 		model.add(Conv1D(filters=128, kernel_size=5, activation='relu'))
 		model.add(Dropout(0.1))
+		model.add(MaxPooling1D(pool_size=3))
 		model.add(Conv1D(filters=128, kernel_size=7, activation='relu'))
+		model.add(Dropout(0.1))
+		model.add(Conv1D(filters=256, kernel_size=3, activation='relu'))
 		model.add(Dropout(0.1))
 
 		model.add(Flatten())
 
-		model.add(Dense(64, activation='relu'))
+		model.add(Dense(512, activation='relu'))
+		model.add(Dropout(0.5))
+		model.add(Dense(512, activation='relu'))
 		model.add(Dropout(0.5))
 		model.add(Dense(128, activation='relu'))
 		model.add(Dropout(0.5))
-		model.add(Dense(512, activation='relu'))
+		model.add(Dense(256, activation='relu'))
 		model.add(Dropout(0.5))
-		model.add(Dense(512, activation='relu'))
-		model.add(Dropout(0.5))
-		model.add(Dense(64, activation='relu'))
+		model.add(Dense(256, activation='relu'))
 		model.add(Dropout(0.5))
 
 		model.add(Dense(3, activation='softmax'))

@@ -168,7 +168,7 @@ def get_incorrect_predictions(model, X_test_fluxes, X_test_spectra, raw_X_test_s
 	
     # plt.show()
 
-def evaluate_model(model, X_test, y_test, df_source_info, indeces, classes):
+def evaluate_model(model, X_test, y_test, classes, indeces=None, df_source_info=None):
     labels = []
     for label in classes:
         if label == 'label_': labels.append('NULL')
@@ -189,8 +189,8 @@ def evaluate_model(model, X_test, y_test, df_source_info, indeces, classes):
     # plot_bpt_diagram(df_source_info.loc[indeces], labels=labels, y_pred=y_pred, y_test=y_test)
 
     # df_cm = pd.DataFrame(matrix,
-    # 					 index=[i for i in classes],
-    # 					 columns=[i for i in classes])
+    # 					   index=[i for i in classes],
+    # 					   columns=[i for i in classes])
 
     # fig, ax = plt.subplots(figsize=(10,7))
     # sn.heatmap(df_cm, annot=True, annot_kws={"size": 14})
