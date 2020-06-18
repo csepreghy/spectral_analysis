@@ -63,7 +63,7 @@ def train_test_split(X, test_size, y=None, objids=None, indeces=None):
         y_test = y[-n_test:]
         y_train = y[:n_train]
 
-    if y is not None: return X_train, X_test, y_train, y_test
+    if y is not None: return X_train, X_test, y_train, y_test, i_train, i_test
 
     else: return X_train, X_test
 
@@ -184,13 +184,13 @@ def evaluate_model(model, X_test, y_test, classes, indeces=None, df_source_info=
     y_pred = model.predict(X_test)
 
     print(f'X_test = {len(X_test)}')
-    print(f'indeces = {len(indeces)}')
+    # print(f'indeces = {len(indeces)}')
     print(f'len(y_pred) = {len(y_pred)}')
 
     matrix = confusion_matrix(y_test.argmax(axis=1), y_pred.argmax(axis=1))
     print(f'confusion matrix: \n {matrix}')
 
-    print(f'df_source_info[indeces] = {len(df_source_info.loc[indeces])}')
+    # print(f'df_source_info[indeces] = {len(df_source_info.loc[indeces])}')
 
     # plot_bpt_diagram(df_source_info.loc[indeces], labels=labels, y_pred=y_pred, y_test=y_test)
 

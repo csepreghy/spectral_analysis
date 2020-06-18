@@ -134,7 +134,7 @@ class CNN:
         indeces = list(range(len(X)))
 
         X_train, X_test, y_train, y_test, i_train, i_test = train_test_split(X, y=y, test_size=0.2, indeces=indeces)
-        X_train, X_val, y_train, y_val, i_train, i_val = train_test_split(X_train, y=y_train, test_size=0.2, indeces=self.i_train)
+        X_train, X_val, y_train, y_val, i_train, i_val = train_test_split(X_train, y=y_train, test_size=0.2, indeces=i_train)
 
         scaler = StandardScaler()
 
@@ -159,7 +159,7 @@ def main():
     df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='source_info').head(400)
     df_wavelengths = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='wavelengths')
 
-    cnn = CNN(df_fluxes, epochs=2)
+    cnn = CNN(df_fluxes, epochs=1)
     cnn.run(df_source_info, df_fluxes, df_wavelengths)
 
 if __name__ == "__main__":
