@@ -1,0 +1,1214 @@
+
+Trial complete
+Trial summary
+|-Trial ID: c1db4c9f7a264e8536051d441d58be7d
+|-Score: 0.974609375
+|-Best step: 0
+Hyperparameters:
+|-conv_layer_1_filters: 256
+|-conv_layer_1_kernel_size: 3
+|-conv_layer_2_filters: 256
+|-conv_layer_2_kernel_size: 5
+|-conv_layer_3_filters: 64
+|-conv_layer_3_kernel_size: 5
+|-conv_layer_4_filters: 64
+|-conv_layer_4_kernel_size: 7
+|-conv_layer_5_filters: 256
+|-conv_layer_5_kernel_size: 5
+|-conv_layer_6_filters: 64
+|-conv_layer_6_kernel_size: 3
+|-dense_layer_1_nodes: 64
+|-dense_layer_2_nodes: 256
+|-dense_layer_3_nodes: 512
+|-dense_layer_4_nodes: 128
+|-learning_rate: 0.0001
+|-max_pool_size: 3
+|-n_conv_layers: 3
+|-n_dense_layers: 5
+
+Trial summary
+|-Trial ID: 2ac5b6fddf613b2bb0507ae33297226d
+|-Score: 0.9765625
+|-Best step: 0
+Hyperparameters:
+|-conv_layer_1_filters: 128
+|-conv_layer_1_kernel_size: 5
+|-conv_layer_2_filters: 128
+|-conv_layer_2_kernel_size: 3
+|-conv_layer_3_filters: 64
+|-conv_layer_3_kernel_size: 5
+|-conv_layer_4_filters: 256
+|-conv_layer_4_kernel_size: 7
+|-conv_layer_5_filters: 128
+|-conv_layer_5_kernel_size: 7
+|-conv_layer_6_filters: 128
+|-conv_layer_6_kernel_size: 7
+|-dense_layer_1_nodes: 128
+|-dense_layer_2_nodes: 128
+|-dense_layer_3_nodes: 64
+|-dense_layer_4_nodes: 128
+|-learning_rate: 0.0001
+|-max_pool_size: 2
+|-n_conv_layers: 6
+|-n_dense_layers: 5
+Trial complete
+Trial summary
+|-Trial ID: 2d86634d1980efbe5a5b88a7e11539a3
+|-Score: 0.9693359136581421
+|-Best step: 0
+Hyperparameters:
+|-conv_layer_1_filters: 512
+|-conv_layer_1_kernel_size: 7
+|-conv_layer_2_filters: 64
+|-conv_layer_2_kernel_size: 3
+|-conv_layer_3_filters: 512
+|-conv_layer_3_kernel_size: 5
+|-conv_layer_4_filters: 256
+|-conv_layer_4_kernel_size: 5
+|-conv_layer_5_filters: 64
+|-conv_layer_5_kernel_size: 3
+|-conv_layer_6_filters: 128
+|-conv_layer_6_kernel_size: 5
+|-dense_layer_1_nodes: 512
+|-dense_layer_2_nodes: 512
+|-dense_layer_3_nodes: 128
+|-dense_layer_4_nodes: 512
+|-learning_rate: 0.0001
+|-max_pool_size: 1
+|-n_conv_layers: 2
+|-n_dense_layers: 3
+Trial complete
+Trial summary
+|-Trial ID: 095db80058c7107357710ed6f7e623b1
+|-Score: 0.9820312261581421
+|-Best step: 0
+Hyperparameters:
+|-conv_layer_1_filters: 256
+|-conv_layer_1_kernel_size: 7
+|-conv_layer_2_filters: 64
+|-conv_layer_2_kernel_size: 7
+|-conv_layer_3_filters: 512
+|-conv_layer_3_kernel_size: 3
+|-conv_layer_4_filters: 128
+|-conv_layer_4_kernel_size: 5
+|-conv_layer_5_filters: 128
+|-conv_layer_5_kernel_size: 7
+|-conv_layer_6_filters: 256
+|-conv_layer_6_kernel_size: 3
+|-dense_layer_1_nodes: 512
+|-dense_layer_2_nodes: 512
+|-dense_layer_3_nodes: 128
+|-dense_layer_4_nodes: 256
+|-dense_layer_5_nodes: 256
+|-learning_rate: 0.0001
+|-max_pool_size: 3
+|-n_conv_layers: 5
+|-n_dense_layers: 6
+Trial complete
+Trial summary
+|-Trial ID: eb7bd1cf86e8d75a6a3ad449490e470b
+|-Score: 0.976757824420929
+|-Best step: 0
+Hyperparameters:
+|-conv_layer_1_filters: 64
+|-conv_layer_1_kernel_size: 5
+|-conv_layer_2_filters: 64
+|-conv_layer_2_kernel_size: 7
+|-conv_layer_3_filters: 512
+|-conv_layer_3_kernel_size: 5
+|-conv_layer_4_filters: 128
+|-conv_layer_4_kernel_size: 7
+|-conv_layer_5_filters: 256
+|-conv_layer_5_kernel_size: 7
+|-conv_layer_6_filters: 256
+|-conv_layer_6_kernel_size: 5
+|-dense_layer_1_nodes: 64
+|-dense_layer_2_nodes: 64
+|-dense_layer_3_nodes: 512
+|-dense_layer_4_nodes: 256
+|-dense_layer_5_nodes: 128
+|-learning_rate: 0.0001
+|-max_pool_size: 2
+|-n_conv_layers: 6
+|-n_dense_layers: 4
+Trial complete
+Trial summary
+|-Trial ID: 1066aec55728b05eba8b1d17bf9bb80d
+|-Score: 0.921679675579071
+|-Best step: 0
+Hyperparameters:
+|-conv_layer_1_filters: 64
+|-conv_layer_1_kernel_size: 3
+|-conv_layer_2_filters: 64
+|-conv_layer_2_kernel_size: 3
+|-conv_layer_3_filters: 256
+|-conv_layer_3_kernel_size: 3
+|-conv_layer_4_filters: 128
+|-conv_layer_4_kernel_size: 3
+|-conv_layer_5_filters: 256
+|-conv_layer_5_kernel_size: 3
+|-conv_layer_6_filters: 256
+|-conv_layer_6_kernel_size: 3
+|-dense_layer_1_nodes: 128
+|-dense_layer_2_nodes: 128
+|-dense_layer_3_nodes: 64
+|-dense_layer_4_nodes: 256
+|-dense_layer_5_nodes: 512
+|-learning_rate: 0.0001
+|-max_pool_size: 2
+|-n_conv_layers: 2
+|-n_dense_layers: 5
+Trial complete
+Trial summary
+|-Trial ID: 7831fa101390cf3bf86a07eb0ba27863
+|-Score: 0.96875
+|-Best step: 0
+Hyperparameters:
+|-conv_layer_1_filters: 64
+|-conv_layer_1_kernel_size: 5
+|-conv_layer_2_filters: 256
+|-conv_layer_2_kernel_size: 7
+|-conv_layer_3_filters: 128
+|-conv_layer_3_kernel_size: 5
+|-conv_layer_4_filters: 128
+|-conv_layer_4_kernel_size: 5
+|-conv_layer_5_filters: 128
+|-conv_layer_5_kernel_size: 3
+|-conv_layer_6_filters: 128
+|-conv_layer_6_kernel_size: 7
+|-dense_layer_1_nodes: 128
+|-dense_layer_2_nodes: 256
+|-dense_layer_3_nodes: 128
+|-dense_layer_4_nodes: 256
+|-dense_layer_5_nodes: 512
+|-learning_rate: 0.001
+|-max_pool_size: 3
+|-n_conv_layers: 4
+|-n_dense_layers: 6
+Trial complete
+Trial summary
+|-Trial ID: 72453652cd48f799fb3334ee4472b34d
+|-Score: 0.9740234613418579
+|-Best step: 0
+Hyperparameters:
+|-conv_layer_1_filters: 64
+|-conv_layer_1_kernel_size: 3
+|-conv_layer_2_filters: 64
+|-conv_layer_2_kernel_size: 5
+|-conv_layer_3_filters: 128
+|-conv_layer_3_kernel_size: 7
+|-conv_layer_4_filters: 256
+|-conv_layer_4_kernel_size: 7
+|-conv_layer_5_filters: 256
+|-conv_layer_5_kernel_size: 7
+|-conv_layer_6_filters: 128
+|-conv_layer_6_kernel_size: 7
+|-dense_layer_1_nodes: 64
+|-dense_layer_2_nodes: 64
+|-dense_layer_3_nodes: 256
+|-dense_layer_4_nodes: 64
+|-dense_layer_5_nodes: 128
+|-learning_rate: 0.001
+|-max_pool_size: 2
+|-n_conv_layers: 5
+|-n_dense_layers: 4
+Trial complete
+Trial summary
+|-Trial ID: 98a108ee8533de02ab6c4c4eb6755b8a
+|-Score: 0.973828136920929
+|-Best step: 0
+Hyperparameters:
+|-conv_layer_1_filters: 128
+|-conv_layer_1_kernel_size: 7
+|-conv_layer_2_filters: 128
+|-conv_layer_2_kernel_size: 5
+|-conv_layer_3_filters: 128
+|-conv_layer_3_kernel_size: 3
+|-conv_layer_4_filters: 64
+|-conv_layer_4_kernel_size: 7
+|-conv_layer_5_filters: 64
+|-conv_layer_5_kernel_size: 5
+|-conv_layer_6_filters: 64
+|-conv_layer_6_kernel_size: 3
+|-dense_layer_1_nodes: 128
+|-dense_layer_2_nodes: 64
+|-dense_layer_3_nodes: 128
+|-dense_layer_4_nodes: 64
+|-dense_layer_5_nodes: 64
+|-learning_rate: 0.0001
+|-max_pool_size: 2
+|-n_conv_layers: 4
+|-n_dense_layers: 6
+Trial complete
+Trial summary
+|-Trial ID: a743f4487a490d69f039ce1e1f70c04c
+|-Score: 0.962109386920929
+|-Best step: 0
+Hyperparameters:
+|-conv_layer_1_filters: 512
+|-conv_layer_1_kernel_size: 5
+|-conv_layer_2_filters: 128
+|-conv_layer_2_kernel_size: 3
+|-conv_layer_3_filters: 512
+|-conv_layer_3_kernel_size: 5
+|-conv_layer_4_filters: 256
+|-conv_layer_4_kernel_size: 7
+|-conv_layer_5_filters: 64
+|-conv_layer_5_kernel_size: 7
+|-conv_layer_6_filters: 64
+|-conv_layer_6_kernel_size: 5
+|-dense_layer_1_nodes: 512
+|-dense_layer_2_nodes: 64
+|-dense_layer_3_nodes: 64
+|-dense_layer_4_nodes: 64
+|-dense_layer_5_nodes: 64
+|-learning_rate: 0.001
+|-max_pool_size: 3
+|-n_conv_layers: 3
+|-n_dense_layers: 6
+Trial complete
+Trial summary
+|-Trial ID: 94e4c8add778d9bc012407f2e8abd395
+|-Score: 0.9751952886581421
+|-Best step: 0
+Hyperparameters:
+|-conv_layer_1_filters: 512
+|-conv_layer_1_kernel_size: 3
+|-conv_layer_2_filters: 128
+|-conv_layer_2_kernel_size: 7
+|-conv_layer_3_filters: 256
+|-conv_layer_3_kernel_size: 7
+|-conv_layer_4_filters: 256
+|-conv_layer_4_kernel_size: 3
+|-conv_layer_5_filters: 256
+|-conv_layer_5_kernel_size: 3
+|-conv_layer_6_filters: 256
+|-conv_layer_6_kernel_size: 5
+|-dense_layer_1_nodes: 64
+|-dense_layer_2_nodes: 256
+|-dense_layer_3_nodes: 512
+|-dense_layer_4_nodes: 512
+|-dense_layer_5_nodes: 64
+|-learning_rate: 0.0001
+|-max_pool_size: 2
+|-n_conv_layers: 4
+|-n_dense_layers: 6
+Trial complete
+Trial summary
+|-Trial ID: e5de067c8df3cc9565aee6e15c07102e
+|-Score: 0.951953113079071
+|-Best step: 0
+Hyperparameters:
+|-conv_layer_1_filters: 64
+|-conv_layer_1_kernel_size: 5
+|-conv_layer_2_filters: 128
+|-conv_layer_2_kernel_size: 3
+|-conv_layer_3_filters: 256
+|-conv_layer_3_kernel_size: 3
+|-conv_layer_4_filters: 128
+|-conv_layer_4_kernel_size: 3
+|-conv_layer_5_filters: 256
+|-conv_layer_5_kernel_size: 5
+|-conv_layer_6_filters: 64
+|-conv_layer_6_kernel_size: 5
+|-dense_layer_1_nodes: 512
+|-dense_layer_2_nodes: 512
+|-dense_layer_3_nodes: 64
+|-dense_layer_4_nodes: 128
+|-dense_layer_5_nodes: 512
+|-learning_rate: 0.0001
+|-max_pool_size: 1
+|-n_conv_layers: 2
+|-n_dense_layers: 5
+Trial complete
+Trial summary
+|-Trial ID: 85472cde201e626531025952e95a4d24
+|-Score: 0.970507800579071
+|-Best step: 0
+Hyperparameters:
+|-conv_layer_1_filters: 256
+|-conv_layer_1_kernel_size: 7
+|-conv_layer_2_filters: 256
+|-conv_layer_2_kernel_size: 5
+|-conv_layer_3_filters: 256
+|-conv_layer_3_kernel_size: 7
+|-conv_layer_4_filters: 64
+|-conv_layer_4_kernel_size: 5
+|-conv_layer_5_filters: 256
+|-conv_layer_5_kernel_size: 5
+|-conv_layer_6_filters: 128
+|-conv_layer_6_kernel_size: 3
+|-dense_layer_1_nodes: 128
+|-dense_layer_2_nodes: 256
+|-dense_layer_3_nodes: 256
+|-dense_layer_4_nodes: 64
+|-dense_layer_5_nodes: 64
+|-learning_rate: 0.001
+|-max_pool_size: 2
+|-n_conv_layers: 5
+|-n_dense_layers: 4
+Trial complete
+Trial summary
+|-Trial ID: 8c59c8cc920e854f6cad57c81383fb8d
+|-Score: 0.9755859375
+|-Best step: 0
+Hyperparameters:
+|-conv_layer_1_filters: 256
+|-conv_layer_1_kernel_size: 5
+|-conv_layer_2_filters: 128
+|-conv_layer_2_kernel_size: 7
+|-conv_layer_3_filters: 256
+|-conv_layer_3_kernel_size: 3
+|-conv_layer_4_filters: 128
+|-conv_layer_4_kernel_size: 3
+|-conv_layer_5_filters: 128
+|-conv_layer_5_kernel_size: 7
+|-conv_layer_6_filters: 64
+|-conv_layer_6_kernel_size: 5
+|-dense_layer_1_nodes: 256
+|-dense_layer_2_nodes: 64
+|-dense_layer_3_nodes: 256
+|-dense_layer_4_nodes: 128
+|-dense_layer_5_nodes: 512
+|-learning_rate: 0.0001
+|-max_pool_size: 2
+|-n_conv_layers: 5
+|-n_dense_layers: 2
+Trial complete
+Trial summary
+|-Trial ID: 492bb0d7ddbebff4b976fad11bd1fd4a
+|-Score: 0.973828136920929
+|-Best step: 0
+Hyperparameters:
+|-conv_layer_1_filters: 128
+|-conv_layer_1_kernel_size: 5
+|-conv_layer_2_filters: 64
+|-conv_layer_2_kernel_size: 7
+|-conv_layer_3_filters: 128
+|-conv_layer_3_kernel_size: 5
+|-conv_layer_4_filters: 128
+|-conv_layer_4_kernel_size: 7
+|-conv_layer_5_filters: 128
+|-conv_layer_5_kernel_size: 3
+|-conv_layer_6_filters: 64
+|-conv_layer_6_kernel_size: 3
+|-dense_layer_1_nodes: 64
+|-dense_layer_2_nodes: 512
+|-dense_layer_3_nodes: 64
+|-dense_layer_4_nodes: 256
+|-dense_layer_5_nodes: 512
+|-learning_rate: 0.0001
+|-max_pool_size: 1
+|-n_conv_layers: 6
+|-n_dense_layers: 5
+Trial complete
+Trial summary
+|-Trial ID: be2caa27ff470e58b8037e5ec4883edb
+|-Score: 0.9662109613418579
+|-Best step: 0
+Hyperparameters:
+|-conv_layer_1_filters: 256
+|-conv_layer_1_kernel_size: 3
+|-conv_layer_2_filters: 256
+|-conv_layer_2_kernel_size: 7
+|-conv_layer_3_filters: 128
+|-conv_layer_3_kernel_size: 7
+|-conv_layer_4_filters: 64
+|-conv_layer_4_kernel_size: 5
+|-conv_layer_5_filters: 256
+|-conv_layer_5_kernel_size: 3
+|-conv_layer_6_filters: 128
+|-conv_layer_6_kernel_size: 3
+|-dense_layer_1_nodes: 128
+|-dense_layer_2_nodes: 64
+|-dense_layer_3_nodes: 64
+|-dense_layer_4_nodes: 128
+|-dense_layer_5_nodes: 128
+|-learning_rate: 0.001
+|-max_pool_size: 2
+|-n_conv_layers: 2
+|-n_dense_layers: 2
+Trial complete
+Trial summary
+|-Trial ID: 8f6746b9ea02d03fdd3059626049b7d0
+|-Score: 0.972851574420929
+|-Best step: 0
+Hyperparameters:
+|-conv_layer_1_filters: 512
+|-conv_layer_1_kernel_size: 3
+|-conv_layer_2_filters: 128
+|-conv_layer_2_kernel_size: 7
+|-conv_layer_3_filters: 256
+|-conv_layer_3_kernel_size: 5
+|-conv_layer_4_filters: 256
+|-conv_layer_4_kernel_size: 7
+|-conv_layer_5_filters: 128
+|-conv_layer_5_kernel_size: 5
+|-conv_layer_6_filters: 64
+|-conv_layer_6_kernel_size: 3
+|-dense_layer_1_nodes: 256
+|-dense_layer_2_nodes: 512
+|-dense_layer_3_nodes: 64
+|-dense_layer_4_nodes: 512
+|-dense_layer_5_nodes: 256
+|-learning_rate: 0.001
+|-max_pool_size: 3
+|-n_conv_layers: 5
+|-n_dense_layers: 4
+Trial complete
+Trial summary
+|-Trial ID: 5a4deb00a0a5dd549224c3f953fad165
+|-Score: 0.974609375
+|-Best step: 0
+Hyperparameters:
+|-conv_layer_1_filters: 64
+|-conv_layer_1_kernel_size: 7
+|-conv_layer_2_filters: 256
+|-conv_layer_2_kernel_size: 7
+|-conv_layer_3_filters: 64
+|-conv_layer_3_kernel_size: 7
+|-conv_layer_4_filters: 256
+|-conv_layer_4_kernel_size: 5
+|-conv_layer_5_filters: 128
+|-conv_layer_5_kernel_size: 3
+|-conv_layer_6_filters: 256
+|-conv_layer_6_kernel_size: 3
+|-dense_layer_1_nodes: 256
+|-dense_layer_2_nodes: 256
+|-dense_layer_3_nodes: 512
+|-dense_layer_4_nodes: 128
+|-dense_layer_5_nodes: 128
+|-learning_rate: 0.0001
+|-max_pool_size: 2
+|-n_conv_layers: 6
+|-n_dense_layers: 2
+Trial complete
+Trial summary
+|-Trial ID: 8b9319615b3c4b7f1049670ce3d96879
+|-Score: 0.966992199420929
+|-Best step: 0
+Hyperparameters:
+|-conv_layer_1_filters: 64
+|-conv_layer_1_kernel_size: 5
+|-conv_layer_2_filters: 64
+|-conv_layer_2_kernel_size: 5
+|-conv_layer_3_filters: 256
+|-conv_layer_3_kernel_size: 7
+|-conv_layer_4_filters: 64
+|-conv_layer_4_kernel_size: 5
+|-conv_layer_5_filters: 64
+|-conv_layer_5_kernel_size: 3
+|-conv_layer_6_filters: 128
+|-conv_layer_6_kernel_size: 3
+|-dense_layer_1_nodes: 128
+|-dense_layer_2_nodes: 256
+|-dense_layer_3_nodes: 128
+|-dense_layer_4_nodes: 256
+|-dense_layer_5_nodes: 64
+|-learning_rate: 0.001
+|-max_pool_size: 1
+|-n_conv_layers: 5
+|-n_dense_layers: 3
+Trial complete
+Trial summary
+|-Trial ID: 5cda6771442f5d657887ce240c55329f
+|-Score: 0.9583984613418579
+|-Best step: 0
+Hyperparameters:
+|-conv_layer_1_filters: 128
+|-conv_layer_1_kernel_size: 3
+|-conv_layer_2_filters: 64
+|-conv_layer_2_kernel_size: 5
+|-conv_layer_3_filters: 256
+|-conv_layer_3_kernel_size: 3
+|-conv_layer_4_filters: 256
+|-conv_layer_4_kernel_size: 5
+|-conv_layer_5_filters: 256
+|-conv_layer_5_kernel_size: 3
+|-conv_layer_6_filters: 64
+|-conv_layer_6_kernel_size: 7
+|-dense_layer_1_nodes: 128
+|-dense_layer_2_nodes: 64
+|-dense_layer_3_nodes: 128
+|-dense_layer_4_nodes: 256
+|-dense_layer_5_nodes: 256
+|-learning_rate: 0.001
+|-max_pool_size: 1
+|-n_conv_layers: 4
+|-n_dense_layers: 5
+Trial complete
+Trial summary
+|-Trial ID: cfc3769642f67c14c0cd3a2eb5514033
+|-Score: 0.973437488079071
+|-Best step: 0
+Hyperparameters:
+|-conv_layer_1_filters: 256
+|-conv_layer_1_kernel_size: 3
+|-conv_layer_2_filters: 512
+|-conv_layer_2_kernel_size: 7
+|-conv_layer_3_filters: 128
+|-conv_layer_3_kernel_size: 3
+|-conv_layer_4_filters: 64
+|-conv_layer_4_kernel_size: 7
+|-conv_layer_5_filters: 128
+|-conv_layer_5_kernel_size: 5
+|-conv_layer_6_filters: 64
+|-conv_layer_6_kernel_size: 3
+|-dense_layer_1_nodes: 128
+|-dense_layer_2_nodes: 64
+|-dense_layer_3_nodes: 64
+|-dense_layer_4_nodes: 64
+|-dense_layer_5_nodes: 256
+|-learning_rate: 0.001
+|-max_pool_size: 3
+|-n_conv_layers: 3
+|-n_dense_layers: 2
+Trial complete
+Trial summary
+|-Trial ID: 654e3cb1cab9baaf2fa13fc54141ef7b
+|-Score: 0.9791015386581421
+|-Best step: 0
+Hyperparameters:
+|-conv_layer_1_filters: 64
+|-conv_layer_1_kernel_size: 7
+|-conv_layer_2_filters: 512
+|-conv_layer_2_kernel_size: 7
+|-conv_layer_3_filters: 128
+|-conv_layer_3_kernel_size: 7
+|-conv_layer_4_filters: 256
+|-conv_layer_4_kernel_size: 5
+|-conv_layer_5_filters: 128
+|-conv_layer_5_kernel_size: 5
+|-conv_layer_6_filters: 64
+|-conv_layer_6_kernel_size: 3
+|-dense_layer_1_nodes: 512
+|-dense_layer_2_nodes: 512
+|-dense_layer_3_nodes: 128
+|-dense_layer_4_nodes: 64
+|-dense_layer_5_nodes: 64
+|-learning_rate: 0.0001
+|-max_pool_size: 3
+|-n_conv_layers: 4
+|-n_dense_layers: 3
+Trial complete
+Trial summary
+|-Trial ID: 7abc72d85726355d5464ca7d186298ea
+|-Score: 0.9554687738418579
+|-Best step: 0
+Hyperparameters:
+|-conv_layer_1_filters: 64
+|-conv_layer_1_kernel_size: 3
+|-conv_layer_2_filters: 128
+|-conv_layer_2_kernel_size: 3
+|-conv_layer_3_filters: 64
+|-conv_layer_3_kernel_size: 7
+|-conv_layer_4_filters: 64
+|-conv_layer_4_kernel_size: 7
+|-conv_layer_5_filters: 128
+|-conv_layer_5_kernel_size: 5
+|-conv_layer_6_filters: 128
+|-conv_layer_6_kernel_size: 7
+|-dense_layer_1_nodes: 64
+|-dense_layer_2_nodes: 64
+|-dense_layer_3_nodes: 256
+|-dense_layer_4_nodes: 512
+|-dense_layer_5_nodes: 256
+|-learning_rate: 0.0001
+|-max_pool_size: 1
+|-n_conv_layers: 2
+|-n_dense_layers: 3
+Trial complete
+Trial summary
+|-Trial ID: 97482dc2211f248b3eb838efce6e4c41
+|-Score: 0.9658203125
+|-Best step: 0
+Hyperparameters:
+|-conv_layer_1_filters: 512
+|-conv_layer_1_kernel_size: 5
+|-conv_layer_2_filters: 64
+|-conv_layer_2_kernel_size: 5
+|-conv_layer_3_filters: 128
+|-conv_layer_3_kernel_size: 7
+|-conv_layer_4_filters: 256
+|-conv_layer_4_kernel_size: 7
+|-conv_layer_5_filters: 64
+|-conv_layer_5_kernel_size: 5
+|-conv_layer_6_filters: 256
+|-conv_layer_6_kernel_size: 3
+|-dense_layer_1_nodes: 256
+|-dense_layer_2_nodes: 256
+|-dense_layer_3_nodes: 512
+|-dense_layer_4_nodes: 512
+|-dense_layer_5_nodes: 256
+|-learning_rate: 0.001
+|-max_pool_size: 2
+|-n_conv_layers: 3
+|-n_dense_layers: 3
+Trial complete
+Trial summary
+|-Trial ID: 29c7a011f08064d21004ee15b1703af0
+|-Score: 0.9521484375
+|-Best step: 0
+Hyperparameters:
+|-conv_layer_1_filters: 512
+|-conv_layer_1_kernel_size: 5
+|-conv_layer_2_filters: 256
+|-conv_layer_2_kernel_size: 3
+|-conv_layer_3_filters: 512
+|-conv_layer_3_kernel_size: 7
+|-conv_layer_4_filters: 128
+|-conv_layer_4_kernel_size: 3
+|-conv_layer_5_filters: 256
+|-conv_layer_5_kernel_size: 5
+|-conv_layer_6_filters: 64
+|-conv_layer_6_kernel_size: 7
+|-dense_layer_1_nodes: 512
+|-dense_layer_2_nodes: 512
+|-dense_layer_3_nodes: 512
+|-dense_layer_4_nodes: 64
+|-dense_layer_5_nodes: 64
+|-learning_rate: 0.001
+|-max_pool_size: 2
+|-n_conv_layers: 3
+|-n_dense_layers: 5
+Trial complete
+Trial summary
+|-Trial ID: bef7d7e7b994c8d8ead28d4b1d07f26b
+|-Score: 0.974804699420929
+|-Best step: 0
+Hyperparameters:
+|-conv_layer_1_filters: 256
+|-conv_layer_1_kernel_size: 7
+|-conv_layer_2_filters: 512
+|-conv_layer_2_kernel_size: 5
+|-conv_layer_3_filters: 128
+|-conv_layer_3_kernel_size: 5
+|-conv_layer_4_filters: 128
+|-conv_layer_4_kernel_size: 3
+|-conv_layer_5_filters: 64
+|-conv_layer_5_kernel_size: 7
+|-conv_layer_6_filters: 256
+|-conv_layer_6_kernel_size: 5
+|-dense_layer_1_nodes: 128
+|-dense_layer_2_nodes: 256
+|-dense_layer_3_nodes: 512
+|-dense_layer_4_nodes: 64
+|-dense_layer_5_nodes: 128
+|-learning_rate: 0.0001
+|-max_pool_size: 2
+|-n_conv_layers: 4
+|-n_dense_layers: 5
+Trial complete
+Trial summary
+|-Trial ID: bec219f1ae55cf1d8ae091f9265ad518
+|-Score: 0.9789062738418579
+|-Best step: 0
+Hyperparameters:
+|-conv_layer_1_filters: 128
+|-conv_layer_1_kernel_size: 7
+|-conv_layer_2_filters: 512
+|-conv_layer_2_kernel_size: 3
+|-conv_layer_3_filters: 128
+|-conv_layer_3_kernel_size: 5
+|-conv_layer_4_filters: 128
+|-conv_layer_4_kernel_size: 7
+|-conv_layer_5_filters: 128
+|-conv_layer_5_kernel_size: 5
+|-conv_layer_6_filters: 128
+|-conv_layer_6_kernel_size: 5
+|-dense_layer_1_nodes: 128
+|-dense_layer_2_nodes: 512
+|-dense_layer_3_nodes: 64
+|-dense_layer_4_nodes: 512
+|-dense_layer_5_nodes: 256
+|-learning_rate: 0.0001
+|-max_pool_size: 3
+|-n_conv_layers: 5
+|-n_dense_layers: 4
+Trial complete
+Trial summary
+|-Trial ID: d1afe147460dac247f2251b443d560fe
+|-Score: 0.9775390625
+|-Best step: 0
+Hyperparameters:
+|-conv_layer_1_filters: 128
+|-conv_layer_1_kernel_size: 5
+|-conv_layer_2_filters: 512
+|-conv_layer_2_kernel_size: 5
+|-conv_layer_3_filters: 64
+|-conv_layer_3_kernel_size: 7
+|-conv_layer_4_filters: 128
+|-conv_layer_4_kernel_size: 5
+|-conv_layer_5_filters: 128
+|-conv_layer_5_kernel_size: 7
+|-conv_layer_6_filters: 128
+|-conv_layer_6_kernel_size: 3
+|-dense_layer_1_nodes: 512
+|-dense_layer_2_nodes: 128
+|-dense_layer_3_nodes: 512
+|-dense_layer_4_nodes: 128
+|-dense_layer_5_nodes: 512
+|-learning_rate: 0.0001
+|-max_pool_size: 2
+|-n_conv_layers: 5
+|-n_dense_layers: 4
+Trial complete
+Trial summary
+|-Trial ID: 53eb4671d4423f2734b1a957e0094aec
+|-Score: 0.9697265625
+|-Best step: 0
+Hyperparameters:
+|-conv_layer_1_filters: 512
+|-conv_layer_1_kernel_size: 7
+|-conv_layer_2_filters: 128
+|-conv_layer_2_kernel_size: 7
+|-conv_layer_3_filters: 256
+|-conv_layer_3_kernel_size: 3
+|-conv_layer_4_filters: 128
+|-conv_layer_4_kernel_size: 7
+|-conv_layer_5_filters: 256
+|-conv_layer_5_kernel_size: 3
+|-conv_layer_6_filters: 256
+|-conv_layer_6_kernel_size: 7
+|-dense_layer_1_nodes: 512
+|-dense_layer_2_nodes: 64
+|-dense_layer_3_nodes: 64
+|-dense_layer_4_nodes: 64
+|-dense_layer_5_nodes: 64
+|-learning_rate: 0.001
+|-max_pool_size: 2
+|-n_conv_layers: 4
+|-n_dense_layers: 4
+Trial complete
+Trial summary
+|-Trial ID: d05d83c1d4201beb0cf37cd163321a1d
+|-Score: 0.97265625
+|-Best step: 0
+Hyperparameters:
+|-conv_layer_1_filters: 128
+|-conv_layer_1_kernel_size: 5
+|-conv_layer_2_filters: 512
+|-conv_layer_2_kernel_size: 3
+|-conv_layer_3_filters: 512
+|-conv_layer_3_kernel_size: 3
+|-conv_layer_4_filters: 256
+|-conv_layer_4_kernel_size: 7
+|-conv_layer_5_filters: 256
+|-conv_layer_5_kernel_size: 7
+|-conv_layer_6_filters: 64
+|-conv_layer_6_kernel_size: 5
+|-dense_layer_1_nodes: 64
+|-dense_layer_2_nodes: 64
+|-dense_layer_3_nodes: 512
+|-dense_layer_4_nodes: 128
+|-dense_layer_5_nodes: 256
+|-learning_rate: 0.0001
+|-max_pool_size: 2
+|-n_conv_layers: 4
+|-n_dense_layers: 4
+Trial complete
+Trial summary
+|-Trial ID: 7ac81c8103c45262268719c2ac962ce6
+|-Score: 0.9798828363418579
+|-Best step: 0
+Hyperparameters:
+|-conv_layer_1_filters: 512
+|-conv_layer_1_kernel_size: 7
+|-conv_layer_2_filters: 64
+|-conv_layer_2_kernel_size: 5
+|-conv_layer_3_filters: 512
+|-conv_layer_3_kernel_size: 7
+|-conv_layer_4_filters: 64
+|-conv_layer_4_kernel_size: 7
+|-conv_layer_5_filters: 128
+|-conv_layer_5_kernel_size: 3
+|-conv_layer_6_filters: 128
+|-conv_layer_6_kernel_size: 5
+|-dense_layer_1_nodes: 256
+|-dense_layer_2_nodes: 256
+|-dense_layer_3_nodes: 512
+|-dense_layer_4_nodes: 512
+|-dense_layer_5_nodes: 512
+|-learning_rate: 0.0001
+|-max_pool_size: 3
+|-n_conv_layers: 6
+|-n_dense_layers: 3
+Trial complete
+Trial summary
+|-Trial ID: c8e7d4ca1110f735007348b7fe7fdcb5
+|-Score: 0.9703124761581421
+|-Best step: 0
+Hyperparameters:
+|-conv_layer_1_filters: 512
+|-conv_layer_1_kernel_size: 5
+|-conv_layer_2_filters: 128
+|-conv_layer_2_kernel_size: 3
+|-conv_layer_3_filters: 512
+|-conv_layer_3_kernel_size: 7
+|-conv_layer_4_filters: 64
+|-conv_layer_4_kernel_size: 7
+|-conv_layer_5_filters: 128
+|-conv_layer_5_kernel_size: 3
+|-conv_layer_6_filters: 64
+|-conv_layer_6_kernel_size: 3
+|-dense_layer_1_nodes: 512
+|-dense_layer_2_nodes: 64
+|-dense_layer_3_nodes: 512
+|-dense_layer_4_nodes: 512
+|-dense_layer_5_nodes: 256
+|-learning_rate: 0.0001
+|-max_pool_size: 2
+|-n_conv_layers: 3
+|-n_dense_layers: 2
+Trial complete
+Trial summary
+|-Trial ID: a3b5e88dd9ce43f4b7837b997e362462
+|-Score: 0.9697265625
+|-Best step: 0
+Hyperparameters:
+|-conv_layer_1_filters: 256
+|-conv_layer_1_kernel_size: 5
+|-conv_layer_2_filters: 512
+|-conv_layer_2_kernel_size: 5
+|-conv_layer_3_filters: 128
+|-conv_layer_3_kernel_size: 3
+|-conv_layer_4_filters: 256
+|-conv_layer_4_kernel_size: 5
+|-conv_layer_5_filters: 256
+|-conv_layer_5_kernel_size: 3
+|-conv_layer_6_filters: 64
+|-conv_layer_6_kernel_size: 7
+|-dense_layer_1_nodes: 512
+|-dense_layer_2_nodes: 128
+|-dense_layer_3_nodes: 64
+|-dense_layer_4_nodes: 128
+|-dense_layer_5_nodes: 256
+|-learning_rate: 0.0001
+|-max_pool_size: 1
+|-n_conv_layers: 3
+|-n_dense_layers: 3
+Trial complete
+Trial summary
+|-Trial ID: 785e028785c50927ccf767c7f8813f5b
+|-Score: 0.978710949420929
+|-Best step: 0
+Hyperparameters:
+|-conv_layer_1_filters: 128
+|-conv_layer_1_kernel_size: 5
+|-conv_layer_2_filters: 128
+|-conv_layer_2_kernel_size: 7
+|-conv_layer_3_filters: 512
+|-conv_layer_3_kernel_size: 3
+|-conv_layer_4_filters: 256
+|-conv_layer_4_kernel_size: 3
+|-conv_layer_5_filters: 64
+|-conv_layer_5_kernel_size: 3
+|-conv_layer_6_filters: 128
+|-conv_layer_6_kernel_size: 3
+|-dense_layer_1_nodes: 64
+|-dense_layer_2_nodes: 256
+|-dense_layer_3_nodes: 512
+|-dense_layer_4_nodes: 64
+|-dense_layer_5_nodes: 128
+|-learning_rate: 0.0001
+|-max_pool_size: 4
+|-n_conv_layers: 6
+|-n_dense_layers: 5
+Trial complete
+Trial summary
+|-Trial ID: 01b4bd13d3c751f56adb721fb3bf063f
+|-Score: 0.972460925579071
+|-Best step: 0
+Hyperparameters:
+|-conv_layer_1_filters: 256
+|-conv_layer_1_kernel_size: 7
+|-conv_layer_2_filters: 64
+|-conv_layer_2_kernel_size: 7
+|-conv_layer_3_filters: 512
+|-conv_layer_3_kernel_size: 3
+|-conv_layer_4_filters: 256
+|-conv_layer_4_kernel_size: 5
+|-conv_layer_5_filters: 128
+|-conv_layer_5_kernel_size: 3
+|-conv_layer_6_filters: 256
+|-conv_layer_6_kernel_size: 5
+|-dense_layer_1_nodes: 256
+|-dense_layer_2_nodes: 128
+|-dense_layer_3_nodes: 128
+|-dense_layer_4_nodes: 256
+|-dense_layer_5_nodes: 256
+|-learning_rate: 0.0001
+|-max_pool_size: 2
+|-n_conv_layers: 4
+|-n_dense_layers: 5
+INFO:tensorflow:Oracle triggered exit
+Kakkanat
+
+
+
+
+
+ Kakkanat
+Results summary
+|-Results in logs/keras-tuner/cnn
+|-Showing 10 best trials
+|-Objective(name='val_accuracy', direction='max')
+Trial summary
+|-Trial ID: 095db80058c7107357710ed6f7e623b1
+|-Score: 0.9820312261581421
+|-Best step: 0
+Hyperparameters:
+|-conv_layer_1_filters: 256
+|-conv_layer_1_kernel_size: 7
+|-conv_layer_2_filters: 64
+|-conv_layer_2_kernel_size: 7
+|-conv_layer_3_filters: 512
+|-conv_layer_3_kernel_size: 3
+|-conv_layer_4_filters: 128
+|-conv_layer_4_kernel_size: 5
+|-conv_layer_5_filters: 128
+|-conv_layer_5_kernel_size: 7
+|-conv_layer_6_filters: 256
+|-conv_layer_6_kernel_size: 3
+|-dense_layer_1_nodes: 512
+|-dense_layer_2_nodes: 512
+|-dense_layer_3_nodes: 128
+|-dense_layer_4_nodes: 256
+|-dense_layer_5_nodes: 256
+|-learning_rate: 0.0001
+|-max_pool_size: 3
+|-n_conv_layers: 5
+|-n_dense_layers: 6
+Trial summary
+|-Trial ID: 7ac81c8103c45262268719c2ac962ce6
+|-Score: 0.9798828363418579
+|-Best step: 0
+Hyperparameters:
+|-conv_layer_1_filters: 512
+|-conv_layer_1_kernel_size: 7
+|-conv_layer_2_filters: 64
+|-conv_layer_2_kernel_size: 5
+|-conv_layer_3_filters: 512
+|-conv_layer_3_kernel_size: 7
+|-conv_layer_4_filters: 64
+|-conv_layer_4_kernel_size: 7
+|-conv_layer_5_filters: 128
+|-conv_layer_5_kernel_size: 3
+|-conv_layer_6_filters: 128
+|-conv_layer_6_kernel_size: 5
+|-dense_layer_1_nodes: 256
+|-dense_layer_2_nodes: 256
+|-dense_layer_3_nodes: 512
+|-dense_layer_4_nodes: 512
+|-dense_layer_5_nodes: 512
+|-learning_rate: 0.0001
+|-max_pool_size: 3
+|-n_conv_layers: 6
+|-n_dense_layers: 3
+Trial summary
+|-Trial ID: 654e3cb1cab9baaf2fa13fc54141ef7b
+|-Score: 0.9791015386581421
+|-Best step: 0
+Hyperparameters:
+|-conv_layer_1_filters: 64
+|-conv_layer_1_kernel_size: 7
+|-conv_layer_2_filters: 512
+|-conv_layer_2_kernel_size: 7
+|-conv_layer_3_filters: 128
+|-conv_layer_3_kernel_size: 7
+|-conv_layer_4_filters: 256
+|-conv_layer_4_kernel_size: 5
+|-conv_layer_5_filters: 128
+|-conv_layer_5_kernel_size: 5
+|-conv_layer_6_filters: 64
+|-conv_layer_6_kernel_size: 3
+|-dense_layer_1_nodes: 512
+|-dense_layer_2_nodes: 512
+|-dense_layer_3_nodes: 128
+|-dense_layer_4_nodes: 64
+|-dense_layer_5_nodes: 64
+|-learning_rate: 0.0001
+|-max_pool_size: 3
+|-n_conv_layers: 4
+|-n_dense_layers: 3
+Trial summary
+|-Trial ID: bec219f1ae55cf1d8ae091f9265ad518
+|-Score: 0.9789062738418579
+|-Best step: 0
+Hyperparameters:
+|-conv_layer_1_filters: 128
+|-conv_layer_1_kernel_size: 7
+|-conv_layer_2_filters: 512
+|-conv_layer_2_kernel_size: 3
+|-conv_layer_3_filters: 128
+|-conv_layer_3_kernel_size: 5
+|-conv_layer_4_filters: 128
+|-conv_layer_4_kernel_size: 7
+|-conv_layer_5_filters: 128
+|-conv_layer_5_kernel_size: 5
+|-conv_layer_6_filters: 128
+|-conv_layer_6_kernel_size: 5
+|-dense_layer_1_nodes: 128
+|-dense_layer_2_nodes: 512
+|-dense_layer_3_nodes: 64
+|-dense_layer_4_nodes: 512
+|-dense_layer_5_nodes: 256
+|-learning_rate: 0.0001
+|-max_pool_size: 3
+|-n_conv_layers: 5
+|-n_dense_layers: 4
+Trial summary
+|-Trial ID: 785e028785c50927ccf767c7f8813f5b
+|-Score: 0.978710949420929
+|-Best step: 0
+Hyperparameters:
+|-conv_layer_1_filters: 128
+|-conv_layer_1_kernel_size: 5
+|-conv_layer_2_filters: 128
+|-conv_layer_2_kernel_size: 7
+|-conv_layer_3_filters: 512
+|-conv_layer_3_kernel_size: 3
+|-conv_layer_4_filters: 256
+|-conv_layer_4_kernel_size: 3
+|-conv_layer_5_filters: 64
+|-conv_layer_5_kernel_size: 3
+|-conv_layer_6_filters: 128
+|-conv_layer_6_kernel_size: 3
+|-dense_layer_1_nodes: 64
+|-dense_layer_2_nodes: 256
+|-dense_layer_3_nodes: 512
+|-dense_layer_4_nodes: 64
+|-dense_layer_5_nodes: 128
+|-learning_rate: 0.0001
+|-max_pool_size: 4
+|-n_conv_layers: 6
+|-n_dense_layers: 5
+Trial summary
+|-Trial ID: d1afe147460dac247f2251b443d560fe
+|-Score: 0.9775390625
+|-Best step: 0
+Hyperparameters:
+|-conv_layer_1_filters: 128
+|-conv_layer_1_kernel_size: 5
+|-conv_layer_2_filters: 512
+|-conv_layer_2_kernel_size: 5
+|-conv_layer_3_filters: 64
+|-conv_layer_3_kernel_size: 7
+|-conv_layer_4_filters: 128
+|-conv_layer_4_kernel_size: 5
+|-conv_layer_5_filters: 128
+|-conv_layer_5_kernel_size: 7
+|-conv_layer_6_filters: 128
+|-conv_layer_6_kernel_size: 3
+|-dense_layer_1_nodes: 512
+|-dense_layer_2_nodes: 128
+|-dense_layer_3_nodes: 512
+|-dense_layer_4_nodes: 128
+|-dense_layer_5_nodes: 512
+|-learning_rate: 0.0001
+|-max_pool_size: 2
+|-n_conv_layers: 5
+|-n_dense_layers: 4
+Trial summary
+|-Trial ID: eb7bd1cf86e8d75a6a3ad449490e470b
+|-Score: 0.976757824420929
+|-Best step: 0
+Hyperparameters:
+|-conv_layer_1_filters: 64
+|-conv_layer_1_kernel_size: 5
+|-conv_layer_2_filters: 64
+|-conv_layer_2_kernel_size: 7
+|-conv_layer_3_filters: 512
+|-conv_layer_3_kernel_size: 5
+|-conv_layer_4_filters: 128
+|-conv_layer_4_kernel_size: 7
+|-conv_layer_5_filters: 256
+|-conv_layer_5_kernel_size: 7
+|-conv_layer_6_filters: 256
+|-conv_layer_6_kernel_size: 5
+|-dense_layer_1_nodes: 64
+|-dense_layer_2_nodes: 64
+|-dense_layer_3_nodes: 512
+|-dense_layer_4_nodes: 256
+|-dense_layer_5_nodes: 128
+|-learning_rate: 0.0001
+|-max_pool_size: 2
+|-n_conv_layers: 6
+|-n_dense_layers: 4
+Trial summary
+|-Trial ID: 2ac5b6fddf613b2bb0507ae33297226d
+|-Score: 0.9765625
+|-Best step: 0
+Hyperparameters:
+|-conv_layer_1_filters: 128
+|-conv_layer_1_kernel_size: 5
+|-conv_layer_2_filters: 128
+|-conv_layer_2_kernel_size: 3
+|-conv_layer_3_filters: 64
+|-conv_layer_3_kernel_size: 5
+|-conv_layer_4_filters: 256
+|-conv_layer_4_kernel_size: 7
+|-conv_layer_5_filters: 128
+|-conv_layer_5_kernel_size: 7
+|-conv_layer_6_filters: 128
+|-conv_layer_6_kernel_size: 7
+|-dense_layer_1_nodes: 128
+|-dense_layer_2_nodes: 128
+|-dense_layer_3_nodes: 64
+|-dense_layer_4_nodes: 128
+|-learning_rate: 0.0001
+|-max_pool_size: 2
+|-n_conv_layers: 6
+|-n_dense_layers: 5
+Trial summary
+|-Trial ID: 8c59c8cc920e854f6cad57c81383fb8d
+|-Score: 0.9755859375
+|-Best step: 0
+Hyperparameters:
+|-conv_layer_1_filters: 256
+|-conv_layer_1_kernel_size: 5
+|-conv_layer_2_filters: 128
+|-conv_layer_2_kernel_size: 7
+|-conv_layer_3_filters: 256
+|-conv_layer_3_kernel_size: 3
+|-conv_layer_4_filters: 128
+|-conv_layer_4_kernel_size: 3
+|-conv_layer_5_filters: 128
+|-conv_layer_5_kernel_size: 7
+|-conv_layer_6_filters: 64
+|-conv_layer_6_kernel_size: 5
+|-dense_layer_1_nodes: 256
+|-dense_layer_2_nodes: 64
+|-dense_layer_3_nodes: 256
+|-dense_layer_4_nodes: 128
+|-dense_layer_5_nodes: 512
+|-learning_rate: 0.0001
+|-max_pool_size: 2
+|-n_conv_layers: 5
+|-n_dense_layers: 2
+Trial summary
+|-Trial ID: 94e4c8add778d9bc012407f2e8abd395
+|-Score: 0.9751952886581421
+|-Best step: 0
+Hyperparameters:
+|-conv_layer_1_filters: 512
+|-conv_layer_1_kernel_size: 3
+|-conv_layer_2_filters: 128
+|-conv_layer_2_kernel_size: 7
+|-conv_layer_3_filters: 256
+|-conv_layer_3_kernel_size: 7
+|-conv_layer_4_filters: 256
+|-conv_layer_4_kernel_size: 3
+|-conv_layer_5_filters: 256
+|-conv_layer_5_kernel_size: 3
+|-conv_layer_6_filters: 256
+|-conv_layer_6_kernel_size: 5
+|-dense_layer_1_nodes: 64
+|-dense_layer_2_nodes: 256
+|-dense_layer_3_nodes: 512
+|-dense_layer_4_nodes: 512
+|-dense_layer_5_nodes: 64
+|-learning_rate: 0.0001
+|-max_pool_size: 2
+|-n_conv_layers: 4
+|-n_dense_layers: 6

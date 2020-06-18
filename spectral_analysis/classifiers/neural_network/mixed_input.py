@@ -20,9 +20,9 @@ from tensorflow.keras.layers import Dense, Dropout, Activation, Flatten, Conv1D,
 from tensorflow.keras.models import Sequential, Model
 from tensorflow.keras.utils import to_categorical
 
-from spectral_analysis.spectral_analysis.data_preprocessing.data_preprocessing import remove_bytes_from_class, get_fluxes_from_h5, get_joint_classes, apply_gaussian_filter
-from spectral_analysis.spectral_analysis.plotify import Plotify
-from spectral_analysis.spectral_analysis.classifiers.neural_network.helper_functions import train_test_split, evaluate_model, shuffle_in_unison, get_incorrect_predictions
+from spectral_analysis.data_preprocessing.data_preprocessing import remove_bytes_from_class, get_fluxes_from_h5, get_joint_classes, apply_gaussian_filter
+from spectral_analysis.plotify import Plotify
+from spectral_analysis.classifiers.neural_network.helper_functions import train_test_split, evaluate_model, shuffle_in_unison, get_incorrect_predictions
 
 class MixedInputModel():
     def __init__(self, mainclass='NONE', spectral_lines=False, df_wavelengths=None, gaussian=False, epochs=2, load_model=False, model_path=None):
@@ -164,8 +164,6 @@ class MixedInputModel():
     def _build_mlp(self, input_shape):
         model = Sequential()
 
-        # model.add(Dense(256, input_dim=input_shape, activation='relu', kernel_initializer='he_uniform'))
-        # model.add(Dropout(0.5))
         model.add(Dense(128, input_dim=input_shape, activation='relu', kernel_initializer='he_uniform'))
         model.add(Dropout(0.5))
         model.add(Dense(64, input_dim=158, activation='relu', kernel_initializer='he_uniform'))
@@ -245,14 +243,14 @@ class MixedInputModel():
                            indeces=self.i_test,
                            classes=self.label_columns)
                            
-            # get_incorrect_predictions(model=model,
-            #                           X_test_fluxes=[X_test_source_info_std, X_test_fluxes_std],
-            #                           X_test_spectra=X_test_fluxes,
-            #                           raw_X_test_spectra=raw_X_test_fluxes,
-            #                           y_test=y_test,
-            #                           df_source_info_test=df_source_info_test,
-            #                           df_wavelengths=df_wavelengths,
-            #                           gaussian=self.gaussian)
+            get_incorrect_predictions(model=model,
+                                      X_test_fluxes=[X_test_source_info_std, X_test_fluxes_std],
+                                      X_test_spectra=X_test_fluxes,
+                                      raw_X_test_spectra=raw_X_test_fluxes,
+                                      y_test=y_test,
+                                      df_source_info_test=df_source_info_test,
+                                      df_wavelengths=df_wavelengths,
+                                      gaussian=self.gaussian)
   
         
         elif self.load_model == False:
@@ -299,15 +297,15 @@ class MixedInputModel():
 
 def main():
 
-    df_fluxes = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='fluxes').head(3200)
-    df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='source_info').head(3200)
+    df_fluxes = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='fluxes').head(64000)
+    df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='source_info').head(64000)
     df_wavelengths = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='wavelengths')
 
     mixed_input_model = MixedInputModel(gaussian=False,
                                         epochs=2,
-                                        load_model=False,
-                                        model_path='logs/mixed_input_gauss4_epoch32k.03-0.06.h5',
-                                        spectral_lines=True)
+                                        load_model=True,
+                                        model_path='logs/colab-logs/best_mixed_input_epoch20.h5',
+                                        spectral_lines=False)
 
     mixed_input_model.train(df_source_info, df_fluxes, df_wavelengths)
 
