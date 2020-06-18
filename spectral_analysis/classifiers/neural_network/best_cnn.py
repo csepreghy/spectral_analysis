@@ -15,9 +15,9 @@ from kerastuner.engine.hyperparameters import HyperParameters
 
 import time
 
-from spectral_analysis.data_preprocessing.data_preprocessing import remove_bytes_from_class, get_fluxes_from_h5, get_joint_classes, apply_gaussian_filter
-from spectral_analysis.plotify import Plotify
-from spectral_analysis.classifiers.neural_network.helper_functions import train_test_split, evaluate_model, shuffle_in_unison, get_incorrect_predictions
+from spectral_analysis.spectral_analysis.data_preprocessing.data_preprocessing import remove_bytes_from_class, get_fluxes_from_h5, get_joint_classes, apply_gaussian_filter
+from spectral_analysis.spectral_analysis.plotify import Plotify
+from spectral_analysis.spectral_analysis.classifiers.neural_network.helper_functions import train_test_split, evaluate_model, shuffle_in_unison, get_incorrect_predictions
 
 LOG_DIR = f"{int(time.time())}"
 
