@@ -226,11 +226,11 @@ def shuffle_along_axis(a, axis):
     return np.take_along_axis(a,idx,axis=axis)
 
 def main():
-    train = pd.read_csv('data/tensorboard-logs/subclass-mixed-input-subclass_train-tag-epoch_accuracy.csv')['Value'].values
-    validation = pd.read_csv('data/tensorboard-logs/subclass-mixed-input-subclass_validation-tag-epoch_accuracy.csv')['Value'].values
+    train = pd.read_csv('data/tensorboard-logs/cnn/cnn-train_accuracy.csv')['Value'].values
+    validation = pd.read_csv('data/tensorboard-logs/cnn/cnn-validation_accuracy.csv')['Value'].values
     
-    train_loss = pd.read_csv('data/tensorboard-logs/subclass-mixed-input-subclass_train-tag-epoch_loss.csv')['Value'].values
-    validation_loss = pd.read_csv('data/tensorboard-logs/subclass-mixed-input-subclass_validation-tag-epoch_loss.csv')['Value'].values
+    train_loss = pd.read_csv('data/tensorboard-logs/cnn/cnn-train_loss.csv')['Value'].values
+    validation_loss = pd.read_csv('data/tensorboard-logs/cnn/cnn-validation_loss.csv')['Value'].values
     xs = np.array(list(range(60)))
 
     plotify = Plotify(theme='ugly')
@@ -242,7 +242,7 @@ def main():
     ax.set_xlabel('Number of Epochs')
     ax.set_ylabel('Accuracy')
     ax.xaxis.set_major_locator(ticker.MultipleLocator(5))
-    ax.set_ylim(0.65,1.0)
+    ax.set_ylim(0.7,1.0)
     plt.legend()
     ax.set_title('CNN Training on 51,200 sources')
     ttl = ax.title
@@ -252,11 +252,11 @@ def main():
     plt.show()
 
     fig, ax = plotify.get_figax()
-    ax.set_ylabel('Loss')  # we already handled the x-label with ax1
+    ax.set_ylabel('Loss')
     ax.plot(xs, train_loss, color=plotify.c_orange, label='training loss')
     ax.plot(xs, validation_loss, color=plotify.c_blue, label='validation loss')
     ax.xaxis.set_major_locator(ticker.MultipleLocator(5))
-    ax.set_ylim(0,1)
+    ax.set_ylim(0,0.8)
     ax.set_xlabel('Number of Epochs')
     ax.set_title('CNN Training on 51,200 sources')
     ttl = ax.title
