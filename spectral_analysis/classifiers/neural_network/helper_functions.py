@@ -229,7 +229,7 @@ def shuffle_along_axis(a, axis):
     return np.take_along_axis(a,idx,axis=axis)
 
 def main():
-    train = pd.read_csv('data/tensorboard-logs/cnn/cnn_train_accuracy.csv')['Value'].values
+    train = pd.read_csv('data/tensorboard-logs/cnn/cnn-train_accuracy.csv')['Value'].values
     validation = pd.read_csv('data/tensorboard-logs/cnn/cnn-validation_accuracy.csv')['Value'].values
     
     train_loss = pd.read_csv('data/tensorboard-logs/cnn/cnn-train_loss.csv')['Value'].values
@@ -247,28 +247,28 @@ def main():
     ax.xaxis.set_major_locator(ticker.MultipleLocator(5))
     ax.set_ylim(0.65,1.0)
     plt.legend()
-    ax.set_title('Mixed-input NN Training on 51,200 sources (Galaxy Subclasses)')
+    ax.set_title('CNN Training on 51,200 sources')
     ttl = ax.title
     ttl.set_position([0.5, 1.025])
     fig.tight_layout()
-    plt.savefig('plots/training_accuracies_galaxies')
+    plt.savefig('plots/cnn_training_accuracies')
     plt.show()
 
     fig, ax = plotify.get_figax()
-    ax.set_ylabel('Loss')  # we already handled the x-label with ax1
+    ax.set_ylabel('Loss')
     ax.plot(xs, train_loss, color=plotify.c_orange, label='training loss')
     ax.plot(xs, validation_loss, color=plotify.c_blue, label='validation loss')
     ax.xaxis.set_major_locator(ticker.MultipleLocator(5))
     ax.set_ylim(0,1)
     ax.set_xlabel('Number of Epochs')
-    ax.set_title('Mixed-input NN Training on 51,200 sources')
+    ax.set_title('CNN Training on 51,200 sources')
     ttl = ax.title
     ttl.set_position([0.5, 1.025])
     plt.tight_layout()
     plt.legend()
 
-    plt.title('Mixed-input NN Training on 51,200 sources (Galaxy Subclasses)')
-    plt.savefig('plots/training_losses_galaxies')
+    plt.title('CNN Training on 51,200 sources')
+    plt.savefig('plots/cnn_training_losses')
     plt.show()
 
 if __name__ == "__main__":
