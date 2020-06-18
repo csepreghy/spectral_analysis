@@ -120,11 +120,7 @@ def get_incorrect_predictions(model, X_test_fluxes, X_test_spectra, raw_X_test_s
             ax.set_xlabel('Wavelength (Å)')
             ax.set_ylabel(r'$F_{\lambda[10^{-17} erg \: cm^{-2}s^{-1} Å^{-1}]}$', fontsize=14)
             plt.plot(wavelengths, fluxes, color=plotify.c_orange, lw=0.6)
-<<<<<<< Updated upstream
             plt.savefig(f'plots/wrong_predictions/wrong_prediction_{i}.png', dpi=140)
-=======
-            plt.savefig(f'plots/test/wrong_predictions/wrong_prediction_{i}.png', dpi=140)
->>>>>>> Stashed changes
         
         if gaussian == True:
             _, axs = plotify.get_figax(nrows=2, figsize=(8, 8))
@@ -171,7 +167,7 @@ def get_incorrect_predictions(model, X_test_fluxes, X_test_spectra, raw_X_test_s
             axs[0].set_ylabel(r'$F_{\lambda[10^{-17} erg \: cm^{-2}s^{-1} Å^{-1}]}$', fontsize=14)
             axs[1].set_ylabel(r'$F_{\lambda[10^{-17} erg \: cm^{-2}s^{-1} Å^{-1}]}$', fontsize=14)
             axs[1].set_xlabel('Wavelength (Å)')
-            
+
             plt.subplots_adjust(hspace=0.4)
             plt.savefig(f'plots/correct_predictions/gaussian8_correct_prediction_{i}.png', dpi=120)
     # plt.show()
@@ -248,11 +244,11 @@ def main():
     ax.xaxis.set_major_locator(ticker.MultipleLocator(5))
     ax.set_ylim(0.65,1.0)
     plt.legend()
-    ax.set_title('Mixed-input NN Training on 51,200 sources (Galaxy Subclasses)')
+    ax.set_title('CNN Training on 51,200 sources')
     ttl = ax.title
     ttl.set_position([0.5, 1.025])
     fig.tight_layout()
-    plt.savefig('plots/training_accuracies_galaxies')
+    plt.savefig('plots/cnn_training_accuracies')
     plt.show()
 
     fig, ax = plotify.get_figax()
@@ -262,14 +258,14 @@ def main():
     ax.xaxis.set_major_locator(ticker.MultipleLocator(5))
     ax.set_ylim(0,1)
     ax.set_xlabel('Number of Epochs')
-    ax.set_title('Mixed-input NN Training on 51,200 sources')
+    ax.set_title('CNN Training on 51,200 sources')
     ttl = ax.title
     ttl.set_position([0.5, 1.025])
     plt.tight_layout()
     plt.legend()
 
-    plt.title('Mixed-input NN Training on 51,200 sources (Galaxy Subclasses)')
-    plt.savefig('plots/training_losses_galaxies')
+    plt.title('CNN Training on 51,200 sources')
+    plt.savefig('plots/cnn_training_losses')
     plt.show()
 
 if __name__ == "__main__":
