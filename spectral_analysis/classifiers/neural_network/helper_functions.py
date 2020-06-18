@@ -156,7 +156,7 @@ def get_incorrect_predictions(model, X_test_fluxes, X_test_spectra, raw_X_test_s
             plt.savefig(f'plots/correct_predictions/correct_prediction_{i}.png', dpi=120)
         
         if gaussian == True:
-            fig, axs = plotify.get_figax(nrows=2, figsize=(5, 8))
+            fig, axs = plotify.get_figax(nrows=2, figsize=(4.5, 8))
             axs[0].plot(wavelengths, raw_fluxes, color=plotify.c_orange, lw=0.6)
             axs[1].plot(wavelengths, fluxes, color=plotify.c_orange, lw=0.6)
             
