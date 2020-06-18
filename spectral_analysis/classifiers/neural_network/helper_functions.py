@@ -118,9 +118,13 @@ def get_incorrect_predictions(model, X_test_fluxes, X_test_spectra, raw_X_test_s
             title = f'ra = {source_info.get(["ra"][0])}, dec = {source_info.get(["dec"][0])}, z = {source_info.get(["z"][0])}, plate = {source_info.get(["plate"][0])}\n\n Predicted: {wrong_prediction["predicted"]}, Target Class: {wrong_prediction["target_class"]}'
             ax.set_title(title, pad=10, fontsize=13)
             ax.set_xlabel('Wavelength (Å)')
-            ax.set_ylabel(r'$F_{\lambda[10^{-17} erg \: cm^{-2}s^{-1} Å^{-1}]}$', fontsize=13)
+            ax.set_ylabel(r'$F_{\lambda[10^{-17} erg \: cm^{-2}s^{-1} Å^{-1}]}$', fontsize=14)
             plt.plot(wavelengths, fluxes, color=plotify.c_orange, lw=0.6)
+<<<<<<< Updated upstream
             plt.savefig(f'plots/wrong_predictions/wrong_prediction_{i}.png', dpi=140)
+=======
+            plt.savefig(f'plots/test/wrong_predictions/wrong_prediction_{i}.png', dpi=140)
+>>>>>>> Stashed changes
         
         if gaussian == True:
             _, axs = plotify.get_figax(nrows=2, figsize=(8, 8))
@@ -131,8 +135,8 @@ def get_incorrect_predictions(model, X_test_fluxes, X_test_spectra, raw_X_test_s
 
             axs[0].set_title(title, pad=10, fontsize=12)
             axs[1].set_title(r'with Gaussian convolution, $\sigma = 4$')
-            axs[0].set_ylabel(r'$F_{\lambda[10^{-17} erg \: cm^{-2}s^{-1} Å^{-1}]}$', fontsize=13)
-            axs[1].set_ylabel(r'$F_{\lambda[10^{-17} erg \: cm^{-2}s^{-1} Å^{-1}]}$', fontsize=13)
+            axs[0].set_ylabel(r'$F_{\lambda[10^{-17} erg \: cm^{-2}s^{-1} Å^{-1}]}$', fontsize=14)
+            axs[1].set_ylabel(r'$F_{\lambda[10^{-17} erg \: cm^{-2}s^{-1} Å^{-1}]}$', fontsize=14)
             axs[1].set_xlabel('Wavelength (Å)')
 
             plt.subplots_adjust(hspace=0.4)
@@ -151,7 +155,7 @@ def get_incorrect_predictions(model, X_test_fluxes, X_test_spectra, raw_X_test_s
             title = f'ra = {source_info.get(["ra"][0])}, dec = {source_info.get(["dec"][0])}, z = {source_info.get(["z"][0])}, plate = {source_info.get(["plate"][0])}\n\n Predicted: {correct_prediction["predicted"]}, Target Class: {correct_prediction["target_class"]}'
             ax.set_title(title, pad=10, fontsize=13)
             ax.set_xlabel('Wavelength (Å)')
-            ax.set_ylabel(r'$F_{\lambda[10^{-17} erg \: cm^{-2}s^{-1} Å^{-1}]}$', fontsize=13)
+            ax.set_ylabel(r'$F_{\lambda[10^{-17} erg \: cm^{-2}s^{-1} Å^{-1}]}$', fontsize=14)
             plt.plot(wavelengths, fluxes, color=plotify.c_orange, lw=0.6)
             plt.savefig(f'plots/correct_predictions/correct_prediction_{i}.png', dpi=120)
         
@@ -164,16 +168,13 @@ def get_incorrect_predictions(model, X_test_fluxes, X_test_spectra, raw_X_test_s
 
             axs[0].set_title(title, pad=10, fontsize=12)
             axs[1].set_title(r'with Gaussian convolution, $\sigma = 4$')
-            axs[0].set_ylabel(r'$F_{\lambda[10^{-17} erg \: cm^{-2}s^{-1} Å^{-1}]}$', fontsize=13)
-            axs[1].set_ylabel(r'$F_{\lambda[10^{-17} erg \: cm^{-2}s^{-1} Å^{-1}]}$', fontsize=13)
+            axs[0].set_ylabel(r'$F_{\lambda[10^{-17} erg \: cm^{-2}s^{-1} Å^{-1}]}$', fontsize=14)
+            axs[1].set_ylabel(r'$F_{\lambda[10^{-17} erg \: cm^{-2}s^{-1} Å^{-1}]}$', fontsize=14)
             axs[1].set_xlabel('Wavelength (Å)')
-
+            
             plt.subplots_adjust(hspace=0.4)
             plt.savefig(f'plots/correct_predictions/gaussian8_correct_prediction_{i}.png', dpi=120)
-
-	
     # plt.show()
-
 def evaluate_model(model, X_test, y_test, classes, indeces=None, df_source_info=None):
     labels = []
     for label in classes:

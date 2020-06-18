@@ -65,8 +65,9 @@ class CNN:
                             epochs=self.epochs,
                             batch_size=32,
                             validation_data=(X_val, y_val),
+                            verbose=0,
                             callbacks=[EarlyStopping('val_accuracy', patience=50),
-                                        TensorBoard(log_dir='logs/cnn')])
+                                       TensorBoard(log_dir='logs/cnn')])
 
         # Evaluate Best Model #
         _, train_acc = model.evaluate(X_train, y_train, verbose=0)
