@@ -79,14 +79,14 @@ class CNN:
                         y_test=y_test,
                         classes=self.label_columns)
         
-        get_incorrect_predictions(model=model,
-                                    X_test_fluxes=X_test,
-                                    X_test_spectra=X_test,
-                                    raw_X_test_spectra=X_test,
-                                    y_test=y_test,
-                                    df_source_info_test=df_source_info_test,
-                                    df_wavelengths=df_wavelengths,
-                                    gaussian=False)
+        # get_incorrect_predictions(model=model,
+        #                             X_test_fluxes=X_test,
+        #                             X_test_spectra=X_test,
+        #                             raw_X_test_spectra=X_test,
+        #                             y_test=y_test,
+        #                             df_source_info_test=df_source_info_test,
+        #                             df_wavelengths=df_wavelengths,
+        #                             gaussian=False)
 
     def _build_model(self):
         model = Sequential()
