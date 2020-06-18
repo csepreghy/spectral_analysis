@@ -229,11 +229,11 @@ def shuffle_along_axis(a, axis):
     return np.take_along_axis(a,idx,axis=axis)
 
 def main():
-    train = pd.read_csv('data/tensorboard-logs/subclass-mixed-input-subclass_train-tag-epoch_accuracy.csv')['Value'].values
-    validation = pd.read_csv('data/tensorboard-logs/subclass-mixed-input-subclass_validation-tag-epoch_accuracy.csv')['Value'].values
+    train = pd.read_csv('data/tensorboard-logs/cnn/cnn_train_accuracy.csv')['Value'].values
+    validation = pd.read_csv('data/tensorboard-logs/cnn/cnn-validation_accuracy.csv')['Value'].values
     
-    train_loss = pd.read_csv('data/tensorboard-logs/subclass-mixed-input-subclass_train-tag-epoch_loss.csv')['Value'].values
-    validation_loss = pd.read_csv('data/tensorboard-logs/subclass-mixed-input-subclass_validation-tag-epoch_loss.csv')['Value'].values
+    train_loss = pd.read_csv('data/tensorboard-logs/cnn/cnn-train_loss.csv')['Value'].values
+    validation_loss = pd.read_csv('data/tensorboard-logs/cnn/cnn-validation_loss.csv')['Value'].values
     xs = np.array(list(range(60)))
 
     plotify = Plotify(theme='ugly')
