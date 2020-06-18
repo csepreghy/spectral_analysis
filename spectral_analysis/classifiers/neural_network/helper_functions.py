@@ -245,7 +245,7 @@ def main():
     ax.set_xlabel('Number of Epochs')
     ax.set_ylabel('Accuracy')
     ax.xaxis.set_major_locator(ticker.MultipleLocator(5))
-    ax.set_ylim(0.65,1.0)
+    ax.set_ylim(0.7,1.0)
     plt.legend()
     ax.set_title('CNN Training on 51,200 sources')
     ttl = ax.title
@@ -259,7 +259,7 @@ def main():
     ax.plot(xs, train_loss, color=plotify.c_orange, label='training loss')
     ax.plot(xs, validation_loss, color=plotify.c_blue, label='validation loss')
     ax.xaxis.set_major_locator(ticker.MultipleLocator(5))
-    ax.set_ylim(0,1)
+    ax.set_ylim(0,0.8)
     ax.set_xlabel('Number of Epochs')
     ax.set_title('CNN Training on 51,200 sources')
     ttl = ax.title

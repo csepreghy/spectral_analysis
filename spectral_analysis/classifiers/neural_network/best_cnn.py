@@ -5,7 +5,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 
 from tensorflow.keras.optimizers import SGD, Adam
-from tensorflow.keras.callbacks import History, EarlyStopping, TensorBoard
+from tensorflow.keras.callbacks import History, EarlyStopping, TensorBoard, ModelCheckpoint
 from tensorflow.keras.layers import Dense, Dropout, Activation, Flatten, Conv1D, MaxPooling1D, Input
 from tensorflow.keras.models import Sequential, Model
 from tensorflow.keras.utils import to_categorical
@@ -60,13 +60,18 @@ class CNN:
         model = self._build_model()
         print(model.summary())
 
+        modelcheckpoint = ModelCheckpoint(filepath='logs/bestcnn.epoch{epoch:02d}.h5',
+                                          monitor='val_loss',
+                                          save_best_only=True)
+
         history = model.fit(x=X_train,
                             y=y_train,
                             epochs=self.epochs,
                             batch_size=32,
                             validation_data=(X_val, y_val),
                             callbacks=[EarlyStopping('val_accuracy', patience=50),
-                                        TensorBoard(log_dir='logs/cnn')])
+                                       TensorBoard(log_dir='logs/cnn'),
+                                       modelcheckpoint])
 
         # Evaluate Best Model #
         _, train_acc = model.evaluate(X_train, y_train, verbose=0)
@@ -78,14 +83,14 @@ class CNN:
                         y_test=y_test,
                         classes=self.label_columns)
         
-        get_incorrect_predictions(model=model,
-                                    X_test_fluxes=X_test,
-                                    X_test_spectra=X_test,
-                                    raw_X_test_spectra=X_test,
-                                    y_test=y_test,
-                                    df_source_info_test=df_source_info_test,
-                                    df_wavelengths=df_wavelengths,
-                                    gaussian=False)
+        # get_incorrect_predictions(model=model,
+        #                             X_test_fluxes=X_test,
+        #                             X_test_spectra=X_test,
+        #                             raw_X_test_spectra=X_test,
+        #                             y_test=y_test,
+        #                             df_source_info_test=df_source_info_test,
+        #                             df_wavelengths=df_wavelengths,
+        #                             gaussian=False)
 
     def _build_model(self):
         model = Sequential()
