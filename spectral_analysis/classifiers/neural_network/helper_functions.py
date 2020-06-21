@@ -67,14 +67,27 @@ def train_test_split(X, test_size, y=None, objids=None, indeces=None):
 
     else: return X_train, X_test
 
-def get_incorrect_predictions(model, X_test_fluxes, X_test_spectra, raw_X_test_spectra, y_test, df_source_info_test, df_wavelengths, gaussian=False):
-    classes = ['GALAXY', 'QSO', 'STAR']
+def get_incorrect_predictions(model,
+                              X_test_fluxes,
+                              X_test_spectra,
+                              raw_X_test_spectra,
+                              y_test,
+                              df_source_info_test,
+                              df_wavelengths,
+                              gaussian=False,
+                              classes=None):
+    labels = []
+    for label in classes:
+        if label == 'label_': labels.append('NULL')
+        else: labels.append(label.replace('label_', ''))
+    
     predictions = model.predict(X_test_fluxes).argmax(axis=1)
     print(f'predictions = {predictions[0:81]}')
     y_test = y_test.argmax(axis=1)
     wrong_indeces = []
     correct_indeces = []
     for i in range(len(predictions)):
+        # if y_test[i] == 2:
         if predictions[i] != y_test[i]:
             wrong_indeces.append(i)
         
@@ -83,8 +96,8 @@ def get_incorrect_predictions(model, X_test_fluxes, X_test_spectra, raw_X_test_s
     # indices = [i for i in enumerate(predictions) if predictions[i] != y_test[i]]
     wrong_predictions = []
     for i in wrong_indeces:
-        predicted_class = classes[predictions[i]]
-        true_class = classes[y_test[i]]
+        predicted_class = labels[predictions[i]]
+        true_class = labels[y_test[i]]
 
         wrong_prediction = {'spectrum': X_test_spectra[i],
                             'raw_spectrum': raw_X_test_spectra[i],
@@ -95,8 +108,8 @@ def get_incorrect_predictions(model, X_test_fluxes, X_test_spectra, raw_X_test_s
     
     correct_predictions = []
     for i in correct_indeces:
-        predicted_class = classes[predictions[i]]
-        true_class = classes[y_test[i]]
+        predicted_class = labels[predictions[i]]
+        true_class = labels[y_test[i]]
 
         correct_prediction = {'spectrum': X_test_spectra[i],
                               'raw_spectrum': raw_X_test_spectra[i],
@@ -107,7 +120,7 @@ def get_incorrect_predictions(model, X_test_fluxes, X_test_spectra, raw_X_test_s
 
     plotify = Plotify(theme='ugly')
 
-    for i, wrong_prediction in enumerate(wrong_predictions[0:150]):
+    for i, wrong_prediction in enumerate(wrong_predictions[0:50]):
         fluxes = wrong_predictions[i]['spectrum']
         raw_fluxes = wrong_predictions[i]['raw_spectrum']
         wavelengths = df_wavelengths.values
@@ -115,31 +128,33 @@ def get_incorrect_predictions(model, X_test_fluxes, X_test_spectra, raw_X_test_s
 
         if gaussian == False:
             _, ax = plotify.get_figax(figsize=(6,6))
-            title = f'ra = {source_info.get(["ra"][0])}, dec = {source_info.get(["dec"][0])}, z = {source_info.get(["z"][0])}, plate = {source_info.get(["plate"][0])}\n\n Predicted: {wrong_prediction["predicted"]}, Target Class: {wrong_prediction["target_class"]}'
-            ax.set_title(title, pad=10, fontsize=13)
+            title = f'ra = {source_info.get(["ra"][0])}, dec = {source_info.get(["dec"][0])} \n z = {source_info.get(["z"][0])}, plate = {source_info.get(["plate"][0])}\n\n Predicted: {wrong_prediction["predicted"]}, Target Class: {wrong_prediction["target_class"]}'
+            ax.set_title(title, pad=10, fontsize=15)
             ax.set_xlabel('Wavelength (Å)')
-            ax.set_ylabel(r'$F_{\lambda[10^{-17} erg \: cm^{-2}s^{-1} Å^{-1}]}$', fontsize=13)
+            ax.set_ylabel(r'$F_{\lambda[10^{-17} erg \: cm^{-2}s^{-1} Å^{-1}]}$', fontsize=14)
             plt.plot(wavelengths, fluxes, color=plotify.c_orange, lw=0.6)
-            plt.savefig(f'plots/cnn/wrong_predictions/wrong_prediction_{i}.png', dpi=140)
+            plt.tight_layout()
+            plt.savefig(f'plots/wrong_predictions/stars/wrong_prediction_{i}.png', dpi=140)
         
         if gaussian == True:
-            _, axs = plotify.get_figax(nrows=2, figsize=(8, 8))
+            _, axs = plotify.get_figax(nrows=2, figsize=(5.5, 8))
             axs[0].plot(wavelengths, raw_fluxes, color=plotify.c_orange, lw=0.6)
             axs[1].plot(wavelengths, fluxes, color=plotify.c_orange, lw=0.6)
             
-            title = f'ra = {source_info.get(["ra"][0])}, dec = {source_info.get(["dec"][0])}, z = {source_info.get(["z"][0])}, plate = {source_info.get(["plate"][0])}\n\n Predicted: {wrong_prediction["predicted"]}, Target Class: {wrong_prediction["target_class"]}'
+            title = f'ra = {source_info.get(["ra"][0])}, dec = {source_info.get(["dec"][0])} \n z = {source_info.get(["z"][0])}, plate = {source_info.get(["plate"][0])}\n\n Predicted: {wrong_prediction["predicted"]}, Target Class: {wrong_prediction["target_class"]}'
 
-            axs[0].set_title(title, pad=10, fontsize=12)
+            axs[0].set_title(title, pad=10, fontsize=15)
             axs[1].set_title(r'with Gaussian convolution, $\sigma = 4$')
-            axs[0].set_ylabel(r'$F_{\lambda[10^{-17} erg \: cm^{-2}s^{-1} Å^{-1}]}$', fontsize=13)
-            axs[1].set_ylabel(r'$F_{\lambda[10^{-17} erg \: cm^{-2}s^{-1} Å^{-1}]}$', fontsize=13)
+            axs[0].set_ylabel(r'$F_{\lambda[10^{-17} erg \: cm^{-2}s^{-1} Å^{-1}]}$', fontsize=16)
+            axs[1].set_ylabel(r'$F_{\lambda[10^{-17} erg \: cm^{-2}s^{-1} Å^{-1}]}$', fontsize=16)
             axs[1].set_xlabel('Wavelength (Å)')
 
-            plt.subplots_adjust(hspace=0.4)
-            plt.savefig(f'plots/cnn/wrong_predictions/gaussian8_wrong_prediction_{i}.png', dpi=140)
+            plt.subplots_adjust(hspace=0.3)
+            plt.tight_layout()
+            plt.savefig(f'plots/wrong_predictions/star_gaussian8_wrong_prediction_{i}.png', dpi=140)
 
     
-    for i, correct_prediction in enumerate(correct_predictions[0:150]):
+    for i, correct_prediction in enumerate(correct_predictions[0:50]):
         fluxes = correct_predictions[i]['spectrum']
         raw_fluxes = correct_predictions[i]['raw_spectrum']
         wavelengths = df_wavelengths.values
@@ -148,28 +163,30 @@ def get_incorrect_predictions(model, X_test_fluxes, X_test_spectra, raw_X_test_s
 
         if gaussian == False:
             fig, ax = plotify.get_figax(figsize=(6,6))
-            title = f'ra = {source_info.get(["ra"][0])}, dec = {source_info.get(["dec"][0])}, z = {source_info.get(["z"][0])}, plate = {source_info.get(["plate"][0])}\n\n Predicted: {correct_prediction["predicted"]}, Target Class: {correct_prediction["target_class"]}'
-            ax.set_title(title, pad=10, fontsize=13)
+            title = f'ra = {source_info.get(["ra"][0])}, dec = {source_info.get(["dec"][0])} \n z = {source_info.get(["z"][0])}, plate = {source_info.get(["plate"][0])}\n\n Predicted: {correct_prediction["predicted"]}, Target Class: {correct_prediction["target_class"]}'
+            ax.set_title(title, pad=10, fontsize=15)
             ax.set_xlabel('Wavelength (Å)')
-            ax.set_ylabel(r'$F_{\lambda[10^{-17} erg \: cm^{-2}s^{-1} Å^{-1}]}$', fontsize=13)
+            ax.set_ylabel(r'$F_{\lambda[10^{-17} erg \: cm^{-2}s^{-1} Å^{-1}]}$', fontsize=14)
             plt.plot(wavelengths, fluxes, color=plotify.c_orange, lw=0.6)
-            plt.savefig(f'plots/cnn/correct_predictions/correct_prediction_{i}.png', dpi=140)
+            plt.tight_layout()
+            plt.savefig(f'plots/correct_predictions/stars/correct_prediction_{i}.png', dpi=140)
         
         if gaussian == True:
-            fig, axs = plotify.get_figax(nrows=2, figsize=(6, 8))
+            fig, axs = plotify.get_figax(nrows=2, figsize=(5.5, 8))
             axs[0].plot(wavelengths, raw_fluxes, color=plotify.c_orange, lw=0.6)
             axs[1].plot(wavelengths, fluxes, color=plotify.c_orange, lw=0.6)
             
-            title = f'ra = {source_info.get(["ra"][0])}, dec = {source_info.get(["dec"][0])}, z = {source_info.get(["z"][0])}, plate = {source_info.get(["plate"][0])}\n\n Predicted: {correct_prediction["predicted"]}, Target Class: {correct_prediction["target_class"]}'
+            title = f'ra = {source_info.get(["ra"][0])}, dec = {source_info.get(["dec"][0])} \n z = {source_info.get(["z"][0])}, plate = {source_info.get(["plate"][0])}\n\n Predicted: {correct_prediction["predicted"]}, Target Class: {correct_prediction["target_class"]}'
 
-            axs[0].set_title(title, pad=10, fontsize=12)
+            axs[0].set_title(title, pad=10, fontsize=15)
             axs[1].set_title(r'with Gaussian convolution, $\sigma = 4$')
-            axs[0].set_ylabel(r'$F_{\lambda[10^{-17} erg \: cm^{-2}s^{-1} Å^{-1}]}$', fontsize=13)
-            axs[1].set_ylabel(r'$F_{\lambda[10^{-17} erg \: cm^{-2}s^{-1} Å^{-1}]}$', fontsize=13)
+            axs[0].set_ylabel(r'$F_{\lambda[10^{-17} erg \: cm^{-2}s^{-1} Å^{-1}]}$', fontsize=16)
+            axs[1].set_ylabel(r'$F_{\lambda[10^{-17} erg \: cm^{-2}s^{-1} Å^{-1}]}$', fontsize=16)
             axs[1].set_xlabel('Wavelength (Å)')
 
-            plt.subplots_adjust(hspace=0.4)
-            plt.savefig(f'plots/cnn/correct_predictions/gaussian8_correct_prediction_{i}.png', dpi=140)
+            plt.subplots_adjust(hspace=0.3)
+            plt.tight_layout()
+            plt.savefig(f'plots/correct_predictions/gaussian8_correct_prediction_{i}.png', dpi=140)
 
 	
     # plt.show()
@@ -190,20 +207,20 @@ def evaluate_model(model, X_test, y_test, classes, indeces=None, df_source_info=
     matrix = confusion_matrix(y_test.argmax(axis=1), y_pred.argmax(axis=1))
     print(f'confusion matrix: \n {matrix}')
 
-    # print(f'df_source_info[indeces] = {len(df_source_info.loc[indeces])}')
+    print(f'df_source_info[indeces] = {len(df_source_info.loc[indeces])}')
 
-    # plot_bpt_diagram(df_source_info.loc[indeces], labels=labels, y_pred=y_pred, y_test=y_test)
+    # plot_bpt_diagram(df_source_info.loc[indeces], labels=labels, y_pred=y_pred, y_test=y_test)
 
-    # df_cm = pd.DataFrame(matrix,
-    # 					   index=[i for i in classes],
-    # 					   columns=[i for i in classes])
+    df_cm = pd.DataFrame(matrix,
+                            index=[i for i in classes],
+                            columns=[i for i in classes])
 
-    # fig, ax = plt.subplots(figsize=(10,7))
-    # sn.heatmap(df_cm, annot=True, annot_kws={"size": 14})
-    # ax.set_ylabel('Predicted Class', color='black')
-    # ax.set_xlabel('Target Class', color='black')
-    # ax.set_title('Confusion Matrix')
-    # plt.show()
+    fig, ax = plt.subplots(figsize=(10,7))
+    sn.heatmap(df_cm, annot=True, annot_kws={"size": 14})
+    ax.set_ylabel('Predicted Class', color='black')
+    ax.set_xlabel('Target Class', color='black')
+    ax.set_title('Confusion Matrix')
+    plt.show()
   
 def shuffle_in_unison(a, b, c, indeces):
     print(f'a.shape = {a.shape}')
