@@ -192,13 +192,14 @@ class MixedInputModel():
         X_train_source_info, X_test_source_info, y_train, y_test, self.i_train, self.i_test = train_test_split(X=X_source_info, y=y, test_size=0.2, indeces=indeces)
         X_train_source_info, X_val_source_info, y_train, y_val, self.i_train, self.i_val = train_test_split(X=X_train_source_info, y=y_train, test_size=0.2, indeces=self.i_train)
 
+        print(f'self.i_test = {self.i_test}')
+
         X_train_fluxes, X_test_fluxes = train_test_split(X=X_fluxes, y=None, test_size=0.2)
         X_train_fluxes, X_val_fluxes = train_test_split(X=X_train_fluxes, y=None, test_size=0.2)
         
         # To get the same train test split for raw spectra after gaussian smoothing
-        raw_X_train_fluxes, raw_X_test_fluxes = train_test_split(X=self.raw_X_fluxes, y=None, test_size=0.2)
-        raw_X_train_fluxes, raw_X_val_fluxes = train_test_split(X=raw_X_train_fluxes, y=None, test_size=0.2)
-        
+        raw_X_test_fluxes = self.raw_X_fluxes[self.i_test]
+
         scaler_source_info = StandardScaler()
 
         # print(f'X_train_source_info = {X_train_source_info}')
@@ -284,28 +285,35 @@ class MixedInputModel():
                            indeces=self.i_test,
                            classes=self.label_columns)
 
-            get_incorrect_predictions(model=model,
+            get_incorrect_predictions(model=model,  
                                       X_test_fluxes=[X_test_source_info_std, X_test_fluxes_std],
                                       X_test_spectra=X_test_fluxes,
                                       raw_X_test_spectra=raw_X_test_fluxes,
                                       y_test=y_test,
                                       df_source_info_test=df_source_info_test,
                                       df_wavelengths=df_wavelengths,
-                                      gaussian=self.gaussian)
+                                      gaussian=self.gaussian,
+                                      classes=self.label_columns)
 
         return model
 
 def main():
-
-    df_fluxes = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='fluxes').head(1000)
-    df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='source_info').head(1000)
+    df_fluxes = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='fluxes').head(64000)
+    df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='source_info').head(64000)
     df_wavelengths = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='wavelengths')
 
+    # mixed_input_model = MixedInputModel(gaussian=True,
+    #                                     epochs=2,
+    #                                     load_model=True,
+    #                                     model_path='logs/mixed-input-gaussian.h5',
+    #                                     spectral_lines=False)
+    
     mixed_input_model = MixedInputModel(gaussian=False,
                                         epochs=2,
-                                        load_model=True,
+                                        load_model=False,
                                         model_path='logs/colab-logs/best_mixed_input_epoch20.h5',
-                                        spectral_lines=False)
+                                        spectral_lines=False,
+                                        mainclass='STAR')
 
     mixed_input_model.train(df_source_info, df_fluxes, df_wavelengths)
 
