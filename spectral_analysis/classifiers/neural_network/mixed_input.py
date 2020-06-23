@@ -20,9 +20,9 @@ from tensorflow.keras.layers import Dense, Dropout, Activation, Flatten, Conv1D,
 from tensorflow.keras.models import Sequential, Model
 from tensorflow.keras.utils import to_categorical
 
-from spectral_analysis.spectral_analysis.data_preprocessing.data_preprocessing import remove_bytes_from_class, get_fluxes_from_h5, get_joint_classes, apply_gaussian_filter
-from spectral_analysis.spectral_analysis.plotify import Plotify
-from spectral_analysis.spectral_analysis.classifiers.neural_network.helper_functions import train_test_split, evaluate_model, shuffle_in_unison, get_incorrect_predictions
+from spectral_analysis.data_preprocessing.data_preprocessing import remove_bytes_from_class, get_fluxes_from_h5, get_joint_classes, apply_gaussian_filter
+from spectral_analysis.plotify import Plotify
+from spectral_analysis.classifiers.neural_network.helper_functions import train_test_split, evaluate_model, shuffle_in_unison, get_incorrect_predictions
 
 class MixedInputModel():
     def __init__(self, mainclass='NONE', spectral_lines=False, df_wavelengths=None, gaussian=False, epochs=2, load_model=False, model_path=None):
@@ -52,9 +52,20 @@ class MixedInputModel():
 
         else:
             df_source_info, df_fluxes = get_joint_classes(df_source_info, df_fluxes, self.mainclass)
+
+        for index, source in df_source_info.iterrows():
+            if 'O' in source["label"]: df_source_info.loc[index, 'label'] = 'O'
+            if 'B' in source["label"]: df_source_info.loc[index, 'label'] = 'B'
+            if 'A' in source["label"]: df_source_info.loc[index, 'label'] = 'A'
+            if 'F' in source["label"]: df_source_info.loc[index, 'label'] = 'F'
+            if 'G' in source["label"]: df_source_info.loc[index, 'label'] = 'G'
+            if 'K' in source["label"]: df_source_info.loc[index, 'label'] = 'K'
+            if 'M' in source["label"]: df_source_info.loc[index, 'label'] = 'M'
+            if 'L' in source["label"]: df_source_info.loc[index, 'label'] = 'L'
         
+        print(f'source_info["label"] = {df_source_info["label"]}')
         df_source_info['label'] = pd.Categorical(df_source_info['label'])
-        
+
         df_dummies = pd.get_dummies(df_source_info['label'], prefix='label')
         df_source_info = pd.concat([df_source_info, df_dummies], axis=1)
 
@@ -83,6 +94,7 @@ class MixedInputModel():
             
             self.n_labels = len(self.label_columns)
             print(f'self.label_columns = {self.label_columns}')
+            print(f'len self.label_columns = {len(self.label_columns)}')
 
         else: self.n_labels = 3
 
@@ -192,8 +204,6 @@ class MixedInputModel():
         X_train_source_info, X_test_source_info, y_train, y_test, self.i_train, self.i_test = train_test_split(X=X_source_info, y=y, test_size=0.2, indeces=indeces)
         X_train_source_info, X_val_source_info, y_train, y_val, self.i_train, self.i_val = train_test_split(X=X_train_source_info, y=y_train, test_size=0.2, indeces=self.i_train)
 
-        print(f'self.i_test = {self.i_test}')
-
         X_train_fluxes, X_test_fluxes = train_test_split(X=X_fluxes, y=None, test_size=0.2)
         X_train_fluxes, X_val_fluxes = train_test_split(X=X_train_fluxes, y=None, test_size=0.2)
         
@@ -257,13 +267,15 @@ class MixedInputModel():
         elif self.load_model == False:
             tensorboard = TensorBoard(log_dir='logs/{}'.format('mixed-input{}'.format(time.time())))
             earlystopping = EarlyStopping(monitor='val_accuracy', patience=50)
-            modelcheckpoint = ModelCheckpoint(filepath='logs/mixed_input_32k-50epoch.epoch{epoch:02d}-val_loss_{val_loss:.2f}.h5',
+            modelcheckpoint = ModelCheckpoint(filepath='logs/mixed_input_stars.epoch{epoch:02d}-val_loss_{val_loss:.2f}.h5',
                                               monitor='val_loss',
                                               save_best_only=True)
 
             callbacks_list = [modelcheckpoint,
                               # earlystopping,
                               tensorboard]
+                            
+            print(f'y_train = {y_train.shape}')
 
             history = model.fit(x=[X_train_source_info_std, X_train_fluxes_std],
                                 y=y_train,
@@ -309,7 +321,7 @@ def main():
     #                                     spectral_lines=False)
     
     mixed_input_model = MixedInputModel(gaussian=False,
-                                        epochs=2,
+                                        epochs=1,
                                         load_model=False,
                                         model_path='logs/colab-logs/best_mixed_input_epoch20.h5',
                                         spectral_lines=False,
