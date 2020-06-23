@@ -22,8 +22,8 @@ from tensorflow.keras.layers import Dense, Activation, Input, concatenate
 from tensorflow.keras.models import Sequential, Model
 from tensorflow.keras.utils import to_categorical
 
-from spectral_analysis.spectral_analysis.plotify import Plotify
-from spectral_analysis.spectral_analysis.data_preprocessing.bpt_diagram import plot_bpt_diagram
+from spectral_analysis.plotify import Plotify
+from spectral_analysis.data_preprocessing.bpt_diagram import plot_bpt_diagram
 
 
 
@@ -134,7 +134,7 @@ def get_incorrect_predictions(model,
             ax.set_ylabel(r'$F_{\lambda[10^{-17} erg \: cm^{-2}s^{-1} Å^{-1}]}$', fontsize=14)
             plt.plot(wavelengths, fluxes, color=plotify.c_orange, lw=0.6)
             plt.tight_layout()
-            plt.savefig(f'plots/wrong_predictions/stars/wrong_prediction_{i}.png', dpi=140)
+            plt.savefig(f'plots/wrong_predictions/cnn/wrong_prediction_{i}.png', dpi=140)
         
         if gaussian == True:
             _, axs = plotify.get_figax(nrows=2, figsize=(5.5, 8))
@@ -169,7 +169,7 @@ def get_incorrect_predictions(model,
             ax.set_ylabel(r'$F_{\lambda[10^{-17} erg \: cm^{-2}s^{-1} Å^{-1}]}$', fontsize=14)
             plt.plot(wavelengths, fluxes, color=plotify.c_orange, lw=0.6)
             plt.tight_layout()
-            plt.savefig(f'plots/correct_predictions/stars/correct_prediction_{i}.png', dpi=140)
+            plt.savefig(f'plots/correct_predictions/cnn/correct_prediction_{i}.png', dpi=140)
         
         if gaussian == True:
             fig, axs = plotify.get_figax(nrows=2, figsize=(5.5, 8))
@@ -206,20 +206,19 @@ def evaluate_model(model, X_test, y_test, classes, indeces=None, df_source_info=
     matrix = confusion_matrix(y_test.argmax(axis=1), y_pred.argmax(axis=1))
     print(f'confusion matrix: \n {matrix}')
 
-    print(f'df_source_info[indeces] = {len(df_source_info.loc[indeces])}')
-
+    # print(f'df_source_info[indeces] = {len(df_source_info.loc[indeces])}')
     # plot_bpt_diagram(df_source_info.loc[indeces], labels=labels, y_pred=y_pred, y_test=y_test)
 
     df_cm = pd.DataFrame(matrix,
-                            index=[i for i in classes],
-                            columns=[i for i in classes])
+                         index=[i for i in classes],
+                         columns=[i for i in classes])
 
     fig, ax = plt.subplots(figsize=(10,7))
     sn.heatmap(df_cm, annot=True, annot_kws={"size": 14})
     ax.set_ylabel('Predicted Class', color='black')
     ax.set_xlabel('Target Class', color='black')
     ax.set_title('Confusion Matrix')
-    plt.show()
+    # plt.show()
   
 def shuffle_in_unison(a, b, c, indeces):
     print(f'a.shape = {a.shape}')
@@ -245,11 +244,11 @@ def shuffle_along_axis(a, axis):
     return np.take_along_axis(a,idx,axis=axis)
 
 def main():
-    train = pd.read_csv('data/tensorboard-logs/cnn/cnn-train_accuracy.csv')['Value'].values
-    validation = pd.read_csv('data/tensorboard-logs/cnn/cnn-validation_accuracy.csv')['Value'].values
+    train = pd.read_csv('data/tensorboard-logs/stars/stars_train-accuracy.csv')['Value'].values
+    validation = pd.read_csv('data/tensorboard-logs/stars/stars_validation-accuracy.csv')['Value'].values
     
-    train_loss = pd.read_csv('data/tensorboard-logs/cnn/cnn-train_loss.csv')['Value'].values
-    validation_loss = pd.read_csv('data/tensorboard-logs/cnn/cnn-validation_loss.csv')['Value'].values
+    train_loss = pd.read_csv('data/tensorboard-logs/stars/stars_train-loss.csv')['Value'].values
+    validation_loss = pd.read_csv('data/tensorboard-logs/stars/stars_validation_loss.csv')['Value'].values
     xs = np.array(list(range(60)))
 
     plotify = Plotify(theme='ugly')
@@ -261,13 +260,13 @@ def main():
     ax.set_xlabel('Number of Epochs')
     ax.set_ylabel('Accuracy')
     ax.xaxis.set_major_locator(ticker.MultipleLocator(5))
-    ax.set_ylim(0.7,1.0)
+    ax.set_ylim(0,0.9)
     plt.legend()
-    ax.set_title('CNN Training on 51,200 sources')
+    ax.set_title('Mixed-input Network Training on 9,802 sources \n Classifying 41 classes of stars')
     ttl = ax.title
     ttl.set_position([0.5, 1.025])
     fig.tight_layout()
-    plt.savefig('plots/cnn_training_accuracies')
+    plt.savefig('plots/stars_training_accuracies')
     plt.show()
 
     fig, ax = plotify.get_figax()
@@ -275,16 +274,15 @@ def main():
     ax.plot(xs, train_loss, color=plotify.c_orange, label='training loss')
     ax.plot(xs, validation_loss, color=plotify.c_blue, label='validation loss')
     ax.xaxis.set_major_locator(ticker.MultipleLocator(5))
-    ax.set_ylim(0,0.8)
+    ax.set_ylim(0.5,4.5)
     ax.set_xlabel('Number of Epochs')
-    ax.set_title('CNN Training on 51,200 sources')
+    ax.set_title('Mixed-input Network Training on 9,802 sources \n Classifying 41 classes of stars')
     ttl = ax.title
     ttl.set_position([0.5, 1.025])
     plt.tight_layout()
     plt.legend()
 
-    plt.title('CNN Training on 51,200 sources')
-    plt.savefig('plots/cnn_training_losses')
+    plt.savefig('plots/stars_training_losses')
     plt.show()
 
 if __name__ == "__main__":

@@ -15,24 +15,27 @@ from kerastuner.engine.hyperparameters import HyperParameters
 
 import time
 
-from spectral_analysis.spectral_analysis.data_preprocessing.data_preprocessing import remove_bytes_from_class, get_fluxes_from_h5, get_joint_classes, apply_gaussian_filter
-from spectral_analysis.spectral_analysis.plotify import Plotify
-from spectral_analysis.spectral_analysis.classifiers.neural_network.helper_functions import train_test_split, evaluate_model, shuffle_in_unison, get_incorrect_predictions
+from spectral_analysis.data_preprocessing.data_preprocessing import remove_bytes_from_class, get_fluxes_from_h5, get_joint_classes, apply_gaussian_filter
+from spectral_analysis.plotify import Plotify
+from spectral_analysis.classifiers.neural_network.helper_functions import train_test_split, evaluate_model, shuffle_in_unison, get_incorrect_predictions
 
 LOG_DIR = f"{int(time.time())}"
 
 class CNN:
-    def __init__(self, df_fluxes, epochs):
+    def __init__(self, df_fluxes, epochs, load_model, model_path, df_source_info):
         self.input_length = len(df_fluxes.columns) - 1
         self.epochs = epochs
+        self.load_model = load_model
+        self.model_path = model_path
+        self.df_source_info = df_source_info
 
     def _prepare_data(self, df_source_info, df_fluxes):
         columns = []
 
         df_source_info['class'] = pd.Categorical(df_source_info['class'])
         df_dummies = pd.get_dummies(df_source_info['class'], prefix='category')
-        df_dummies.columns = ['category_GALAXY', 'category_QSO', 'category_STAR']
-        self.label_columns = ['category_GALAXY', 'category_QSO', 'category_STAR']
+        df_dummies.columns = ['GALAXY', 'QSO', 'STAR']
+        self.label_columns = ['GALAXY', 'QSO', 'STAR']
         df_source_info = pd.concat([df_source_info, df_dummies], axis=1)
 
         for column in df_source_info.columns:
@@ -45,9 +48,9 @@ class CNN:
         print(f'df_source_info = {df_source_info}')
 
         for _, spectrum in df_source_info[columns].iterrows():
-            category_GALAXY = spectrum["category_GALAXY"]
-            category_QSO = spectrum["category_QSO"]
-            category_STAR = spectrum["category_STAR"]
+            category_GALAXY = spectrum["GALAXY"]
+            category_QSO = spectrum["QSO"]
+            category_STAR = spectrum["STAR"]
 
             y_row = [category_GALAXY, category_QSO, category_STAR]
 
@@ -56,42 +59,67 @@ class CNN:
         return X, y
 
 
-    def _fit(self, X_train, y_train, X_test, y_test, X_val, y_val, df_wavelengths, df_source_info_test):
-        model = self._build_model()
-        print(model.summary())
+    def _fit(self, X_train_std, y_train, X_test, X_test_std, y_test, X_val, y_val, df_wavelengths, df_source_info_test):
+        if self.load_model == True:
+            model = self._build_model()
+            model.load_weights(self.model_path)
+            _, train_acc = model.evaluate(X_train_std, y_train, verbose=1)
+            _, test_acc = model.evaluate(X_test_std, y_test, verbose=1)
+            print('Train: %.3f, Test: %.3f' % (train_acc, test_acc))
 
-        modelcheckpoint = ModelCheckpoint(filepath='logs/bestcnn.epoch{epoch:02d}.h5',
-                                          monitor='val_loss',
-                                          save_best_only=True)
-
-        history = model.fit(x=X_train,
-                            y=y_train,
-                            epochs=self.epochs,
-                            batch_size=32,
-                            validation_data=(X_val, y_val),
-                            verbose=0,
-                            callbacks=[EarlyStopping('val_accuracy', patience=50),
-                                       TensorBoard(log_dir='logs/cnn'),
-                                       modelcheckpoint])
-
-        # Evaluate Best Model #
-        _, train_acc = model.evaluate(X_train, y_train, verbose=0)
-        _, test_acc = model.evaluate(X_test, y_test, verbose=0)
-        print('Train: %.3f, Test: %.3f' % (train_acc, test_acc))
-
-        evaluate_model(model=model,
-                        X_test=X_test,
-                        y_test=y_test,
-                        classes=self.label_columns)
+            evaluate_model(model=model,
+                           X_test=X_test_std,
+                           y_test=y_test,
+                           df_source_info=self.df_source_info,
+                           # indeces=self.i_test,
+                           classes=self.label_columns)
+                           
+            get_incorrect_predictions(model=model,
+                                      X_test_fluxes=X_test_std,
+                                      X_test_spectra=X_test,
+                                      raw_X_test_spectra=X_test,
+                                      y_test=y_test,
+                                      df_source_info_test=df_source_info_test,
+                                      df_wavelengths=df_wavelengths,
+                                      gaussian=False,
+                                      classes=self.label_columns)
         
-        # get_incorrect_predictions(model=model,
-        #                             X_test_fluxes=X_test,
-        #                             X_test_spectra=X_test,
-        #                             raw_X_test_spectra=X_test,
-        #                             y_test=y_test,
-        #                             df_source_info_test=df_source_info_test,
-        #                             df_wavelengths=df_wavelengths,
-        #                             gaussian=False)
+        if self.load_model == False:
+            model = self._build_model()
+            print(model.summary())
+
+            modelcheckpoint = ModelCheckpoint(filepath='logs/bestcnn.epoch{epoch:02d}.h5',
+                                              monitor='val_loss',
+                                              save_best_only=True)
+
+            history = model.fit(x=X_train,
+                                y=y_train,
+                                epochs=self.epochs,
+                                batch_size=32,
+                                validation_data=(X_val, y_val),
+                                verbose=0,
+                                callbacks=[EarlyStopping('val_accuracy', patience=50),
+                                           TensorBoard(log_dir='logs/cnn'),
+                                           modelcheckpoint])
+
+            # Evaluate Best Model #
+            _, train_acc = model.evaluate(X_train, y_train, verbose=0)
+            _, test_acc = model.evaluate(X_test, y_test, verbose=0)
+            print('Train: %.3f, Test: %.3f' % (train_acc, test_acc))
+
+            evaluate_model(model=model,
+                           X_test=X_test,
+                           y_test=y_test,
+                           classes=self.label_columns)
+            
+            # get_incorrect_predictions(model=model,
+            #                             X_test_fluxes=X_test,
+            #                             X_test_spectra=X_test,
+            #                             raw_X_test_spectra=X_test,
+            #                             y_test=y_test,
+            #                             df_source_info_test=df_source_info_test,
+            #                             df_wavelengths=df_wavelengths,
+            #                             gaussian=False)
 
     def _build_model(self):
         model = Sequential()
@@ -144,13 +172,13 @@ class CNN:
 
         scaler = StandardScaler()
 
-        X_train = scaler.fit_transform(X_train)
-        X_test = scaler.transform(X_test)
-        X_val = scaler.transform(X_val)
+        X_train_std = scaler.fit_transform(X_train)
+        X_test_std = scaler.transform(X_test)
+        X_val_std = scaler.transform(X_val)
 
-        X_train = np.expand_dims(X_train, axis=2)
-        X_test = np.expand_dims(X_test, axis=2)
-        X_val = np.expand_dims(X_val, axis=2)
+        X_train_std = np.expand_dims(X_train_std, axis=2)
+        X_test_std = np.expand_dims(X_test_std, axis=2)
+        X_val_std = np.expand_dims(X_val_std, axis=2)
 
         y_train = np.array(y_train)
         y_test = np.array(y_test)
@@ -158,14 +186,18 @@ class CNN:
 
         df_source_info_test = df_source_info.iloc[i_test]
 
-        self._fit(X_train, y_train, X_test, y_test, X_val, y_val, df_wavelengths, df_source_info_test)
+        self._fit(X_train_std, y_train, X_test, X_test_std, y_test, X_val_std, y_val, df_wavelengths, df_source_info_test)
 
 def main():
-    df_fluxes = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='fluxes').head(400)
-    df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='source_info').head(400)
+    df_fluxes = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='fluxes').head(64000)
+    df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='source_info').head(64000)
     df_wavelengths = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='wavelengths')
 
-    cnn = CNN(df_fluxes, epochs=1)
+    cnn = CNN(df_fluxes,
+              epochs=1,
+              load_model=True,
+              model_path='logs/colab-logs/bestcnn.epoch20.h5',
+              df_source_info=df_source_info)
     cnn.run(df_source_info, df_fluxes, df_wavelengths)
 
 if __name__ == "__main__":
