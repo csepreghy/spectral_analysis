@@ -266,7 +266,7 @@ def main():
     ttl = ax.title
     ttl.set_position([0.5, 1.025])
     fig.tight_layout()
-    plt.savefig('plots/stars_training_accuracies')
+    plt.savefig('plots/stars_training_accuracies2')
     plt.show()
 
     fig, ax = plotify.get_figax()
@@ -282,7 +282,7 @@ def main():
     plt.tight_layout()
     plt.legend()
 
-    plt.savefig('plots/stars_training_losses')
+    plt.savefig('plots/stars_training_losses2')
     plt.show()
 
 if __name__ == "__main__":
