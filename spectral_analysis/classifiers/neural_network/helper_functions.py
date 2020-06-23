@@ -54,11 +54,6 @@ def train_test_split(X, test_size, y=None, objids=None, indeces=None):
         i_test = indeces[-n_test:]
         i_train = indeces[:n_train]
 
-    # print('len(X_train)', len(X_train))
-    # print('len(i_train)', len(i_train))
-    # print('len(X_test)', len(X_test))
-    # print('len(i_test)', len(i_test))
-
     if y is not None:
         y_test = y[-n_test:]
         y_train = y[:n_train]
@@ -120,7 +115,7 @@ def get_incorrect_predictions(model,
 
     plotify = Plotify(theme='ugly')
 
-    for i, wrong_prediction in enumerate(wrong_predictions[0:50]):
+    for i, wrong_prediction in enumerate(wrong_predictions[0:100]):
         fluxes = wrong_predictions[i]['spectrum']
         raw_fluxes = wrong_predictions[i]['raw_spectrum']
         wavelengths = df_wavelengths.values
@@ -134,7 +129,7 @@ def get_incorrect_predictions(model,
             ax.set_ylabel(r'$F_{\lambda[10^{-17} erg \: cm^{-2}s^{-1} Å^{-1}]}$', fontsize=14)
             plt.plot(wavelengths, fluxes, color=plotify.c_orange, lw=0.6)
             plt.tight_layout()
-            plt.savefig(f'plots/wrong_predictions/stars/wrong_prediction_{i}.png', dpi=140)
+            plt.savefig(f'plots/wrong_predictions/galaxies/wrong_prediction_{i}.png', dpi=140)
         
         if gaussian == True:
             _, axs = plotify.get_figax(nrows=2, figsize=(5.5, 8))
@@ -154,7 +149,7 @@ def get_incorrect_predictions(model,
             plt.savefig(f'plots/wrong_predictions/star_gaussian8_wrong_prediction_{i}.png', dpi=140)
 
     
-    for i, correct_prediction in enumerate(correct_predictions[0:50]):
+    for i, correct_prediction in enumerate(correct_predictions[0:100]):
         fluxes = correct_predictions[i]['spectrum']
         raw_fluxes = correct_predictions[i]['raw_spectrum']
         wavelengths = df_wavelengths.values
@@ -169,7 +164,7 @@ def get_incorrect_predictions(model,
             ax.set_ylabel(r'$F_{\lambda[10^{-17} erg \: cm^{-2}s^{-1} Å^{-1}]}$', fontsize=14)
             plt.plot(wavelengths, fluxes, color=plotify.c_orange, lw=0.6)
             plt.tight_layout()
-            plt.savefig(f'plots/correct_predictions/stars/correct_prediction_{i}.png', dpi=140)
+            plt.savefig(f'plots/correct_predictions/galaxies/correct_prediction_{i}.png', dpi=140)
         
         if gaussian == True:
             fig, axs = plotify.get_figax(nrows=2, figsize=(5.5, 8))
@@ -260,7 +255,7 @@ def main():
     ax.set_xlabel('Number of Epochs')
     ax.set_ylabel('Accuracy')
     ax.xaxis.set_major_locator(ticker.MultipleLocator(5))
-    ax.set_ylim(0,0.9)
+    ax.set_ylim(0,1)
     plt.legend()
     ax.set_title('Mixed-input Network Training on 9,802 sources \n Classifying 41 classes of stars')
     ttl = ax.title
@@ -274,7 +269,7 @@ def main():
     ax.plot(xs, train_loss, color=plotify.c_orange, label='training loss')
     ax.plot(xs, validation_loss, color=plotify.c_blue, label='validation loss')
     ax.xaxis.set_major_locator(ticker.MultipleLocator(5))
-    ax.set_ylim(0.5,4.5)
+    ax.set_ylim(0,4)
     ax.set_xlabel('Number of Epochs')
     ax.set_title('Mixed-input Network Training on 9,802 sources \n Classifying 41 classes of stars')
     ttl = ax.title

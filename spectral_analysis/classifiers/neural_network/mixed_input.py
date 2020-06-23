@@ -53,15 +53,16 @@ class MixedInputModel():
         else:
             df_source_info, df_fluxes = get_joint_classes(df_source_info, df_fluxes, self.mainclass)
 
-        for index, source in df_source_info.iterrows():
-            if 'O' in source["label"]: df_source_info.loc[index, 'label'] = 'O'
-            if 'B' in source["label"]: df_source_info.loc[index, 'label'] = 'B'
-            if 'A' in source["label"]: df_source_info.loc[index, 'label'] = 'A'
-            if 'F' in source["label"]: df_source_info.loc[index, 'label'] = 'F'
-            if 'G' in source["label"]: df_source_info.loc[index, 'label'] = 'G'
-            if 'K' in source["label"]: df_source_info.loc[index, 'label'] = 'K'
-            if 'M' in source["label"]: df_source_info.loc[index, 'label'] = 'M'
-            if 'L' in source["label"]: df_source_info.loc[index, 'label'] = 'L'
+        if self.mainclass == 'STAR':
+            for index, source in df_source_info.iterrows():
+                if 'O' in source["label"]: df_source_info.loc[index, 'label'] = 'O'
+                if 'B' in source["label"]: df_source_info.loc[index, 'label'] = 'B'
+                if 'A' in source["label"]: df_source_info.loc[index, 'label'] = 'A'
+                if 'F' in source["label"]: df_source_info.loc[index, 'label'] = 'F'
+                if 'G' in source["label"]: df_source_info.loc[index, 'label'] = 'G'
+                if 'K' in source["label"]: df_source_info.loc[index, 'label'] = 'K'
+                if 'M' in source["label"]: df_source_info.loc[index, 'label'] = 'M'
+                if 'L' in source["label"]: df_source_info.loc[index, 'label'] = 'L'
         
         print(f'source_info["label"] = {df_source_info["label"]}')
         df_source_info['label'] = pd.Categorical(df_source_info['label'])
@@ -322,10 +323,10 @@ def main():
     
     mixed_input_model = MixedInputModel(gaussian=False,
                                         epochs=1,
-                                        load_model=False,
-                                        model_path='logs/colab-logs/best_mixed_input_epoch20.h5',
+                                        load_model=True,
+                                        model_path='logs/colab-logs/galaxies_mixed_input.h5',
                                         spectral_lines=False,
-                                        mainclass='STAR')
+                                        mainclass='GALAXY')
 
     mixed_input_model.train(df_source_info, df_fluxes, df_wavelengths)
 
