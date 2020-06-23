@@ -134,7 +134,7 @@ def get_incorrect_predictions(model,
             ax.set_ylabel(r'$F_{\lambda[10^{-17} erg \: cm^{-2}s^{-1} Å^{-1}]}$', fontsize=14)
             plt.plot(wavelengths, fluxes, color=plotify.c_orange, lw=0.6)
             plt.tight_layout()
-            plt.savefig(f'plots/wrong_predictions/cnn/wrong_prediction_{i}.png', dpi=140)
+            plt.savefig(f'plots/wrong_predictions/stars/wrong_prediction_{i}.png', dpi=140)
         
         if gaussian == True:
             _, axs = plotify.get_figax(nrows=2, figsize=(5.5, 8))
@@ -169,7 +169,7 @@ def get_incorrect_predictions(model,
             ax.set_ylabel(r'$F_{\lambda[10^{-17} erg \: cm^{-2}s^{-1} Å^{-1}]}$', fontsize=14)
             plt.plot(wavelengths, fluxes, color=plotify.c_orange, lw=0.6)
             plt.tight_layout()
-            plt.savefig(f'plots/correct_predictions/cnn/correct_prediction_{i}.png', dpi=140)
+            plt.savefig(f'plots/correct_predictions/stars/correct_prediction_{i}.png', dpi=140)
         
         if gaussian == True:
             fig, axs = plotify.get_figax(nrows=2, figsize=(5.5, 8))
