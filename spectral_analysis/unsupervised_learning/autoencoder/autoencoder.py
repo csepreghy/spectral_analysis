@@ -16,9 +16,9 @@ from kerastuner.tuners import RandomSearch
 
 from sklearn.preprocessing import StandardScaler
 
-from spectral_analysis.data_preprocessing.data_preprocessing import remove_bytes_from_class, plot_spectrum, get_wavelengths_from_h5
-from spectral_analysis.classifiers.neural_network.helper_functions import train_test_split
-from spectral_analysis.plotify import Plotify
+from spectral_analysis.spectral_analysis.data_preprocessing.data_preprocessing import remove_bytes_from_class, plot_spectrum, get_wavelengths_from_h5
+from spectral_analysis.spectral_analysis.classifiers.neural_network.helper_functions import train_test_split
+from spectral_analysis.spectral_analysis.plotify import Plotify
 
 matplotlib.rcParams['text.usetex'] = True
 matplotlib.rcParams['axes.titlepad'] = 15
