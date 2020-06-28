@@ -60,7 +60,7 @@ class AutoEncoder():
 
         print(f'X.shape {X.shape}')
 
-        wavelengths = get_wavelengths_from_h5(filename='drive/My Drive/spectral_analysis/data/balanced.h5')
+        wavelengths = pd.read_hdf(filename='drive/My Drive/spectral_analysis/data/balanced.h5').to_numpy()
         wavelengths = wavelengths[::8]
         self.wavelengths = wavelengths[0:448]
         # plot_spectrum(X[0], wavelengths)
@@ -188,7 +188,7 @@ class AutoEncoder():
 
     def evaluate_model(self):
         best_model = self.tuner.get_best_models(1)[0]
-        model.save('best_autoencoder_model')
+        best_model.save('best_autoencoder_model')
         best_hyperparameters = self.tuner.get_best_hyperparameters(1)[0]
 
         print(f'best_model = {best_model}')
