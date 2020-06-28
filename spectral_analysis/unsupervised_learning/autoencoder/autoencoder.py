@@ -170,7 +170,7 @@ class AutoEncoder():
     def train_model(self, epochs, batch_size=32):
         self.tuner = RandomSearch(self.build_model,
                                   objective='val_loss',
-                                  max_trials=8,
+                                  max_trials=50,
                                   executions_per_trial=1,
                                   directory='logs/keras-tuner/',
                                   project_name='autoencoder')
@@ -179,7 +179,7 @@ class AutoEncoder():
 
         self.tuner.search(x=self.X_train,
                           y=self.X_train,
-                          epochs=20,
+                          epochs=24,
                           batch_size=32,
                           validation_data=(self.X_test, self.X_test),
                           callbacks=[EarlyStopping('val_loss', patience=3)])
@@ -188,10 +188,11 @@ class AutoEncoder():
 
     def evaluate_model(self):
         best_model = self.tuner.get_best_models(1)[0]
+        model.save('best_autoencoder_model')
         best_hyperparameters = self.tuner.get_best_hyperparameters(1)[0]
 
-        # print(f'best_model = {best_model}')
-        # print(f'best_hyperparameters = {self.tuner.results_summary()[0]}')
+        print(f'best_model = {best_model}')
+        print(f'best_hyperparameters = {self.tuner.results_summary()[0]}')
         nth_qso = 24
 
         X_test = np.squeeze(self.X_test, axis=2)
@@ -203,27 +204,28 @@ class AutoEncoder():
         qso_ra = self.df_quasars.loc[self.df_quasars['objid'] == self.objids_test[nth_qso]]['ra'].values[0]
         qso_dec = self.df_quasars.loc[self.df_quasars['objid'] == self.objids_test[nth_qso]]['dec'].values[0]
         qso_plate = self.df_quasars.loc[self.df_quasars['objid'] == self.objids_test[nth_qso]]['plate'].values[0]
+        qso_z = self.df_quasars.loc[self.df_quasars['objid'] == self.objids_test[nth_qso]]['z'].values[0]
 
         plotify = Plotify(theme='ugly') 
 
         _, axs = plotify.get_figax(nrows=2, figsize=(8, 8))
         axs[0].plot(self.wavelengths, original[nth_qso], color=plotify.c_orange)
         axs[1].plot(self.wavelengths, preds[nth_qso], color=plotify.c_orange)
-        axs[0].set_title(f'ra = {qso_ra}, dec = {qso_dec}, plate = {qso_plate}', fontsize=14)
+        axs[0].set_title(f'ra = {qso_ra}, dec = {qso_dec}, z = {qso_z}, plate = {qso_plate}', fontsize=14)
         axs[1].set_title(f'Autoencoder recreation')
         axs[0].set_ylabel(r'$F_{\lambda[10^{-17} erg \: cm^{-2}s^{-1} Å^{-1}]}$', fontsize=14)
         axs[1].set_ylabel(r'$F_{\lambda[10^{-17} erg \: cm^{-2}s^{-1} Å^{-1}]}$', fontsize=14)
         axs[1].set_xlabel('Wavelength (Å)')
 
         plt.subplots_adjust(hspace=0.4)
-        plt.savefig('plots/autoencoder_gaussian', facecolor=plotify.c_background, dpi=180)
+        # plt.savefig('plots/autoencoder_gaussian', facecolor=plotify.c_background, dpi=180)
         plt.show()
 
         return preds
 
 def main():
     df_fluxes = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='fluxes')
-    df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='spectral_data')
+    df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='source_info')
 
     ae = AutoEncoder(df_source_info, df_fluxes)
     ae.train_model(epochs=24, batch_size=64)
