@@ -20,9 +20,9 @@ from tensorflow.keras.layers import Dense, Dropout, Activation, Flatten, Conv1D,
 from tensorflow.keras.models import Sequential, Model
 from tensorflow.keras.utils import to_categorical
 
-from spectral_analysis.spectral_analysis.data_preprocessing.data_preprocessing import remove_bytes_from_class, get_fluxes_from_h5, get_joint_classes, apply_gaussian_filter
-from spectral_analysis.spectral_analysis.plotify import Plotify
-from spectral_analysis.spectral_analysis.classifiers.neural_network.helper_functions import train_test_split, evaluate_model, shuffle_in_unison, get_incorrect_predictions
+from spectral_analysis.data_preprocessing.data_preprocessing import remove_bytes_from_class, get_fluxes_from_h5, get_joint_classes, apply_gaussian_filter
+from spectral_analysis.plotify import Plotify
+from spectral_analysis.classifiers.neural_network.helper_functions import train_test_split, evaluate_model, shuffle_in_unison, get_incorrect_predictions
 
 class MixedInputModel():
     def __init__(self, mainclass='NONE', spectral_lines=False, df_wavelengths=None, gaussian=False, epochs=2, load_model=False, model_path=None):
@@ -37,15 +37,9 @@ class MixedInputModel():
     def _prepare_data(self, df_source_info, df_fluxes):
         self.df_source_info = df_source_info
 
-        quasars = df_source_info.loc[df_source_info['class'] == 'QSO']
-        print(f'len(quasars) = {len(quasars)}')
+        qso = df_source_info.loc[df_source_info['class'] == 'QSO']
+        print(f'len(qso) = {qso}')
 
-        galaxies = df_source_info.loc[df_source_info['class'] == 'GALAXY']
-        print(f'len(galaxies) = {len(galaxies)}')
-
-        stars = df_source_info.loc[df_source_info['class'] == 'STAR']
-        print(f'len(stars) = {len(stars)}')
-        
         if self.mainclass == 'NONE':
             try: df_source_info['label'] = [x.decode('utf-8') for x in df_source_info['class']]
             except: df_source_info['label'] = df_source_info['class']
@@ -262,7 +256,8 @@ class MixedInputModel():
                                       y_test=y_test,
                                       df_source_info_test=df_source_info_test,
                                       df_wavelengths=df_wavelengths,
-                                      gaussian=self.gaussian)
+                                      gaussian=self.gaussian,
+                                      classes=self.label_columns)
   
         
         elif self.load_model == False:
@@ -311,22 +306,24 @@ class MixedInputModel():
         return model
 
 def main():
-    df_fluxes = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='fluxes')
-    df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='source_info')
-    df_wavelengths = pd.read_hdf('data/sdss/preprocessed/balanced_spectral_lines.h5', key='wavelengths')
+    df_fluxes = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='fluxes').head(30000)
+    df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='source_info').head(30000)
+    df_wavelengths = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='wavelengths')
 
     # mixed_input_model = MixedInputModel(gaussian=True,
     #                                     epochs=2,
     #                                     load_model=True,
     #                                     model_path='logs/mixed-input-gaussian.h5',
     #                                     spectral_lines=False)
+
+    print(df_source_info)
+    print(df_source_info.columns)
     
     mixed_input_model = MixedInputModel(gaussian=False,
                                         epochs=1,
                                         load_model=True,
-                                        model_path='logs/colab-logs/galaxies_mixed_input.h5',
-                                        spectral_lines=False,
-                                        mainclass='GALAXY')
+                                        model_path='logs/colab-logs/best_mixed_input_epoch20.h5',
+                                        spectral_lines=False)
 
     mixed_input_model.train(df_source_info, df_fluxes, df_wavelengths)
 

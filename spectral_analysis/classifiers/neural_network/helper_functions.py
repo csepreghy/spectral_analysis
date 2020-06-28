@@ -22,8 +22,8 @@ from tensorflow.keras.layers import Dense, Activation, Input, concatenate
 from tensorflow.keras.models import Sequential, Model
 from tensorflow.keras.utils import to_categorical
 
-from spectral_analysis.spectral_analysis.plotify import Plotify
-from spectral_analysis.spectral_analysis.data_preprocessing.bpt_diagram import plot_bpt_diagram
+from spectral_analysis.plotify import Plotify
+from spectral_analysis.data_preprocessing.bpt_diagram import plot_bpt_diagram
 
 
 
@@ -82,11 +82,11 @@ def get_incorrect_predictions(model,
     wrong_indeces = []
     correct_indeces = []
     for i in range(len(predictions)):
-        # if y_test[i] == 2:
-        if predictions[i] != y_test[i]:
-            wrong_indeces.append(i)
-        
-        else: correct_indeces.append(i)
+        if y_test[i] == 1:
+            if predictions[i] != y_test[i]:
+                wrong_indeces.append(i)
+            
+            else: correct_indeces.append(i)
 
     # indices = [i for i in enumerate(predictions) if predictions[i] != y_test[i]]
     wrong_predictions = []
@@ -122,14 +122,14 @@ def get_incorrect_predictions(model,
         source_info = df_source_info_test.iloc[i]
 
         if gaussian == False:
-            _, ax = plotify.get_figax(figsize=(6,6))
-            title = f'ra = {source_info.get(["ra"][0])}, dec = {source_info.get(["dec"][0])} \n z = {source_info.get(["z"][0])}, plate = {source_info.get(["plate"][0])}\n\n Predicted: {wrong_prediction["predicted"]}, Target Class: {wrong_prediction["target_class"]}'
+            _, ax = plotify.get_figax(figsize=(8,6))
+            title = f'Example of an {wrong_prediction["predicted"]} \n\n ra = {source_info.get(["ra"][0])}, dec = {source_info.get(["dec"][0])} z = {source_info.get(["z"][0])}, plate = {source_info.get(["plate"][0])}'
             ax.set_title(title, pad=10, fontsize=15)
             ax.set_xlabel('Wavelength (Å)')
             ax.set_ylabel(r'$F_{\lambda[10^{-17} erg \: cm^{-2}s^{-1} Å^{-1}]}$', fontsize=14)
             plt.plot(wavelengths, fluxes, color=plotify.c_orange, lw=0.6)
             plt.tight_layout()
-            plt.savefig(f'plots/wrong_predictions/galaxies/wrong_prediction_{i}.png', dpi=140)
+            plt.savefig(f'plots/wrong_predictions/_qso__wrong_prediction_{i}.png', dpi=150)
         
         if gaussian == True:
             _, axs = plotify.get_figax(nrows=2, figsize=(5.5, 8))
@@ -157,21 +157,21 @@ def get_incorrect_predictions(model,
         source_info = df_source_info_test.iloc[i]
 
         if gaussian == False:
-            fig, ax = plotify.get_figax(figsize=(6,6))
-            title = f'ra = {source_info.get(["ra"][0])}, dec = {source_info.get(["dec"][0])} \n z = {source_info.get(["z"][0])}, plate = {source_info.get(["plate"][0])}\n\n Predicted: {correct_prediction["predicted"]}, Target Class: {correct_prediction["target_class"]}'
+            fig, ax = plotify.get_figax(figsize=(8,6))
+            title = f'Example of an {correct_prediction["predicted"]} \n\n ra = {source_info.get(["ra"][0])}, dec = {source_info.get(["dec"][0])} z = {source_info.get(["z"][0])}, plate = {source_info.get(["plate"][0])}'
             ax.set_title(title, pad=10, fontsize=15)
             ax.set_xlabel('Wavelength (Å)')
             ax.set_ylabel(r'$F_{\lambda[10^{-17} erg \: cm^{-2}s^{-1} Å^{-1}]}$', fontsize=14)
             plt.plot(wavelengths, fluxes, color=plotify.c_orange, lw=0.6)
             plt.tight_layout()
-            plt.savefig(f'plots/correct_predictions/galaxies/correct_prediction_{i}.png', dpi=140)
+            plt.savefig(f'plots/correct_predictions/__qso_correct_prediction_{i}.png', dpi=150)
         
         if gaussian == True:
             fig, axs = plotify.get_figax(nrows=2, figsize=(5.5, 8))
             axs[0].plot(wavelengths, raw_fluxes, color=plotify.c_orange, lw=0.6)
             axs[1].plot(wavelengths, fluxes, color=plotify.c_orange, lw=0.6)
             
-            title = f'ra = {source_info.get(["ra"][0])}, dec = {source_info.get(["dec"][0])} \n z = {source_info.get(["z"][0])}, plate = {source_info.get(["plate"][0])}\n\n Predicted: {correct_prediction["predicted"]}, Target Class: {correct_prediction["target_class"]}'
+            title = f'Example of a {source_info.get["subClass"][0]} galaxy \n\n ra = {source_info.get(["ra"][0])}, dec = {source_info.get(["dec"][0])} z = {source_info.get(["z"][0])}, plate = {source_info.get(["plate"][0])}'
 
             axs[0].set_title(title, pad=10, fontsize=15)
             axs[1].set_title(r'with Gaussian convolution, $\sigma = 4$')
@@ -196,9 +196,10 @@ def evaluate_model(model, X_test, y_test, classes, indeces=None, df_source_info=
 
     print(f'X_test = {len(X_test)}')
     # print(f'indeces = {len(indeces)}')
-    print(f'len(y_pred) = {len(y_pred)}')
+    print(f'len(y_pred) = {len(y_pred)}') 
+    print(f'classes = {classes}')
 
-    matrix = confusion_matrix(y_test.argmax(axis=1), y_pred.argmax(axis=1))
+    matrix = confusion_matrix(y_test.argmax(axis=1), y_pred.argmax(axis=1), labels=range(len(classes)))
     print(f'confusion matrix: \n {matrix}')
 
     # print(f'df_source_info[indeces] = {len(df_source_info.loc[indeces])}')
@@ -239,45 +240,49 @@ def shuffle_along_axis(a, axis):
     return np.take_along_axis(a,idx,axis=axis)
 
 def main():
-    train = pd.read_csv('data/tensorboard-logs/stars/stars_train-accuracy.csv')['Value'].values
-    validation = pd.read_csv('data/tensorboard-logs/stars/stars_validation-accuracy.csv')['Value'].values
+    train = pd.read_csv('data/tensorboard-logs/cnn/cnn-train_accuracy.csv')['Value'].values
+    validation = pd.read_csv('data/tensorboard-logs/cnn/cnn-validation_accuracy.csv')['Value'].values
     
-    train_loss = pd.read_csv('data/tensorboard-logs/stars/stars_train-loss.csv')['Value'].values
-    validation_loss = pd.read_csv('data/tensorboard-logs/stars/stars_validation_loss.csv')['Value'].values
+    train_loss = pd.read_csv('data/tensorboard-logs/cnn/cnn-train_loss.csv')['Value'].values
+    validation_loss = pd.read_csv('data/tensorboard-logs/cnn/cnn-validation_loss.csv')['Value'].values
     xs = np.array(list(range(60)))
 
     plotify = Plotify(theme='ugly')
     fig, ax = plotify.get_figax()
 
     
-    ax.plot(xs, train, color=plotify.c_orange, label='training accuracy')
-    ax.plot(xs, validation, color=plotify.c_blue, label='validation accuracy')
-    ax.set_xlabel('Number of Epochs')
-    ax.set_ylabel('Accuracy')
+    ax.plot(xs, train, color='#E71E50', label='training accuracy')
+    ax.plot(xs, validation, color='#2B57A4', label='validation accuracy')
+    ax.set_xlabel('Number of Epochs', fontsize=15)
+    ax.set_ylabel('Accuracy', fontsize=15)
     ax.xaxis.set_major_locator(ticker.MultipleLocator(5))
-    ax.set_ylim(0,1)
+    ax.set_ylim(0.75,1)
     plt.legend()
-    ax.set_title('Mixed-input Network Training on 9,802 sources \n Classifying 41 classes of stars')
+    ax.grid(color='#AAAAAA')
+    ax.set_xticks(np.arange(0,60,10))
+    ax.set_title('CNN Training on 51,200 sources (Galaxy, Quasar, Star)')
     ttl = ax.title
     ttl.set_position([0.5, 1.025])
     fig.tight_layout()
-    plt.savefig('plots/stars_training_accuracies2')
+    plt.savefig('plots/c_cnn_training_accuracies')
     plt.show()
 
     fig, ax = plotify.get_figax()
-    ax.set_ylabel('Loss')
-    ax.plot(xs, train_loss, color=plotify.c_orange, label='training loss')
-    ax.plot(xs, validation_loss, color=plotify.c_blue, label='validation loss')
+    ax.plot(xs, train_loss, color='#E71E50', label='training loss')
+    ax.plot(xs, validation_loss, color='#2B57A4', label='validation loss')
     ax.xaxis.set_major_locator(ticker.MultipleLocator(5))
-    ax.set_ylim(0,4)
-    ax.set_xlabel('Number of Epochs')
-    ax.set_title('Mixed-input Network Training on 9,802 sources \n Classifying 41 classes of stars')
+    ax.set_ylim(0,0.8)
+    ax.set_ylabel('Loss', fontsize=15)
+    ax.set_xlabel('Number of Epochs', fontsize=15)
+    ax.set_title('CNN Training on 51,200 sources (Galaxy, Quasar, Star)')
     ttl = ax.title
     ttl.set_position([0.5, 1.025])
     plt.tight_layout()
     plt.legend()
+    ax.grid(color='#AAAAAA')
+    ax.set_xticks(np.arange(0,60,10))
 
-    plt.savefig('plots/stars_training_losses2')
+    plt.savefig('plots/c_cnn_training_losses')
     plt.show()
 
 if __name__ == "__main__":
