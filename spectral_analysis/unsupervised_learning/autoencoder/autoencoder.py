@@ -60,7 +60,7 @@ class AutoEncoder():
 
         print(f'X.shape {X.shape}')
 
-        wavelengths = get_wavelengths_from_h5(filename='sdss/preprocessed/balanced.h5')
+        wavelengths = get_wavelengths_from_h5(filename='drive/My Drive/spectral_analysis/data/balanced.h5')
         wavelengths = wavelengths[::8]
         self.wavelengths = wavelengths[0:448]
         # plot_spectrum(X[0], wavelengths)
