@@ -60,7 +60,7 @@ class AutoEncoder():
 
         print(f'X.shape {X.shape}')
 
-        wavelengths = pd.read_hdf('drive/My Drive/spectral_analysis/data/balanced.h5').to_numpy()
+        wavelengths = pd.read_hdf('drive/My Drive/spectral_analysis/data/balanced.h5', key='wavelengths').to_numpy()
         wavelengths = wavelengths[::8]
         self.wavelengths = wavelengths[0:448]
         # plot_spectrum(X[0], wavelengths)
