@@ -82,32 +82,32 @@ class AutoEncoder():
         input_layer = Input(shape=(self.X_train.shape[1], 1))
 
         # encoder
-        x = Conv1D(filters=hyperparameters['layer_1_filters'],
-                   kernel_size=hyperparameters['layer_1_kernel_size'],
+        x = Conv1D(filters=512,
+                   kernel_size=7,
                    activation='relu', 
                    padding='same')(input_layer)
 
         x = MaxPooling1D(2)(x)
-        x = Conv1D(filters=hyperparameters['layer_2_filters'],
-                    kernel_size=hyperparameters['layer_2_kernel_size'],
+        x = Conv1D(filters=256,
+                    kernel_size=5,
                     activation='relu',
                     padding='same')(x)
         
         x = MaxPooling1D(2)(x)
-        x = Conv1D(filters=hyperparameters['layer_3_filters'],
-                    kernel_size=hyperparameters['layer_3_kernel_size'],
+        x = Conv1D(filters=128,
+                    kernel_size=5,
                     activation='relu',
                     padding='same')(x)
 
         x = MaxPooling1D(2)(x)
-        x = Conv1D(filters=hyperparameters['layer_4_filters'],
-                    kernel_size=hyperparameters['layer_4_kernel_size'],
+        x = Conv1D(filters=64,
+                    kernel_size=3,
                     activation='relu',
                     padding='same')(x)
 
         x = MaxPooling1D(2)(x)
-        x = Conv1D(filters=hyperparameters['layer_5_filters'],
-                    kernel_size=hyperparameters['layer_5_kernel_size'],
+        x = Conv1D(filters=32,
+                    kernel_size=3,
                     activation='relu',
                     padding='same')(x)
 
@@ -117,22 +117,22 @@ class AutoEncoder():
         # ==================================== DECODER ===================================== #
         # ================================================================================== #
 
-        x = Conv1D(filters=hyperparameters['layer_5_filters'],
-                   kernel_size=hyperparameters['layer_5_kernel_size'],
+        x = Conv1D(filters=32,
+                   kernel_size=3,
                    activation='relu',
                    padding='same')(encoded)
         
         x = UpSampling1D(2)(x)
 
-        x = Conv1D(filters=hyperparameters['layer_4_filters'],
-                   kernel_size=hyperparameters['layer_4_kernel_size'],
+        x = Conv1D(filters=64,
+                   kernel_size=5,
                    activation='relu',
                    padding='same')(x)
 
         x = UpSampling1D(2)(x)
 
-        x = Conv1D(filters=hyperparameters['layer_3_filters'],
-                   kernel_size=hyperparameters['layer_3_kernel_size'],
+        x = Conv1D(filters=256,
+                   kernel_size=5,
                    activation='relu',
                    padding='same')(x)
 
@@ -191,20 +191,14 @@ class AutoEncoder():
         _, axs = plotify.get_figax(nrows=2, figsize=(8, 10))
         axs[0].plot(self.wavelengths, self.X_test[24], color=plotify.c_orange)
         axs[1].plot(self.wavelengths, preds[24], color=plotify.c_orange)
-        plt.savefig('plots/autoencoder_gaussian', facecolor=plotify.background_color, dpi=180)
+        plt.savefig('plots/autoencoder_gaussian', dpi=160)
         plt.show()
 
         return preds
 
 def main():
-    df_fluxes1 = pd.read_hdf('data/sdss/preprocessed/0-50_o_fluxes.h5', key='fluxes')
-    df_source_info1 = pd.read_hdf('data/sdss/preprocessed/0-50_o_fluxes.h5', key='spectral_data')
-
-    df_fluxes2 = pd.read_hdf('data/sdss/preprocessed/50-100_o_fluxes.h5', key='fluxes')
-    df_source_info2 = pd.read_hdf('data/sdss/preprocessed/50-100_o_fluxes.h5', key='spectral_data')
-
-    df_fluxes = pd.concat([df_fluxes1, df_fluxes2], ignore_index=True)
-    df_source_info = pd.concat([df_source_info1, df_source_info2], ignore_index=True)
+    df_fluxes = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='fluxes')
+    df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='source_info')
 
     ae = AutoEncoder(df_source_info, df_fluxes)
     ae.train_model(epochs=24, batch_size=64)
