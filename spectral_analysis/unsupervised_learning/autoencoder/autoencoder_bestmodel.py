@@ -132,7 +132,7 @@ class AutoEncoder():
                    padding='same')(x)
 
         x = UpSampling1D(2)(x)
-        decoded = Conv1D(1, 1, activation='softmax', padding='same')(x)
+        decoded = Conv1D(1, 1, activation='tanh', padding='same')(x)
         
         self.autoencoder = Model(input_layer, decoded)
         self.autoencoder.summary()
