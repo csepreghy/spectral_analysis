@@ -24,8 +24,8 @@ matplotlib.rcParams['text.usetex'] = True
 matplotlib.rcParams['axes.titlepad'] = 15
 
 class AutoEncoder():
-    def __init__(self, df_source_info, df_fluxes):
-        X = self._prepare_data(df_source_info, df_fluxes)
+    def __init__(self, df_source_info, df_fluxes, df_wavelengths):
+        X = self._prepare_data(df_source_info, df_fluxes, df_wavelengths)
         objids = self.df_quasars['objid'].values
         print(f'objids = {objids}')
 
@@ -44,7 +44,7 @@ class AutoEncoder():
         self.optimizer = Nadam(lr=0.001)
 
     
-    def _prepare_data(self, df_source_info, df_fluxes):
+    def _prepare_data(self, df_source_info, df_fluxes, df_wavelengths):
         if "b'" in str(df_source_info['class'][0]):
             df_source_info = remove_bytes_from_class(df_source_info)
     
@@ -60,7 +60,7 @@ class AutoEncoder():
 
         print(f'X.shape {X.shape}')
 
-        wavelengths = get_wavelengths_from_h5(filename='sdss/preprocessed/balanced.h5')
+        wavelengths = df_wavelengths.to_numpy()
         wavelengths = wavelengths[::8]
         self.wavelengths = wavelengths[0:448]
         # plot_spectrum(X[0], wavelengths)
@@ -226,8 +226,9 @@ class AutoEncoder():
 def main():
     df_fluxes = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='fluxes')
     df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='source_info')
+    df_wavelengths = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='wavelengths')
 
-    ae = AutoEncoder(df_source_info, df_fluxes)
+    ae = AutoEncoder(df_source_info, df_fluxes, df_wavelengths)
     ae.train_model(epochs=24, batch_size=64)
 
     ae.evaluate_model()

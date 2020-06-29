@@ -13,27 +13,29 @@ from tensorflow.keras.callbacks import EarlyStopping
 from kerastuner.engine.hyperparameters import HyperParameters
 from kerastuner.tuners import RandomSearch
 
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import MinMaxScaler
 
 from spectral_analysis.data_preprocessing.data_preprocessing import plot_spectrum, get_wavelengths_from_h5
 from spectral_analysis.classifiers.neural_network.helper_functions import train_test_split
 from spectral_analysis.plotify import Plotify
 
 class AutoEncoder():
-    def __init__(self, df_source_info, df_fluxes, df_wavelengths):
+    def __init__(self, df_source_info, df_fluxes, df_wavelengths, load_model):
+        self.load_model = load_model
         X = self._prepare_data(df_source_info, df_fluxes, df_wavelengths)
         X_train, X_test = train_test_split(X, 0.2)
+        X_train, X_val = train_test_split(X_train, 0.2)
         
-        self.scaler = StandardScaler()
+        self.scaler = MinMaxScaler()
         X_train = self.scaler.fit_transform(X_train)
         X_test = self.scaler.transform(X_test)
+        X_val = self.scaler.transform(X_val)
 
         self.X_train = np.expand_dims(X_train, axis=2)
         self.X_test = np.expand_dims(X_test, axis=2)
+        self.X_val = np.expand_dims(X_val, axis=2)
         
         print(f'self.X_train = {self.X_train}')
-        
-        self.optimizer = Nadam(lr=0.001)
 
     
     def _prepare_data(self, df_source_info, df_fluxes, df_wavelengths):    
@@ -132,7 +134,7 @@ class AutoEncoder():
                    padding='same')(x)
 
         x = UpSampling1D(2)(x)
-        decoded = Conv1D(1, 1, activation='softmax', padding='same')(x)
+        decoded = Conv1D(1, 1, activation='tanh', padding='same')(x)
         
         self.autoencoder = Model(input_layer, decoded)
         self.autoencoder.summary()
@@ -142,34 +144,41 @@ class AutoEncoder():
     
     def train_model(self, epochs, batch_size=32):
         model = self.build_model()
+        
+        if self.load_model == False:
+            modelcheckpoint = ModelCheckpoint(filepath='logs/autoencoder.epoch{epoch:02d}.h5',
+                                              monitor='val_loss',
+                                              save_best_only=True)
+        
+            print(f'self.X_train = {self.X_train}')
+            print(f'self.X_test {self.X_test}')
+            
+            history = model.fit(x=self.X_train,
+                                y=self.X_train,
+                                epochs=epochs,
+                                batch_size=32,
+                                validation_data=(self.X_test, self.X_test),
+                                callbacks=[EarlyStopping('val_loss', patience=8), modelcheckpoint])
 
-        modelcheckpoint = ModelCheckpoint(filepath='logs/autoencoder.epoch{epoch:02d}.h5',
-                                          monitor='val_loss',
-                                          save_best_only=True)
-        
-        history = model.fit(x=self.X_train,
-                            y=self.X_train,
-                            epochs=epochs,
-                            batch_size=32,
-                            validation_data=(self.X_test, self.X_test),
-                            callbacks=[EarlyStopping('val_loss', patience=8), modelcheckpoint])
-        
-        _, train_acc = model.evaluate(self.X_train, self.X_train, verbose=0)
-        _, test_acc = model.evaluate(self.X_test, self.X_test, verbose=0)
-        print('Train: %.3f, Test: %.3f' % (train_acc, test_acc))
+            self.evaluate_model(model)
+
+        else:
+            model.load_weights('logs/colab-logs/autoencoder.epoch49.h5')
+            print(f'model = {model}')
+            self.evaluate_model(model)
 
         return model
-
-
 
     def evaluate_model(self, model):
         preds = model.predict(self.X_test)
 
-        plotify = Plotify()
-        _, axs = plotify.get_figax(nrows=2, figsize=(8, 10))
+        #X_test = np.squeeze(self.X_test, axis=2)
+
+        plotify = Plotify(theme='ugly')
+        _, axs = plotify.get_figax(nrows=2, figsize=(8, 8))
         axs[0].plot(self.wavelengths, self.X_test[24], color=plotify.c_orange)
         axs[1].plot(self.wavelengths, preds[24], color=plotify.c_orange)
-        plt.savefig('plots/autoencoder_gaussian', dpi=160)
+        # plt.savefig('plots/autoencoder_gaussian_2_', dpi=160)
         plt.show()
 
         return preds
@@ -179,10 +188,8 @@ def main():
     df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='source_info')
     df_wavelengths = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='wavelengths')
 
-    ae = AutoEncoder(df_source_info, df_fluxes, df_wavelengths)
-    model = ae.train_model(epochs=24, batch_size=64)
-
-    ae.evaluate_model(model)
+    ae = AutoEncoder(df_source_info, df_fluxes, df_wavelengths, load_model=False)
+    ae.train_model(epochs=12, batch_size=64)
     
 
 if __name__ == "__main__":
