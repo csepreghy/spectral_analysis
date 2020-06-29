@@ -20,8 +20,9 @@ from spectral_analysis.spectral_analysis.classifiers.neural_network.helper_funct
 from spectral_analysis.spectral_analysis.plotify import Plotify
 
 class AutoEncoder():
-    def __init__(self, df_source_info, df_fluxes, df_wavelengths, load_model):
+    def __init__(self, df_source_info, df_fluxes, df_wavelengths, load_model, weights_path=''):
         self.load_model = load_model
+        self.weights_path = weights_path
         X = self._prepare_data(df_source_info, df_fluxes, df_wavelengths)
         X_train, X_test = train_test_split(X, 0.2)
         X_train, X_val = train_test_split(X_train, 0.2)
@@ -157,13 +158,13 @@ class AutoEncoder():
                                 y=self.X_train,
                                 epochs=epochs,
                                 batch_size=32,
-                                validation_data=(self.X_test, self.X_test),
+                                validation_data=(self.X_val, self.X_val),
                                 callbacks=[EarlyStopping('val_loss', patience=8), modelcheckpoint])
 
             self.evaluate_model(model)
 
         else:
-            model.load_weights('logs/colab-logs/autoencoder.epoch49.h5')
+            model.load_weights(self.weights_path)
             print(f'model = {model}')
             self.evaluate_model(model)
 
@@ -173,13 +174,12 @@ class AutoEncoder():
         preds = model.predict(self.X_test)
 
         #X_test = np.squeeze(self.X_test, axis=2)
-
-        plotify = Plotify(theme='ugly')
-        _, axs = plotify.get_figax(nrows=2, figsize=(8, 8))
-        axs[0].plot(self.wavelengths, self.X_test[24], color=plotify.c_orange)
-        axs[1].plot(self.wavelengths, preds[24], color=plotify.c_orange)
-        # plt.savefig('plots/autoencoder_gaussian_2_', dpi=160)
-        plt.show()
+        for i in range(50):
+            plotify = Plotify(theme='ugly')
+            _, axs = plotify.get_figax(nrows=2, figsize=(8, 8))
+            axs[0].plot(self.wavelengths, self.X_test[i], color=plotify.c_orange)
+            axs[1].plot(self.wavelengths, preds[i], color=plotify.c_orange)
+            plt.savefig('plots/autoencoder/autoencoder_gaussian', dpi=160)
 
         return preds
 
@@ -188,7 +188,7 @@ def main():
     df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='source_info')
     df_wavelengths = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='wavelengths')
 
-    ae = AutoEncoder(df_source_info, df_fluxes, df_wavelengths, load_model=False)
+    ae = AutoEncoder(df_source_info, df_fluxes, df_wavelengths, load_model=True, weights_path='')
     ae.train_model(epochs=12, batch_size=64)
     
 
