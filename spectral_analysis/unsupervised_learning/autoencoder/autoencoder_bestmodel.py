@@ -172,10 +172,20 @@ class AutoEncoder():
 
         #X_test = np.squeeze(self.X_test, axis=2)
         for i in range(50):
+            qso_ra = self.df_quasars.loc[self.df_quasars['objid'] == self.objids_test[i]]['ra'].values[0]
+            qso_dec = self.df_quasars.loc[self.df_quasars['objid'] == self.objids_test[i]]['dec'].values[0]
+            qso_plate = self.df_quasars.loc[self.df_quasars['objid'] == self.objids_test[i]]['plate'].values[0]
+            qso_z = self.df_quasars.loc[self.df_quasars['objid'] == self.objids_test[i]]['z'].values[0]
+
             plotify = Plotify(theme='ugly')
             _, axs = plotify.get_figax(nrows=2, figsize=(8, 8))
             axs[0].plot(self.wavelengths, self.X_test[i], color=plotify.c_orange)
             axs[1].plot(self.wavelengths, preds[i], color=plotify.c_orange)
+            axs[0].set_title(f'ra = {qso_ra}, dec = {qso_dec}, z = {qso_z}, plate = {qso_plate}', fontsize=14)
+            axs[1].set_title(f'Autoencoder recreation')
+            axs[0].set_ylabel(r'$F_{\lambda[10^{-17} erg \: cm^{-2}s^{-1} Å^{-1}]}$', fontsize=14)
+            axs[1].set_ylabel(r'$F_{\lambda[10^{-17} erg \: cm^{-2}s^{-1} Å^{-1}]}$', fontsize=14)
+            axs[1].set_xlabel('Wavelength (Å)')
             plt.savefig(f'plots/autoencoder/autoencoder_gaussian{i}', dpi=160)
 
         return preds
