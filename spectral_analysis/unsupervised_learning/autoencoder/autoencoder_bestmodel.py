@@ -132,7 +132,7 @@ class AutoEncoder():
                    padding='same')(x)
 
         x = UpSampling1D(2)(x)
-        decoded = Conv1D(1, 1, activation='relu', padding='same')(x)
+        decoded = Conv1D(1, 1, activation='softmax', padding='same')(x)
         
         self.autoencoder = Model(input_layer, decoded)
         self.autoencoder.summary()
@@ -154,8 +154,8 @@ class AutoEncoder():
                             validation_data=(self.X_test, self.X_test),
                             callbacks=[EarlyStopping('val_loss', patience=8), modelcheckpoint])
         
-        _, train_acc = model.evaluate(X_train, X_train, verbose=0)
-        _, test_acc = model.evaluate(X_test, X_test, verbose=0)
+        _, train_acc = model.evaluate(self.X_train, self.X_train, verbose=0)
+        _, test_acc = model.evaluate(self.X_test, self.X_test, verbose=0)
         print('Train: %.3f, Test: %.3f' % (train_acc, test_acc))
 
         return model
