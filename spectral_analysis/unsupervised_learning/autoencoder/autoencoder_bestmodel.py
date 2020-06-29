@@ -36,8 +36,6 @@ class AutoEncoder():
         self.X_train = np.expand_dims(X_train, axis=2)
         self.X_test = np.expand_dims(X_test, axis=2)
         self.X_val = np.expand_dims(X_val, axis=2)
-        
-        print(f'self.X_train = {self.X_train}')
 
     
     def _prepare_data(self, df_source_info, df_fluxes, df_wavelengths):    
@@ -50,8 +48,6 @@ class AutoEncoder():
         print(f'X.shape = {X.shape}')
 
         X = X[:, np.mod(np.arange(X[0].size),25)!=0]
-
-        print(f'{X.shape}')
 
         wavelengths = df_wavelengths.to_numpy()
         wavelengths = wavelengths[::8]
@@ -171,7 +167,8 @@ class AutoEncoder():
     def evaluate_model(self, model):
         preds = model.predict(self.X_test)
 
-        #X_test = np.squeeze(self.X_test, axis=2)
+        self.X_test = np.squeeze(self.X_test, axis=2)
+        
         for i in range(50):
             qso_ra = self.df_quasars.loc[self.df_quasars['objid'] == self.objids_test[i]]['ra'].values[0]
             qso_dec = self.df_quasars.loc[self.df_quasars['objid'] == self.objids_test[i]]['dec'].values[0]
