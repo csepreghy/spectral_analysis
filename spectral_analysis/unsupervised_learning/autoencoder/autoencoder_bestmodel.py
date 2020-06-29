@@ -4,7 +4,7 @@ import os
 import matplotlib.pyplot as plt
 import time
 
-from tensorflow.keras.layers import Input, Dense, Flatten, Conv1D, MaxPooling1D, UpSampling1D, BatchNormalization, Reshape
+from tensorflow.keras.layers import Input, Dense, Flatten, Conv1D, MaxPooling1D, UpSampling1D, BatchNormalization, Reshape, Dropout
 from tensorflow.keras.models import Model, Sequential
 from tensorflow.keras.callbacks import TensorBoard, History, EarlyStopping, ModelCheckpoint
 from tensorflow.keras.optimizers import Adam, Nadam, RMSprop
@@ -136,7 +136,7 @@ class AutoEncoder():
                    padding='same')(x)
         x = UpSampling1D(2)(x)
         x = Dropout(0.1)(x)
-        
+
         decoded = Conv1D(1, 1, activation='tanh', padding='same')(x)
         
         self.autoencoder = Model(input_layer, decoded)
