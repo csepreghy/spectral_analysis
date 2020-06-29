@@ -13,11 +13,11 @@ from tensorflow.keras.callbacks import EarlyStopping
 from kerastuner.engine.hyperparameters import HyperParameters
 from kerastuner.tuners import RandomSearch
 
-from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import MinMaxScaler, StandardScaler
 
-from spectral_analysis.spectral_analysis.data_preprocessing.data_preprocessing import plot_spectrum, get_wavelengths_from_h5
-from spectral_analysis.spectral_analysis.classifiers.neural_network.helper_functions import train_test_split
-from spectral_analysis.spectral_analysis.plotify import Plotify
+from spectral_analysis.data_preprocessing.data_preprocessing import plot_spectrum, get_wavelengths_from_h5
+from spectral_analysis.classifiers.neural_network.helper_functions import train_test_split
+from spectral_analysis.plotify import Plotify
 
 class AutoEncoder():
     def __init__(self, df_source_info, df_fluxes, df_wavelengths, load_model, weights_path=''):
@@ -28,7 +28,7 @@ class AutoEncoder():
         X_train, X_val = train_test_split(X_train, 0.2)
         self.objids_train, self.objids_test = train_test_split(self.quasar_objids, 0.2)
         
-        self.scaler = MinMaxScaler()
+        self.scaler = StandardScaler()
         X_train = self.scaler.fit_transform(X_train)
         X_test = self.scaler.transform(X_test)
         X_val = self.scaler.transform(X_val)
@@ -166,8 +166,14 @@ class AutoEncoder():
 
     def evaluate_model(self, model):
         preds = model.predict(self.X_test)
-
+        
+        print(self.X_test.shape)
         self.X_test = np.squeeze(self.X_test, axis=2)
+        preds = np.squeeze(preds, axis=2)
+        print(self.X_test.shape)
+
+        self.X_test = self.scaler.inverse_transform(self.X_test)
+        preds = self.scaler.inverse_transform(preds)
         
         for i in range(50):
             qso_ra = self.df_quasars.loc[self.df_quasars['objid'] == self.objids_test[i]]['ra'].values[0]
@@ -176,7 +182,7 @@ class AutoEncoder():
             qso_z = self.df_quasars.loc[self.df_quasars['objid'] == self.objids_test[i]]['z'].values[0]
 
             plotify = Plotify(theme='ugly')
-            _, axs = plotify.get_figax(nrows=2, figsize=(8, 8))
+            _, axs = plotify.get_figax(nrows=2, figsize=(8, 6))
             axs[0].plot(self.wavelengths, self.X_test[i], color=plotify.c_orange)
             axs[1].plot(self.wavelengths, preds[i], color=plotify.c_orange)
             axs[0].set_title(f'ra = {qso_ra}, dec = {qso_dec}, z = {qso_z}, plate = {qso_plate}', fontsize=14)
@@ -195,7 +201,7 @@ def main():
     df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='source_info')
     df_wavelengths = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='wavelengths')
 
-    ae = AutoEncoder(df_source_info, df_fluxes, df_wavelengths, load_model=True, weights_path='')
+    ae = AutoEncoder(df_source_info, df_fluxes, df_wavelengths, load_model=True, weights_path='logs/colab-logs/autoencoder.epoch50.h5')
     ae.train_model(epochs=12, batch_size=64)
     
 
