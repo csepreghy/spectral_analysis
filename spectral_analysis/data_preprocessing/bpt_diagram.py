@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from spectral_analysisspectral_analysis..plotify import Plotify
+from spectral_analysis.spectral_analysis.plotify import Plotify
 import matplotlib.pyplot as plt
 
 def plot_bpt_diagram(df_source_info, labels, y_pred, y_test):
