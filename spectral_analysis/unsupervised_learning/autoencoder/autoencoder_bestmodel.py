@@ -150,9 +150,6 @@ class AutoEncoder():
             modelcheckpoint = ModelCheckpoint(filepath='logs/autoencoder.epoch{epoch:02d}.h5',
                                               monitor='val_loss',
                                               save_best_only=True)
-        
-            print(f'self.X_train = {self.X_train}')
-            print(f'self.X_test {self.X_test}')
             
             history = model.fit(x=self.X_train,
                                 y=self.X_train,
@@ -179,7 +176,7 @@ class AutoEncoder():
             _, axs = plotify.get_figax(nrows=2, figsize=(8, 8))
             axs[0].plot(self.wavelengths, self.X_test[i], color=plotify.c_orange)
             axs[1].plot(self.wavelengths, preds[i], color=plotify.c_orange)
-            plt.savefig('plots/autoencoder/autoencoder_gaussian', dpi=160)
+            plt.savefig(f'plots/autoencoder/autoencoder_gaussian{i}', dpi=160)
 
         return preds
 
