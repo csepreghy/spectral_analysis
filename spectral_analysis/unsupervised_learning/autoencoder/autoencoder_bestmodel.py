@@ -26,6 +26,7 @@ class AutoEncoder():
         X = self._prepare_data(df_source_info, df_fluxes, df_wavelengths)
         X_train, X_test = train_test_split(X, 0.2)
         X_train, X_val = train_test_split(X_train, 0.2)
+        self.objids_train, self.objids_test = train_test_split(self.quasar_objids, 0.2)
         
         self.scaler = MinMaxScaler()
         X_train = self.scaler.fit_transform(X_train)
@@ -41,8 +42,8 @@ class AutoEncoder():
     
     def _prepare_data(self, df_source_info, df_fluxes, df_wavelengths):    
         self.df_quasars = df_source_info.loc[df_source_info['class'] == 'QSO']
-        quasar_objids = self.df_quasars['objid'].to_numpy()
-        quasar_fluxes = df_fluxes.loc[df_fluxes['objid'].isin(quasar_objids)]
+        self.quasar_objids = self.df_quasars['objid'].to_numpy()
+        quasar_fluxes = df_fluxes.loc[df_fluxes['objid'].isin(self.quasar_objids)]
         
         X = np.delete(quasar_fluxes.values, 0, axis=1)
         X = X[:, 0::8]
@@ -186,6 +187,8 @@ class AutoEncoder():
             axs[0].set_ylabel(r'$F_{\lambda[10^{-17} erg \: cm^{-2}s^{-1} Å^{-1}]}$', fontsize=14)
             axs[1].set_ylabel(r'$F_{\lambda[10^{-17} erg \: cm^{-2}s^{-1} Å^{-1}]}$', fontsize=14)
             axs[1].set_xlabel('Wavelength (Å)')
+
+            plt.subplots_adjust(hspace=0.4)
             plt.savefig(f'plots/autoencoder/autoencoder_gaussian{i}', dpi=160)
 
         return preds
