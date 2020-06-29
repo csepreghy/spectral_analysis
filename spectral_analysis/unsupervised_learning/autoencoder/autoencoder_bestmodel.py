@@ -67,26 +67,30 @@ class AutoEncoder():
                    kernel_size=7,
                    activation='relu', 
                    padding='same')(input_layer)
-
         x = MaxPooling1D(2)(x)
+        x = Dropout(0.1)(x)
+
         x = Conv1D(filters=128,
                    kernel_size=5,
                    activation='relu',
                    padding='same')(x)
-        
         x = MaxPooling1D(2)(x)
+        x = Dropout(0.1)(x)
+
         x = Conv1D(filters=64,
                    kernel_size=5,
                    activation='relu',
                    padding='same')(x)
-
         x = MaxPooling1D(2)(x)
+        x = Dropout(0.1)(x)
+        
         x = Conv1D(filters=32,
                    kernel_size=3,
                    activation='relu',
                    padding='same')(x)
-
         x = MaxPooling1D(2)(x)
+        x = Dropout(0.1)(x)
+        
         x = Conv1D(filters=16,
                    kernel_size=3,
                    activation='relu',
@@ -102,36 +106,37 @@ class AutoEncoder():
                    kernel_size=3,
                    activation='relu',
                    padding='same')(encoded)
-        
         x = UpSampling1D(2)(x)
+        x = Dropout(0.1)(x)
 
         x = Conv1D(filters=32,
                    kernel_size=3,
                    activation='relu',
                    padding='same')(x)
-
         x = UpSampling1D(2)(x)
+        x = Dropout(0.1)(x)
 
         x = Conv1D(filters=64,
                    kernel_size=5,
                    activation='relu',
                    padding='same')(x)
-
         x = UpSampling1D(2)(x)
+        x = Dropout(0.1)(x)
 
         x = Conv1D(filters=128,
                    kernel_size=5,
                    activation='relu',
                    padding='same')(x)
-
         x = UpSampling1D(2)(x)
+        x = Dropout(0.1)(x)
 
         x = Conv1D(filters=256,
                    kernel_size=7,
                    activation='relu',
                    padding='same')(x)
-
         x = UpSampling1D(2)(x)
+        x = Dropout(0.1)(x)
+        
         decoded = Conv1D(1, 1, activation='tanh', padding='same')(x)
         
         self.autoencoder = Model(input_layer, decoded)
