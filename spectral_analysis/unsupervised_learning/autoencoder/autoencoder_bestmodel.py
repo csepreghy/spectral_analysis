@@ -15,13 +15,13 @@ from kerastuner.tuners import RandomSearch
 
 from sklearn.preprocessing import StandardScaler
 
-from spectral_analysis.spectral_analysis.data_preprocessing.data_preprocessing import plot_spectrum, get_wavelengths_from_h5
-from spectral_analysis.spectral_analysis.classifiers.neural_network.helper_functions import train_test_split
-from spectral_analysis.spectral_analysis.plotify import Plotify
+from spectral_analysis.data_preprocessing.data_preprocessing import plot_spectrum, get_wavelengths_from_h5
+from spectral_analysis.classifiers.neural_network.helper_functions import train_test_split
+from spectral_analysis.plotify import Plotify
 
 class AutoEncoder():
-    def __init__(self, df_source_info, df_fluxes):
-        X = self._prepare_data(df_source_info, df_fluxes)
+    def __init__(self, df_source_info, df_fluxes, df_wavelengths):
+        X = self._prepare_data(df_source_info, df_fluxes, df_wavelengths)
         X_train, X_test = train_test_split(X, 0.2)
         
         self.scaler = StandardScaler()
