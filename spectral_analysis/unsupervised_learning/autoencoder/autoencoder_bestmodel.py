@@ -55,7 +55,7 @@ class AutoEncoder():
         # plot_spectrum(X[0], wavelengths)
         return X
     
-    def build_model(self, hp):
+    def build_model(self):
         # ================================================================================== #
         # ==================================== ENCODER ===================================== #
         # ================================================================================== #
@@ -179,7 +179,7 @@ def main():
     df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='source_info')
     df_wavelengths = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='wavelengths')
 
-    ae = AutoEncoder(df_source_info, df_fluxes)
+    ae = AutoEncoder(df_source_info, df_fluxes, df_wavelengths)
     model = ae.train_model(epochs=24, batch_size=64)
 
     ae.evaluate_model(model)
