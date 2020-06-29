@@ -6,7 +6,7 @@ import time
 
 from tensorflow.keras.layers import Input, Dense, Flatten, Conv1D, MaxPooling1D, UpSampling1D, BatchNormalization, Reshape
 from tensorflow.keras.models import Model, Sequential
-from tensorflow.keras.callbacks import TensorBoard
+from tensorflow.keras.callbacks import TensorBoard, History, EarlyStopping, ModelCheckpoint
 from tensorflow.keras.optimizers import Adam, Nadam, RMSprop
 from tensorflow.keras.callbacks import EarlyStopping
 
@@ -15,9 +15,9 @@ from kerastuner.tuners import RandomSearch
 
 from sklearn.preprocessing import StandardScaler
 
-from spectral_analysis.data_preprocessing.data_preprocessing import remove_bytes_from_class, plot_spectrum, get_wavelengths_from_h5
-from spectral_analysis.classifiers.neural_network.helper_functions import train_test_split
-from spectral_analysis.plotify import Plotify
+from spectral_analysis.spectral_analysis.data_preprocessing.data_preprocessing import plot_spectrum, get_wavelengths_from_h5
+from spectral_analysis.spectral_analysis.classifiers.neural_network.helper_functions import train_test_split
+from spectral_analysis.spectral_analysis.plotify import Plotify
 
 class AutoEncoder():
     def __init__(self, df_source_info, df_fluxes):
@@ -36,10 +36,7 @@ class AutoEncoder():
         self.optimizer = Nadam(lr=0.001)
 
     
-    def _prepare_data(self, df_source_info, df_fluxes):
-        if "b'" in str(df_source_info['class'][0]):
-            df_source_info = remove_bytes_from_class(df_source_info)
-    
+    def _prepare_data(self, df_source_info, df_fluxes, df_wavelengths):    
         df_quasars = df_source_info.loc[df_source_info['class'] == 'QSO']
         quasar_objids = df_quasars['objid'].to_numpy()
         quasar_fluxes = df_fluxes.loc[df_fluxes['objid'].isin(quasar_objids)]
@@ -52,29 +49,13 @@ class AutoEncoder():
 
         print(f'{X.shape}')
 
-        wavelengths = get_wavelengths_from_h5(filename='sdss/preprocessed/0-50_o_fluxes.h5')
+        wavelengths = df_wavelengths.to_numpy()
         wavelengths = wavelengths[::8]
         self.wavelengths = wavelengths[0:448]
         # plot_spectrum(X[0], wavelengths)
         return X
     
     def build_model(self, hp):
-
-        hyperparameters = {
-            'layer_1_filters': hp.Choice('layer_1_filters', values=[16, 32, 64, 128, 256]),
-            'layer_1_kernel_size': hp.Choice('layer_1_kernel_size', values=[3, 5, 7, 9, 11]),
-            'layer_2_filters': hp.Choice('layer_2_filters', values=[8, 16, 32, 64, 128]),
-            'layer_2_kernel_size': hp.Choice('layer_2_kernel_size', values=[3, 5, 7, 9]),
-            'layer_3_filters': hp.Choice('layer_3_filters', values=[4, 8, 16, 32]),
-            'layer_3_kernel_size': hp.Choice('layer_3_kernel_size', values=[3, 5, 7]),
-            'layer_4_filters': hp.Choice('layer_4_filters', values=[4, 8, 12, 16]),
-            'layer_4_kernel_size': hp.Choice('layer_4_kernel_size', values=[3, 5]),
-            'layer_5_filters': hp.Choice('layer_5_filters', values=[2, 3, 4, 8]),
-            'layer_5_kernel_size': hp.Choice('layer_5_kernel_size', values=[3]),
-            'optimizer': hp.Choice('optimizer', values=['adam', 'nadam', 'rmsprop']),
-            'last_activation': hp.Choice('last_activation', ['tanh'])
-        }
-        
         # ================================================================================== #
         # ==================================== ENCODER ===================================== #
         # ================================================================================== #
@@ -82,34 +63,34 @@ class AutoEncoder():
         input_layer = Input(shape=(self.X_train.shape[1], 1))
 
         # encoder
-        x = Conv1D(filters=512,
+        x = Conv1D(filters=256,
                    kernel_size=7,
                    activation='relu', 
                    padding='same')(input_layer)
 
         x = MaxPooling1D(2)(x)
-        x = Conv1D(filters=256,
-                    kernel_size=5,
-                    activation='relu',
-                    padding='same')(x)
+        x = Conv1D(filters=128,
+                   kernel_size=5,
+                   activation='relu',
+                   padding='same')(x)
         
         x = MaxPooling1D(2)(x)
-        x = Conv1D(filters=128,
-                    kernel_size=5,
-                    activation='relu',
-                    padding='same')(x)
-
-        x = MaxPooling1D(2)(x)
         x = Conv1D(filters=64,
-                    kernel_size=3,
-                    activation='relu',
-                    padding='same')(x)
+                   kernel_size=5,
+                   activation='relu',
+                   padding='same')(x)
 
         x = MaxPooling1D(2)(x)
         x = Conv1D(filters=32,
-                    kernel_size=3,
-                    activation='relu',
-                    padding='same')(x)
+                   kernel_size=3,
+                   activation='relu',
+                   padding='same')(x)
+
+        x = MaxPooling1D(2)(x)
+        x = Conv1D(filters=16,
+                   kernel_size=3,
+                   activation='relu',
+                   padding='same')(x)
 
         encoded = MaxPooling1D(2, padding="same")(x)
 
@@ -117,11 +98,18 @@ class AutoEncoder():
         # ==================================== DECODER ===================================== #
         # ================================================================================== #
 
-        x = Conv1D(filters=32,
+        x = Conv1D(filters=16,
                    kernel_size=3,
                    activation='relu',
                    padding='same')(encoded)
         
+        x = UpSampling1D(2)(x)
+
+        x = Conv1D(filters=32,
+                   kernel_size=3,
+                   activation='relu',
+                   padding='same')(x)
+
         x = UpSampling1D(2)(x)
 
         x = Conv1D(filters=64,
@@ -131,61 +119,51 @@ class AutoEncoder():
 
         x = UpSampling1D(2)(x)
 
-        x = Conv1D(filters=256,
+        x = Conv1D(filters=128,
                    kernel_size=5,
                    activation='relu',
                    padding='same')(x)
 
         x = UpSampling1D(2)(x)
 
-        x = Conv1D(filters=hyperparameters['layer_2_filters'],
-                   kernel_size=hyperparameters['layer_2_kernel_size'],
+        x = Conv1D(filters=256,
+                   kernel_size=7,
                    activation='relu',
                    padding='same')(x)
 
         x = UpSampling1D(2)(x)
-
-        x = Conv1D(filters=hyperparameters['layer_1_filters'],
-                   kernel_size=hyperparameters['layer_1_kernel_size'],
-                   activation='relu',
-                   padding='same')(x)
-
-        x = UpSampling1D(2)(x)
-        decoded = Conv1D(1, 1, activation=hyperparameters['last_activation'], padding='same')(x)
+        decoded = Conv1D(1, 1, activation='relu', padding='same')(x)
         
         self.autoencoder = Model(input_layer, decoded)
         self.autoencoder.summary()
-        self.autoencoder.compile(loss='mse', optimizer=hyperparameters['optimizer'])
+        self.autoencoder.compile(loss='mse', optimizer='adam')
 
         return self.autoencoder
     
     def train_model(self, epochs, batch_size=32):
-        self.tuner = RandomSearch(self.build_model,
-                                  objective='val_loss',
-                                  max_trials=8,
-                                  executions_per_trial=1,
-                                  directory='logs/keras-tuner/',
-                                  project_name='autoencoder')
+        model = self.build_model()
 
-        self.tuner.search_space_summary()
+        modelcheckpoint = ModelCheckpoint(filepath='logs/autoencoder.epoch{epoch:02d}.h5',
+                                          monitor='val_loss',
+                                          save_best_only=True)
+        
+        history = model.fit(x=self.X_train,
+                            y=self.X_train,
+                            epochs=epochs,
+                            batch_size=32,
+                            validation_data=(self.X_test, self.X_test),
+                            callbacks=[EarlyStopping('val_loss', patience=8), modelcheckpoint])
+        
+        _, train_acc = model.evaluate(X_train, X_train, verbose=0)
+        _, test_acc = model.evaluate(X_test, X_test, verbose=0)
+        print('Train: %.3f, Test: %.3f' % (train_acc, test_acc))
 
-        self.tuner.search(x=self.X_train,
-                          y=self.X_train,
-                          epochs=20,
-                          batch_size=32,
-                          validation_data=(self.X_test, self.X_test),
-                          callbacks=[EarlyStopping('val_loss', patience=3)])
+        return model
 
-        self.tuner.results_summary()
 
-    def evaluate_model(self):
-        best_model = self.tuner.get_best_models(1)[0]
-        best_hyperparameters = self.tuner.get_best_hyperparameters(1)[0]
 
-        print(f'best_model = {best_model}')
-        print(f'best_hyperparameters = {best_hyperparameters}')
-
-        preds = best_model.predict(self.X_test)
+    def evaluate_model(self, model):
+        preds = model.predict(self.X_test)
 
         plotify = Plotify()
         _, axs = plotify.get_figax(nrows=2, figsize=(8, 10))
@@ -199,11 +177,12 @@ class AutoEncoder():
 def main():
     df_fluxes = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='fluxes')
     df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='source_info')
+    df_wavelengths = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='wavelengths')
 
     ae = AutoEncoder(df_source_info, df_fluxes)
-    ae.train_model(epochs=24, batch_size=64)
+    model = ae.train_model(epochs=24, batch_size=64)
 
-    ae.evaluate_model()
+    ae.evaluate_model(model)
     
 
 if __name__ == "__main__":
