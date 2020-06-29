@@ -20,8 +20,9 @@ from spectral_analysis.classifiers.neural_network.helper_functions import train_
 from spectral_analysis.plotify import Plotify
 
 class AutoEncoder():
-    def __init__(self, df_source_info, df_fluxes, df_wavelengths, load_model):
+    def __init__(self, df_source_info, df_fluxes, df_wavelengths, load_model, weights_path=''):
         self.load_model = load_model
+        self.weights_path = weights_path
         X = self._prepare_data(df_source_info, df_fluxes, df_wavelengths)
         X_train, X_test = train_test_split(X, 0.2)
         X_train, X_val = train_test_split(X_train, 0.2)
@@ -163,7 +164,7 @@ class AutoEncoder():
             self.evaluate_model(model)
 
         else:
-            model.load_weights('logs/colab-logs/autoencoder.epoch21.h5')
+            model.load_weights(self.weights_path)
             print(f'model = {model}')
             self.evaluate_model(model)
 
@@ -187,7 +188,7 @@ def main():
     df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='source_info')
     df_wavelengths = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='wavelengths')
 
-    ae = AutoEncoder(df_source_info, df_fluxes, df_wavelengths, load_model=True)
+    ae = AutoEncoder(df_source_info, df_fluxes, df_wavelengths, load_model=True, weights_path='')
     ae.train_model(epochs=12, batch_size=64)
     
 
