@@ -194,12 +194,13 @@ class AutoEncoder():
             qso_dec = self.df_source_info.loc[self.df_source_info['objid'] == self.objids_test[i]]['dec'].values[0]
             qso_plate = self.df_source_info.loc[self.df_source_info['objid'] == self.objids_test[i]]['plate'].values[0]
             qso_z = self.df_source_info.loc[self.df_source_info['objid'] == self.objids_test[i]]['z'].values[0]
+            qso_class = self.df_source_info.loc[self.df_source_info['class'] == self.objids_test[i]]['class'].values[0]
 
             plotify = Plotify(theme='ugly')
             _, axs = plotify.get_figax(nrows=2, figsize=(5.8, 8))
             axs[0].plot(self.wavelengths, self.X_test[i], color=plotify.c_orange)
             axs[1].plot(self.wavelengths, preds[i], color=plotify.c_orange)
-            axs[0].set_title(f'ra = {qso_ra}, dec = {qso_dec}, \n z = {qso_z}, plate = {qso_plate} \n', fontsize=14)
+            axs[0].set_title(f'ra = {qso_ra}, dec = {qso_dec}, \n z = {qso_z}, plate = {qso_plate}, class = {qso_class} \n', fontsize=14)
             axs[1].set_title(f'Autoencoder recreation \n')
             axs[0].set_ylabel(r'$F_{\lambda[10^{-17} erg \: cm^{-2}s^{-1} Å^{-1}]}$', fontsize=14)
             axs[1].set_ylabel(r'$F_{\lambda[10^{-17} erg \: cm^{-2}s^{-1} Å^{-1}]}$', fontsize=14)
