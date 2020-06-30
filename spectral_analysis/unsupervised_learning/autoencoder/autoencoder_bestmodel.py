@@ -40,7 +40,8 @@ class AutoEncoder():
 
     
     def _prepare_data(self, df_source_info, df_fluxes, df_wavelengths):    
-        self.df_source_info = df_source_info.loc[df_source_info['class'] == 'QSO']
+        # self.df_source_info = df_source_info.loc[df_source_info['class'] == 'QSO']
+        self.df_source_info = df_source_info
         self.objids = self.df_source_info['objid'].to_numpy()
         fluxes = df_fluxes.loc[df_fluxes['objid'].isin(self.objids)]
         
@@ -167,8 +168,8 @@ class AutoEncoder():
         else:
             model.load_weights(self.weights_path)
             print(f'model = {model}')
-            # self.evaluate_model(model)
-            self.get_bottleneck_values(model)
+            self.evaluate_model(model)
+            # self.get_bottleneck_values(model)
 
         return model
     
@@ -196,10 +197,10 @@ class AutoEncoder():
         preds = self.scaler.inverse_transform(preds)
         
         for i in range(50):
-            qso_ra = self.df_quasars.loc[self.df_quasars['objid'] == self.objids_test[i]]['ra'].values[0]
-            qso_dec = self.df_quasars.loc[self.df_quasars['objid'] == self.objids_test[i]]['dec'].values[0]
-            qso_plate = self.df_quasars.loc[self.df_quasars['objid'] == self.objids_test[i]]['plate'].values[0]
-            qso_z = self.df_quasars.loc[self.df_quasars['objid'] == self.objids_test[i]]['z'].values[0]
+            qso_ra = self.df_source_info.loc[self.df_source_info['objid'] == self.objids_test[i]]['ra'].values[0]
+            qso_dec = self.df_source_info.loc[self.df_source_info['objid'] == self.objids_test[i]]['dec'].values[0]
+            qso_plate = self.df_source_info.loc[self.df_source_info['objid'] == self.objids_test[i]]['plate'].values[0]
+            qso_z = self.df_source_info.loc[self.df_source_info['objid'] == self.objids_test[i]]['z'].values[0]
 
             plotify = Plotify(theme='ugly')
             _, axs = plotify.get_figax(nrows=2, figsize=(5.8, 8))
@@ -217,11 +218,11 @@ class AutoEncoder():
         return preds
 
 def main():
-    df_fluxes = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='fluxes').head(24000)
-    df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='source_info').head(24000)
+    df_fluxes = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='fluxes')
+    df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='source_info')
     df_wavelengths = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='wavelengths')
 
-    ae = AutoEncoder(df_source_info, df_fluxes, df_wavelengths, load_model=False, weights_path='logs/colab-logs/14-1_autoencoder.epoch27.h5')
+    ae = AutoEncoder(df_source_info, df_fluxes, df_wavelengths, load_model=False, weights_path='logs/colab-logs/allsources_autoencoder.epoch13.h5')
     ae.train_model(epochs=12, batch_size=64)
     
 
