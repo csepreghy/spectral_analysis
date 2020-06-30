@@ -204,7 +204,7 @@ class AutoEncoder():
             axs[1].set_xlabel('Wavelength (Å)')
 
             plt.subplots_adjust(hspace=0.4)
-            plt.savefig(f'plots/autoencoder/autoencoder_gaussian{i}', dpi=160)
+            plt.savefig(f'plots/autoencoder/_kaki_autoencoder_gaussian{i}', dpi=160)
 
         return preds
 
@@ -213,7 +213,7 @@ def main():
     df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='source_info')
     df_wavelengths = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='wavelengths')
 
-    ae = AutoEncoder(df_source_info, df_fluxes, df_wavelengths, load_model=False, weights_path='logs/colab-logs/autoencoder_larger.epoch48.h5')
+    ae = AutoEncoder(df_source_info, df_fluxes, df_wavelengths, load_model=True, weights_path='logs/colab-logs/14-1_autoencoder.epoch27.h5')
     ae.train_model(epochs=12, batch_size=64)
     
 
