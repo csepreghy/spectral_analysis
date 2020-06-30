@@ -69,79 +69,81 @@ class AutoEncoder():
                    padding='same')(input_layer)
         x = MaxPooling1D(2)(x)
 
-        x = Conv1D(filters=128,
+        x = Conv1D(filters=256,
                    kernel_size=7,
                    activation='relu', 
                    padding='same')(x)
-        x = MaxPooling1D(2)(x)
 
+        x = MaxPooling1D(2)(x)
         x = Conv1D(filters=128,
                    kernel_size=5,
                    activation='relu',
                    padding='same')(x)
-        x = MaxPooling1D(2)(x)
         
+        x = MaxPooling1D(2)(x)
         x = Conv1D(filters=64,
                    kernel_size=5,
                    activation='relu',
                    padding='same')(x)
-        x = MaxPooling1D(2)(x)
-        
-        x = Conv1D(filters=32,
-                   kernel_size=3,
-                   activation='relu',
-                   padding='same')(x)
-        x = MaxPooling1D(2)(x)
 
+        x = MaxPooling1D(2)(x)
         x = Conv1D(filters=32,
                    kernel_size=3,
                    activation='relu',
                    padding='same')(x)
+
         x = MaxPooling1D(2)(x)
-        
-        encoded = Conv1D(1, 1, activation='relu', padding="same")(x)
+        x = Conv1D(filters=1,
+                   kernel_size=3,
+                   activation='relu',
+                   padding='same')(x)
+
+        encoded = MaxPooling1D(2, padding="same")(x)
 
         # ================================================================================== #
         # ==================================== DECODER ===================================== #
         # ================================================================================== #
-        
-        x = UpSampling1D(2)(encoded)
 
-        x = Conv1D(filters=32,
+        x = Conv1D(filters=1,
                    kernel_size=3,
                    activation='relu',
-                   padding='same')(x)
+                   padding='same')(encoded)
+        
         x = UpSampling1D(2)(x)
 
         x = Conv1D(filters=32,
                    kernel_size=3,
                    activation='relu',
                    padding='same')(x)
+
         x = UpSampling1D(2)(x)
 
         x = Conv1D(filters=64,
                    kernel_size=5,
                    activation='relu',
                    padding='same')(x)
+
         x = UpSampling1D(2)(x)
 
         x = Conv1D(filters=128,
                    kernel_size=5,
                    activation='relu',
                    padding='same')(x)
+
         x = UpSampling1D(2)(x)
 
-        x = Conv1D(filters=128,
+        x = Conv1D(filters=256,
                    kernel_size=7,
                    activation='relu',
                    padding='same')(x)
         x = UpSampling1D(2)(x)
-        
+
         x = Conv1D(filters=256,
                    kernel_size=7,
                    activation='relu',
                    padding='same')(x)
 
+        x = UpSampling1D(2)(x)
         decoded = Conv1D(1, 1, activation='tanh', padding='same')(x)
         
         self.autoencoder = Model(input_layer, decoded)
@@ -163,21 +165,13 @@ class AutoEncoder():
                                 epochs=epochs,
                                 batch_size=32,
                                 validation_data=(self.X_val, self.X_val),
-                                callbacks=[EarlyStopping('val_loss', patience=10), modelcheckpoint])
+                                callbacks=[EarlyStopping('val_loss', patience=8), modelcheckpoint])
 
             self.evaluate_model(model)
 
         else:
             model.load_weights(self.weights_path)
-            # print(f'model = {model}')
-            # bottleneck = model.get_layer('conv1d_5')
-
-            # extractor = Model(inputs=model.inputs, outputs=[bottleneck.output])
-            # features = extractor(self.X_test)
-
-            # print('extractor', extractor)
-            # print('features', features)
-            # print('features.shape', features.shape)
+            print(f'model = {model}')
             self.evaluate_model(model)
 
         return model
@@ -219,7 +213,7 @@ def main():
     df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='source_info')
     df_wavelengths = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='wavelengths')
 
-    ae = AutoEncoder(df_source_info, df_fluxes, df_wavelengths, load_model=True, weights_path='logs/colab-logs/14_1_autoencoder.epoch15.h5')
+    ae = AutoEncoder(df_source_info, df_fluxes, df_wavelengths, load_model=False, weights_path='logs/colab-logs/autoencoder_larger.epoch48.h5')
     ae.train_model(epochs=12, batch_size=64)
     
 
