@@ -209,7 +209,7 @@ class AutoEncoder():
             axs[1].set_xlabel('Wavelength (Å)')
 
             plt.subplots_adjust(hspace=0.4)
-            plt.savefig(f'plots/autoencoder/_all_soruces__autoencoder_gaussian{i}', dpi=160)
+            plt.savefig(f'plots/autoencoder/_aaall_soruces__autoencoder_{i}', dpi=160)
 
         return preds
 
