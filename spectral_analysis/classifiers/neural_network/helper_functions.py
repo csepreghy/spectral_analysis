@@ -59,7 +59,7 @@ def train_test_split(X, test_size, y=None, objids=None, indeces=None):
 
     if y is not None: return X_train, X_test, y_train, y_test, i_train, i_test
 
-    else: return X_train, X_test
+    else: return X_train, X_test, i_train, i_test
 
 def get_incorrect_predictions(model,
                               X_test_fluxes,

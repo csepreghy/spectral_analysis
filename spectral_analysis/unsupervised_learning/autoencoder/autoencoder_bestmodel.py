@@ -25,9 +25,9 @@ class AutoEncoder():
         self.load_model = load_model
         self.weights_path = weights_path
         X = self._prepare_data(df_source_info, df_fluxes, df_wavelengths)
-        X_train, X_test = train_test_split(X, 0.2)
-        X_train, X_val = train_test_split(X_train, 0.2)
-        self.objids_train, self.objids_test = train_test_split(self.objids, 0.2)
+        indeces = list(range(len(X)))
+        X_train, X_test, self.i_train, self.i_test = train_test_split(X, 0.2, indeces=indeces)
+        X_train, X_val, self.i_train, self.i_val = train_test_split(X_train, 0.2, indeces=indeces)
         
         self.scaler = StandardScaler()
         X_train = self.scaler.fit_transform(X_train)
@@ -54,7 +54,7 @@ class AutoEncoder():
 
         wavelengths = df_wavelengths.to_numpy()
         wavelengths = wavelengths[::2]
-        self.wavelengths = wavelengths[0:448]
+        self.wavelengths = wavelengths[0:1792]
         # plot_spectrum(X[0], wavelengths)
         return X
     
@@ -90,6 +90,12 @@ class AutoEncoder():
                    padding='same')(x)
         x = MaxPooling1D(2)(x)
 
+        x = Conv1D(filters=32,
+                   kernel_size=3,
+                   activation='relu',
+                   padding='same')(x)
+        x = MaxPooling1D(2)(x)
+
         x = Conv1D(filters=1,
                    kernel_size=3,
                    activation='relu',
@@ -106,6 +112,13 @@ class AutoEncoder():
                    activation='relu',
                    padding='same')(encoded)
         
+        x = UpSampling1D(2)(x)
+
+        x = Conv1D(filters=32,
+                   kernel_size=3,
+                   activation='relu',
+                   padding='same')(x)
+
         x = UpSampling1D(2)(x)
 
         x = Conv1D(filters=32,
@@ -163,22 +176,30 @@ class AutoEncoder():
         else:
             model.load_weights(self.weights_path)
             print(f'model = {model}')
-            self.evaluate_model(model)
-            # self.get_bottleneck_values(model)
+            # self.evaluate_model(model)
+            self.get_bottleneck_values(model)
 
         return model
     
     def get_bottleneck_values(self, model):
-        bottleneck = model.get_layer('conv1d_6')
+        bottleneck = model.get_layer('conv1d_5')
 
         extractor = Model(inputs=model.inputs, outputs=[bottleneck.output])
         features = extractor(self.X_test)
         features = np.squeeze(features, axis=2)
+
+        df_source_info_test = pd.DataFrame({'class': self.df_source_info.iloc[self.i_test]['class'].values})
+
+        print(f'df_source_info_test = {df_source_info_test}')
+
         df = pd.DataFrame(features)
+        df = df.join(df_source_info_test)
+
+        print(f'df = {df}')
 
         sns.set(style="ticks", color_codes=True)
-        sns.pairplot(df)
-        plt.show()
+        sns.pairplot(df, hue='class')
+        plt.savefig('plots/autoencoder_pairplot', dpi=100)
 
     def evaluate_model(self, model):
         preds = model.predict(self.X_test)
@@ -191,12 +212,12 @@ class AutoEncoder():
         self.X_test = self.scaler.inverse_transform(self.X_test)
         preds = self.scaler.inverse_transform(preds)
         
-        for i in range(50):
-            qso_ra = self.df_source_info.loc[self.df_source_info['objid'] == self.objids_test[i]]['ra'].values[0]
-            qso_dec = self.df_source_info.loc[self.df_source_info['objid'] == self.objids_test[i]]['dec'].values[0]
-            qso_plate = self.df_source_info.loc[self.df_source_info['objid'] == self.objids_test[i]]['plate'].values[0]
-            qso_z = self.df_source_info.loc[self.df_source_info['objid'] == self.objids_test[i]]['z'].values[0]
-            qso_class = self.df_source_info.loc[self.df_source_info['class'] == self.objids_test[i]]['class'].values[0]
+        for i in range(100):
+            qso_ra = self.df_source_info.iloc[self.i_test[i]]['ra']
+            qso_dec = self.df_source_info.iloc[self.i_test[i]]['dec']
+            qso_plate = self.df_source_info.iloc[self.i_test[i]]['plate']
+            qso_z = self.df_source_info.iloc[self.i_test[i]]['z']
+            qso_class = self.df_source_info.iloc[self.i_test[i]]['class']
 
             plotify = Plotify(theme='ugly')
             _, axs = plotify.get_figax(nrows=2, figsize=(5.8, 8))
@@ -209,16 +230,16 @@ class AutoEncoder():
             axs[1].set_xlabel('Wavelength (Å)')
 
             plt.subplots_adjust(hspace=0.4)
-            plt.savefig(f'plots/autoencoder/_aaaaaall_soruces__autoencoder_{i}', dpi=160)
+            plt.savefig(f'plots/autoencoder/__all_sources/_autoencoder_{i}', dpi=160)
 
         return preds
 
 def main():
-    df_fluxes = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='fluxes').head(3200)
-    df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='source_info').head(3200)
+    df_fluxes = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='fluxes').head(5000)
+    df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='source_info').head(5000)
     df_wavelengths = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='wavelengths')
 
-    ae = AutoEncoder(df_source_info, df_fluxes, df_wavelengths, load_model=True, weights_path='logs/colab-logs/_all_sources1-14_autoencoder.epoch30.h5')
+    ae = AutoEncoder(df_source_info, df_fluxes, df_wavelengths, load_model=False, weights_path='logs/colab-logs/_all_sources1-14_autoencoder.epoch30.h5')
     ae.train_model(epochs=12, batch_size=64)
     
 
