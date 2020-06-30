@@ -44,14 +44,14 @@ class AutoEncoder():
         quasar_fluxes = df_fluxes.loc[df_fluxes['objid'].isin(self.quasar_objids)]
         
         X = np.delete(quasar_fluxes.values, 0, axis=1)
-        X = X[:, 0::8]
+        X = X[:, 0::4]
         print(f'X.shape = {X.shape}')
 
         X = X[:, np.mod(np.arange(X[0].size),25)!=0]
 
         wavelengths = df_wavelengths.to_numpy()
-        wavelengths = wavelengths[::8]
-        self.wavelengths = wavelengths[0:448]
+        wavelengths = wavelengths[::4]
+        self.wavelengths = wavelengths[0:896]
         # plot_spectrum(X[0], wavelengths)
         return X
     
@@ -67,6 +67,12 @@ class AutoEncoder():
                    kernel_size=7,
                    activation='relu', 
                    padding='same')(input_layer)
+        x = MaxPooling1D(2)(x)
+
+        x = Conv1D(filters=256,
+                   kernel_size=7,
+                   activation='relu', 
+                   padding='same')(x)
 
         x = MaxPooling1D(2)(x)
         x = Conv1D(filters=128,
@@ -130,6 +136,12 @@ class AutoEncoder():
                    kernel_size=7,
                    activation='relu',
                    padding='same')(x)
+        x = UpSampling1D(2)(x)
+
+        x = Conv1D(filters=256,
+                   kernel_size=7,
+                   activation='relu',
+                   padding='same')(x)
 
         x = UpSampling1D(2)(x)
         decoded = Conv1D(1, 1, activation='tanh', padding='same')(x)
@@ -182,7 +194,7 @@ class AutoEncoder():
             qso_z = self.df_quasars.loc[self.df_quasars['objid'] == self.objids_test[i]]['z'].values[0]
 
             plotify = Plotify(theme='ugly')
-            _, axs = plotify.get_figax(nrows=2, figsize=(8, 6))
+            _, axs = plotify.get_figax(nrows=2, figsize=(6, 8))
             axs[0].plot(self.wavelengths, self.X_test[i], color=plotify.c_orange)
             axs[1].plot(self.wavelengths, preds[i], color=plotify.c_orange)
             axs[0].set_title(f'ra = {qso_ra}, dec = {qso_dec}, z = {qso_z}, plate = {qso_plate}', fontsize=14)
@@ -201,7 +213,7 @@ def main():
     df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='source_info')
     df_wavelengths = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='wavelengths')
 
-    ae = AutoEncoder(df_source_info, df_fluxes, df_wavelengths, load_model=True, weights_path='logs/colab-logs/autoencoder.epoch50.h5')
+    ae = AutoEncoder(df_source_info, df_fluxes, df_wavelengths, load_model=False, weights_path='logs/colab-logs/autoencoder.epoch65.h5')
     ae.train_model(epochs=12, batch_size=64)
     
 
