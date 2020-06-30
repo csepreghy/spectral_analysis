@@ -39,7 +39,8 @@ class AutoEncoder():
 
     
     def _prepare_data(self, df_source_info, df_fluxes, df_wavelengths):    
-        self.df_quasars = df_source_info.loc[df_source_info['class'] == 'QSO']
+        # self.df_quasars = df_source_info.loc[df_source_info['class'] == 'QSO']
+        self.df_quasars = df_source_info
         self.quasar_objids = self.df_quasars['objid'].to_numpy()
         quasar_fluxes = df_fluxes.loc[df_fluxes['objid'].isin(self.quasar_objids)]
         
