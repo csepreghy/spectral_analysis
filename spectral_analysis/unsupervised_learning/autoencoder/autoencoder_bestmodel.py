@@ -209,16 +209,16 @@ class AutoEncoder():
             axs[1].set_xlabel('Wavelength (Å)')
 
             plt.subplots_adjust(hspace=0.4)
-            plt.savefig(f'plots/autoencoder/_all_soruces__autoencoder_gaussian{i}', dpi=160)
+            plt.savefig(f'plots/autoencoder/_aaaaaall_soruces__autoencoder_{i}', dpi=160)
 
         return preds
 
 def main():
-    df_fluxes = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='fluxes').head(1000)
-    df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='source_info').head(1000)
+    df_fluxes = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='fluxes').head(3200)
+    df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='source_info').head(3200)
     df_wavelengths = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='wavelengths')
 
-    ae = AutoEncoder(df_source_info, df_fluxes, df_wavelengths, load_model=False, weights_path='logs/colab-logs/allsources_autoencoder.epoch13.h5')
+    ae = AutoEncoder(df_source_info, df_fluxes, df_wavelengths, load_model=True, weights_path='logs/colab-logs/_all_sources1-14_autoencoder.epoch30.h5')
     ae.train_model(epochs=12, batch_size=64)
     
 
