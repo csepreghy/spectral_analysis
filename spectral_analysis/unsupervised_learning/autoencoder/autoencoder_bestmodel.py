@@ -15,9 +15,11 @@ from kerastuner.tuners import RandomSearch
 
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 
-from spectral_analysis.spectral_analysis.data_preprocessing.data_preprocessing import plot_spectrum, get_wavelengths_from_h5
-from spectral_analysis.spectral_analysis.classifiers.neural_network.helper_functions import train_test_split
-from spectral_analysis.spectral_analysis.plotify import Plotify
+import seaborn as sns
+
+from spectral_analysis.data_preprocessing.data_preprocessing import plot_spectrum, get_wavelengths_from_h5
+from spectral_analysis.classifiers.neural_network.helper_functions import train_test_split
+from spectral_analysis.plotify import Plotify
 
 class AutoEncoder():
     def __init__(self, df_source_info, df_fluxes, df_wavelengths, load_model, weights_path=''):
@@ -26,7 +28,7 @@ class AutoEncoder():
         X = self._prepare_data(df_source_info, df_fluxes, df_wavelengths)
         X_train, X_test = train_test_split(X, 0.2)
         X_train, X_val = train_test_split(X_train, 0.2)
-        self.objids_train, self.objids_test = train_test_split(self.quasar_objids, 0.2)
+        self.objids_train, self.objids_test = train_test_split(self.objids, 0.2)
         
         self.scaler = StandardScaler()
         X_train = self.scaler.fit_transform(X_train)
@@ -39,19 +41,19 @@ class AutoEncoder():
 
     
     def _prepare_data(self, df_source_info, df_fluxes, df_wavelengths):    
-        self.df_quasars = df_source_info.loc[df_source_info['class'] == 'QSO']
-        self.quasar_objids = self.df_quasars['objid'].to_numpy()
-        quasar_fluxes = df_fluxes.loc[df_fluxes['objid'].isin(self.quasar_objids)]
+        self.df_source_info = df_source_info.loc[df_source_info['class'] == 'QSO']
+        self.objids = self.df_source_info['objid'].to_numpy()
+        fluxes = df_fluxes.loc[df_fluxes['objid'].isin(self.objids)]
         
-        X = np.delete(quasar_fluxes.values, 0, axis=1)
-        X = X[:, 0::4]
+        X = np.delete(fluxes.values, 0, axis=1)
+        X = X[:, 0::8]
         print(f'X.shape = {X.shape}')
 
         X = X[:, np.mod(np.arange(X[0].size),25)!=0]
 
         wavelengths = df_wavelengths.to_numpy()
-        wavelengths = wavelengths[::4]
-        self.wavelengths = wavelengths[0:896]
+        wavelengths = wavelengths[::8]
+        self.wavelengths = wavelengths[0:448]
         # plot_spectrum(X[0], wavelengths)
         return X
     
@@ -85,26 +87,26 @@ class AutoEncoder():
                    kernel_size=5,
                    activation='relu',
                    padding='same')(x)
-
         x = MaxPooling1D(2)(x)
+
         x = Conv1D(filters=32,
                    kernel_size=3,
                    activation='relu',
                    padding='same')(x)
-
         x = MaxPooling1D(2)(x)
-        x = Conv1D(filters=1,
+
+        x = Conv1D(filters=16,
                    kernel_size=3,
                    activation='relu',
                    padding='same')(x)
 
-        encoded = MaxPooling1D(2, padding="same")(x)
+        encoded = Conv1D(1, 1, activation='relu', padding='same')(x)
 
         # ================================================================================== #
         # ==================================== DECODER ===================================== #
         # ================================================================================== #
 
-        x = Conv1D(filters=1,
+        x = Conv1D(filters=16,
                    kernel_size=3,
                    activation='relu',
                    padding='same')(encoded)
@@ -137,13 +139,7 @@ class AutoEncoder():
                    activation='relu',
                    padding='same')(x)
         x = UpSampling1D(2)(x)
-
-        x = Conv1D(filters=256,
-                   kernel_size=7,
-                   activation='relu',
-                   padding='same')(x)
-
-        x = UpSampling1D(2)(x)
+      
         decoded = Conv1D(1, 1, activation='tanh', padding='same')(x)
         
         self.autoencoder = Model(input_layer, decoded)
@@ -156,7 +152,7 @@ class AutoEncoder():
         model = self.build_model()
         
         if self.load_model == False:
-            modelcheckpoint = ModelCheckpoint(filepath='logs/autoencoder.epoch{epoch:02d}.h5',
+            modelcheckpoint = ModelCheckpoint(filepath='logs/1-14_autoencoder.epoch{epoch:02d}.h5',
                                               monitor='val_loss',
                                               save_best_only=True)
             
@@ -172,9 +168,22 @@ class AutoEncoder():
         else:
             model.load_weights(self.weights_path)
             print(f'model = {model}')
-            self.evaluate_model(model)
+            # self.evaluate_model(model)
+            self.get_bottleneck_values(model)
 
         return model
+    
+    def get_bottleneck_values(self, model):
+        bottleneck = model.get_layer('conv1d_6')
+
+        extractor = Model(inputs=model.inputs, outputs=[bottleneck.output])
+        features = extractor(self.X_test)
+        features = np.squeeze(features, axis=2)
+        df = pd.DataFrame(features)
+
+        sns.set(style="ticks", color_codes=True)
+        sns.pairplot(df)
+        plt.show()
 
     def evaluate_model(self, model):
         preds = model.predict(self.X_test)
@@ -194,26 +203,26 @@ class AutoEncoder():
             qso_z = self.df_quasars.loc[self.df_quasars['objid'] == self.objids_test[i]]['z'].values[0]
 
             plotify = Plotify(theme='ugly')
-            _, axs = plotify.get_figax(nrows=2, figsize=(6, 8))
+            _, axs = plotify.get_figax(nrows=2, figsize=(5.8, 8))
             axs[0].plot(self.wavelengths, self.X_test[i], color=plotify.c_orange)
             axs[1].plot(self.wavelengths, preds[i], color=plotify.c_orange)
-            axs[0].set_title(f'ra = {qso_ra}, dec = {qso_dec}, z = {qso_z}, plate = {qso_plate}', fontsize=14)
-            axs[1].set_title(f'Autoencoder recreation')
+            axs[0].set_title(f'ra = {qso_ra}, dec = {qso_dec}, \n z = {qso_z}, plate = {qso_plate} \n', fontsize=14)
+            axs[1].set_title(f'Autoencoder recreation \n')
             axs[0].set_ylabel(r'$F_{\lambda[10^{-17} erg \: cm^{-2}s^{-1} Å^{-1}]}$', fontsize=14)
             axs[1].set_ylabel(r'$F_{\lambda[10^{-17} erg \: cm^{-2}s^{-1} Å^{-1}]}$', fontsize=14)
             axs[1].set_xlabel('Wavelength (Å)')
 
             plt.subplots_adjust(hspace=0.4)
-            plt.savefig(f'plots/autoencoder/_kaki_autoencoder_gaussian{i}', dpi=160)
+            plt.savefig(f'plots/autoencoder/_all_soruces__autoencoder_gaussian{i}', dpi=160)
 
         return preds
 
 def main():
-    df_fluxes = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='fluxes')
-    df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='source_info')
+    df_fluxes = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='fluxes').head(24000)
+    df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='source_info').head(24000)
     df_wavelengths = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='wavelengths')
 
-    ae = AutoEncoder(df_source_info, df_fluxes, df_wavelengths, load_model=True, weights_path='logs/colab-logs/14-1_autoencoder.epoch27.h5')
+    ae = AutoEncoder(df_source_info, df_fluxes, df_wavelengths, load_model=False, weights_path='logs/colab-logs/14-1_autoencoder.epoch27.h5')
     ae.train_model(epochs=12, batch_size=64)
     
 
