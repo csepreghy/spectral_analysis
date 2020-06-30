@@ -15,9 +15,9 @@ from kerastuner.tuners import RandomSearch
 
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 
-from spectral_analysis.spectral_analysis.data_preprocessing.data_preprocessing import plot_spectrum, get_wavelengths_from_h5
-from spectral_analysis.spectral_analysis.classifiers.neural_network.helper_functions import train_test_split
-from spectral_analysis.spectral_analysis.plotify import Plotify
+from spectral_analysis.data_preprocessing.data_preprocessing import plot_spectrum, get_wavelengths_from_h5
+from spectral_analysis.classifiers.neural_network.helper_functions import train_test_split
+from spectral_analysis.plotify import Plotify
 
 class AutoEncoder():
     def __init__(self, df_source_info, df_fluxes, df_wavelengths, load_model, weights_path=''):
@@ -92,6 +92,12 @@ class AutoEncoder():
                    activation='relu',
                    padding='same')(x)
         x = MaxPooling1D(2)(x)
+
+        x = Conv1D(filters=32,
+                   kernel_size=3,
+                   activation='relu',
+                   padding='same')(x)
+        x = MaxPooling1D(2)(x)
         
         encoded = Conv1D(1, 1, activation='relu', padding="same")(x)
 
@@ -100,6 +106,12 @@ class AutoEncoder():
         # ================================================================================== #
         
         x = UpSampling1D(2)(encoded)
+
+        x = Conv1D(filters=32,
+                   kernel_size=3,
+                   activation='relu',
+                   padding='same')(x)
+        x = UpSampling1D(2)(x)
 
         x = Conv1D(filters=32,
                    kernel_size=3,
@@ -157,16 +169,16 @@ class AutoEncoder():
 
         else:
             model.load_weights(self.weights_path)
-            print(f'model = {model}')
-            bottleneck = model.get_layer('conv1d_5')
+            # print(f'model = {model}')
+            # bottleneck = model.get_layer('conv1d_5')
 
-            extractor = Model(inputs=model.inputs, outputs=[bottleneck.output])
-            features = extractor(self.X_test)
+            # extractor = Model(inputs=model.inputs, outputs=[bottleneck.output])
+            # features = extractor(self.X_test)
 
-            print('extractor', extractor)
-            print('features', features)
-            print('features.shape', features.shape)
-            # self.evaluate_model(model)
+            # print('extractor', extractor)
+            # print('features', features)
+            # print('features.shape', features.shape)
+            self.evaluate_model(model)
 
         return model
 
@@ -207,7 +219,7 @@ def main():
     df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='source_info')
     df_wavelengths = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='wavelengths')
 
-    ae = AutoEncoder(df_source_info, df_fluxes, df_wavelengths, load_model=False, weights_path='logs/colab-logs/autoencoder.epoch65.h5')
+    ae = AutoEncoder(df_source_info, df_fluxes, df_wavelengths, load_model=True, weights_path='logs/colab-logs/14_1_autoencoder.epoch15.h5')
     ae.train_model(epochs=12, batch_size=64)
     
 
