@@ -38,7 +38,6 @@ class AutoEncoder():
         self.X_test = np.expand_dims(X_test, axis=2)
         self.X_val = np.expand_dims(X_val, axis=2)
 
-    
     def _prepare_data(self, df_source_info, df_fluxes, df_wavelengths):    
         # self.df_source_info = df_source_info.loc[df_source_info['class'] == 'QSO']
         self.df_source_info = df_source_info
@@ -52,7 +51,7 @@ class AutoEncoder():
         X = X[:, np.mod(np.arange(X[0].size),25)!=0]
 
         wavelengths = df_wavelengths.to_numpy()
-        wavelengths = wavelengths[::8]
+        wavelengths = wavelengths[::2]
         self.wavelengths = wavelengths[0:448]
         # plot_spectrum(X[0], wavelengths)
         return X
@@ -69,14 +68,14 @@ class AutoEncoder():
                    kernel_size=7,
                    activation='relu', 
                    padding='same')(input_layer)
-        x = MaxPooling1D(2)(x)
+        x = MaxPooling1D(4)(x)
 
         x = Conv1D(filters=128,
                    kernel_size=5,
                    activation='relu',
                    padding='same')(x)
         
-        x = MaxPooling1D(2)(x)
+        x = MaxPooling1D(4)(x)
         x = Conv1D(filters=64,
                    kernel_size=5,
                    activation='relu',
@@ -126,13 +125,13 @@ class AutoEncoder():
                    activation='relu',
                    padding='same')(x)
 
-        x = UpSampling1D(2)(x)
+        x = UpSampling1D(4)(x)
 
         x = Conv1D(filters=256,
                    kernel_size=7,
                    activation='relu',
                    padding='same')(x)
-        x = UpSampling1D(2)(x)
+        x = UpSampling1D(4)(x)
       
         decoded = Conv1D(1, 1, activation='tanh', padding='same')(x)
         
