@@ -23,7 +23,6 @@ from tensorflow.keras.models import Sequential, Model
 from tensorflow.keras.utils import to_categorical
 
 from spectral_analysis.spectral_analysis.plotify import Plotify
-from spectral_analysis.spectral_analysis.data_preprocessing.bpt_diagram import plot_bpt_diagram
 
 
 
