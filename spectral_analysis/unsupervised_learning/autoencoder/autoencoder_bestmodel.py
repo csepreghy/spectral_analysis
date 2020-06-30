@@ -45,7 +45,7 @@ class AutoEncoder():
         fluxes = df_fluxes.loc[df_fluxes['objid'].isin(self.objids)]
         
         X = np.delete(fluxes.values, 0, axis=1)
-        X = X[:, 0::8]
+        X = X[:, 0::2]
         print(f'X.shape = {X.shape}')
 
         X = X[:, np.mod(np.arange(X[0].size),25)!=0]
