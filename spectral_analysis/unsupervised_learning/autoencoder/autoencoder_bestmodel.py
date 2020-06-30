@@ -17,8 +17,8 @@ from sklearn.preprocessing import MinMaxScaler, StandardScaler
 
 import seaborn as sns
 
-from spectral_analysis.spectral_analysis.classifiers.neural_network.helper_functions import train_test_split
-from spectral_analysis.spectral_analysis.plotify import Plotify
+from spectral_analysis.classifiers.neural_network.helper_functions import train_test_split
+from spectral_analysis.plotify import Plotify
 
 class AutoEncoder():
     def __init__(self, df_source_info, df_fluxes, df_wavelengths, load_model, weights_path=''):
@@ -47,8 +47,10 @@ class AutoEncoder():
         X = np.delete(fluxes.values, 0, axis=1)
         X = X[:, 0::2]
         print(f'X.shape = {X.shape}')
-
         X = X[:, np.mod(np.arange(X[0].size),25)!=0]
+        X = X[:,:1792]
+        print(f'X.shape = {X.shape}')
+
 
         wavelengths = df_wavelengths.to_numpy()
         wavelengths = wavelengths[::2]
@@ -212,8 +214,8 @@ class AutoEncoder():
         return preds
 
 def main():
-    df_fluxes = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='fluxes')
-    df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='source_info')
+    df_fluxes = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='fluxes').head(1000)
+    df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='source_info').head(1000)
     df_wavelengths = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='wavelengths')
 
     ae = AutoEncoder(df_source_info, df_fluxes, df_wavelengths, load_model=False, weights_path='logs/colab-logs/allsources_autoencoder.epoch13.h5')
