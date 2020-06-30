@@ -44,14 +44,14 @@ class AutoEncoder():
         quasar_fluxes = df_fluxes.loc[df_fluxes['objid'].isin(self.quasar_objids)]
         
         X = np.delete(quasar_fluxes.values, 0, axis=1)
-        X = X[:, 0::8]
+        X = X[:, 0::4]
         print(f'X.shape = {X.shape}')
 
         X = X[:, np.mod(np.arange(X[0].size),25)!=0]
 
         wavelengths = df_wavelengths.to_numpy()
-        wavelengths = wavelengths[::8]
-        self.wavelengths = wavelengths[0:448]
+        wavelengths = wavelengths[::4]
+        self.wavelengths = wavelengths[0:896]
         # plot_spectrum(X[0], wavelengths)
         return X
     
@@ -67,6 +67,12 @@ class AutoEncoder():
                    kernel_size=7,
                    activation='relu', 
                    padding='same')(input_layer)
+        x = MaxPooling1D(2)(x)
+
+        x = Conv1D(filters=128,
+                   kernel_size=7,
+                   activation='relu', 
+                   padding='same')(x)
         x = MaxPooling1D(2)(x)
 
         x = Conv1D(filters=128,
@@ -99,23 +105,26 @@ class AutoEncoder():
                    kernel_size=3,
                    activation='relu',
                    padding='same')(x)
-
         x = UpSampling1D(2)(x)
 
         x = Conv1D(filters=64,
                    kernel_size=5,
                    activation='relu',
                    padding='same')(x)
-
         x = UpSampling1D(2)(x)
 
         x = Conv1D(filters=128,
                    kernel_size=5,
                    activation='relu',
                    padding='same')(x)
-
         x = UpSampling1D(2)(x)
 
+        x = Conv1D(filters=128,
+                   kernel_size=7,
+                   activation='relu',
+                   padding='same')(x)
+        x = UpSampling1D(2)(x)
+        
         x = Conv1D(filters=256,
                    kernel_size=7,
                    activation='relu',
@@ -142,7 +151,7 @@ class AutoEncoder():
                                 epochs=epochs,
                                 batch_size=32,
                                 validation_data=(self.X_val, self.X_val),
-                                callbacks=[EarlyStopping('val_loss', patience=8), modelcheckpoint])
+                                callbacks=[EarlyStopping('val_loss', patience=10), modelcheckpoint])
 
             self.evaluate_model(model)
 
