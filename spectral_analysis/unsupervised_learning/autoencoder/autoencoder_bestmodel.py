@@ -45,14 +45,14 @@ class AutoEncoder():
         quasar_fluxes = df_fluxes.loc[df_fluxes['objid'].isin(self.quasar_objids)]
         
         X = np.delete(quasar_fluxes.values, 0, axis=1)
-        X = X[:, 0::4]
+        X = X[:, 0::8]
         print(f'X.shape = {X.shape}')
 
         X = X[:, np.mod(np.arange(X[0].size),25)!=0]
 
         wavelengths = df_wavelengths.to_numpy()
-        wavelengths = wavelengths[::4]
-        self.wavelengths = wavelengths[0:896]
+        wavelengths = wavelengths[::8]
+        self.wavelengths = wavelengths[0:448]
         # plot_spectrum(X[0], wavelengths)
         return X
     
@@ -70,31 +70,25 @@ class AutoEncoder():
                    padding='same')(input_layer)
         x = MaxPooling1D(2)(x)
 
-        x = Conv1D(filters=256,
-                   kernel_size=7,
-                   activation='relu', 
-                   padding='same')(x)
-
-        x = MaxPooling1D(2)(x)
         x = Conv1D(filters=128,
                    kernel_size=5,
                    activation='relu',
                    padding='same')(x)
-        
         x = MaxPooling1D(2)(x)
+        
         x = Conv1D(filters=64,
                    kernel_size=5,
                    activation='relu',
                    padding='same')(x)
-
         x = MaxPooling1D(2)(x)
+        
         x = Conv1D(filters=32,
                    kernel_size=3,
                    activation='relu',
                    padding='same')(x)
-
         x = MaxPooling1D(2)(x)
-        x = Conv1D(filters=16,
+        
+        x = Conv1D(filters=1,
                    kernel_size=3,
                    activation='relu',
                    padding='same')(x)
@@ -105,7 +99,7 @@ class AutoEncoder():
         # ==================================== DECODER ===================================== #
         # ================================================================================== #
 
-        x = Conv1D(filters=16,
+        x = Conv1D(filters=1,
                    kernel_size=3,
                    activation='relu',
                    padding='same')(encoded)
@@ -131,12 +125,6 @@ class AutoEncoder():
                    activation='relu',
                    padding='same')(x)
 
-        x = UpSampling1D(2)(x)
-
-        x = Conv1D(filters=256,
-                   kernel_size=7,
-                   activation='relu',
-                   padding='same')(x)
         x = UpSampling1D(2)(x)
 
         x = Conv1D(filters=256,
@@ -173,7 +161,15 @@ class AutoEncoder():
         else:
             model.load_weights(self.weights_path)
             print(f'model = {model}')
-            self.evaluate_model(model)
+            bottleneck = model.get_layer('conv1d_5')
+
+            extractor = Model(inputs=model.inputs, outputs=[bottleneck.output])
+            features = extractor(self.X_test)
+
+            print('extractor', extractor)
+            print('features', features)
+            print('features.shape', features.shape)
+            # self.evaluate_model(model)
 
         return model
 
@@ -214,7 +210,7 @@ def main():
     df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='source_info')
     df_wavelengths = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='wavelengths')
 
-    ae = AutoEncoder(df_source_info, df_fluxes, df_wavelengths, load_model=True, weights_path='logs/colab-logs/autoencoder_larger.epoch48.h5')
+    ae = AutoEncoder(df_source_info, df_fluxes, df_wavelengths, load_model=True, weights_path='logs/colab-logs/autoencoder.epoch65.h5')
     ae.train_model(epochs=12, batch_size=64)
     
 
