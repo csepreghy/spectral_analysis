@@ -22,7 +22,7 @@ from tensorflow.keras.layers import Dense, Activation, Input, concatenate
 from tensorflow.keras.models import Sequential, Model
 from tensorflow.keras.utils import to_categorical
 
-from spectral_analysis.plotify import Plotify
+from spectral_analysis.spectral_analysis.plotify import Plotify
 
 
 

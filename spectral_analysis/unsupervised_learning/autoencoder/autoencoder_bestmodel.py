@@ -17,8 +17,8 @@ from sklearn.preprocessing import MinMaxScaler, StandardScaler
 
 import seaborn as sns
 
-from spectral_analysis.classifiers.neural_network.helper_functions import train_test_split
-from spectral_analysis.plotify import Plotify
+from spectral_analysis.spectral_analysis.classifiers.neural_network.helper_functions import train_test_split
+from spectral_analysis.spectral_analysis.plotify import Plotify
 
 class AutoEncoder():
     def __init__(self, df_source_info, df_fluxes, df_wavelengths, load_model, weights_path=''):
