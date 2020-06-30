@@ -88,18 +88,20 @@ class AutoEncoder():
                    padding='same')(x)
         x = MaxPooling1D(2)(x)
         
-        x = Conv1D(filters=1,
+        x = Conv1D(filters=16,
                    kernel_size=3,
                    activation='relu',
                    padding='same')(x)
 
-        encoded = MaxPooling1D(2, padding="same")(x)
+        x = MaxPooling1D(2, padding="same")(x)
+        
+        encoded = Conv1D(1, 1, activation='relu', padding="same")(x)
 
         # ================================================================================== #
         # ==================================== DECODER ===================================== #
         # ================================================================================== #
 
-        x = Conv1D(filters=1,
+        x = Conv1D(filters=16,
                    kernel_size=3,
                    activation='relu',
                    padding='same')(encoded)
@@ -210,7 +212,7 @@ def main():
     df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='source_info')
     df_wavelengths = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='wavelengths')
 
-    ae = AutoEncoder(df_source_info, df_fluxes, df_wavelengths, load_model=True, weights_path='logs/colab-logs/autoencoder.epoch65.h5')
+    ae = AutoEncoder(df_source_info, df_fluxes, df_wavelengths, load_model=False, weights_path='logs/colab-logs/autoencoder.epoch65.h5')
     ae.train_model(epochs=12, batch_size=64)
     
 
