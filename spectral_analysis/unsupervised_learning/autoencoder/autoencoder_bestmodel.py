@@ -71,12 +71,6 @@ class AutoEncoder():
                    padding='same')(input_layer)
         x = MaxPooling1D(2)(x)
 
-        x = Conv1D(filters=256,
-                   kernel_size=7,
-                   activation='relu', 
-                   padding='same')(x)
-
-        x = MaxPooling1D(2)(x)
         x = Conv1D(filters=128,
                    kernel_size=5,
                    activation='relu',
@@ -95,18 +89,18 @@ class AutoEncoder():
                    padding='same')(x)
         x = MaxPooling1D(2)(x)
 
-        x = Conv1D(filters=16,
+        x = Conv1D(filters=1,
                    kernel_size=3,
                    activation='relu',
                    padding='same')(x)
 
-        encoded = Conv1D(1, 1, activation='relu', padding='same')(x)
+        encoded = MaxPooling1D(2, padding='same')(x)
 
         # ================================================================================== #
         # ==================================== DECODER ===================================== #
         # ================================================================================== #
 
-        x = Conv1D(filters=16,
+        x = Conv1D(filters=1,
                    kernel_size=3,
                    activation='relu',
                    padding='same')(encoded)
