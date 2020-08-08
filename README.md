@@ -23,16 +23,16 @@ There are 3 main classes in the dataset 2 of which have further subclasses that 
 
 The chronological order in which the downloading, data preprocessing and classification processes take place: 
 
-1) Get coordinates from query ---------------------------------------------
-2) Download data ----------------------------------------------------------
-3) Merge spectra with table containing meta information -------------------
-4) Filter Out Spectra with not enough values ------------------------------
-5) Cut off values from the sides to have the same range for all spectra ---
-6) Create Continuum that has Gaussian smoothing ---------------------------
-7) Get spectral lines -----------------------------------------------------
-8) Merge spectral lines with the continuum to one table -------------------
-9) Merge all data ---------------------------------------------------------
-10) Run the ML algorithms -------------------------------------------------
+1) Get coordinates from SQL query -------------------------------------------
+2) Download spectral data from SDSS -----------------------------------------
+3) Merge spectra with table containing meta information ---------------------
+4) Filter Out Spectra with insufficient number of values --------------------
+5) Cut off values from the edges to have the same range for all spectra -----
+6) (optional) Create continuum that has Gaussian smoothing ------------------
+7) Get spectral lines -------------------------------------------------------
+8) Merge spectral lines and raw spectral data -------------------------------
+9) Merge all data into HDF5 fiels -------------------------------------------
+10) Train and test a given neural network -----------------------------------
 
 ## Neural Networks
 To be written
