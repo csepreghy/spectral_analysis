@@ -1,4 +1,4 @@
-# Spectral Classification of Astronomical Objects Using Neural Networks
+## Spectral Classification of Astronomical Objects Using Deep Neural Networks
 
 This project initiated in the Big Data Analysis course at the University of Copenhagen (KU) by Nikki Arendse, Zoe Ansari and Cecilie Hede and Andrew Chepreghy.
 
