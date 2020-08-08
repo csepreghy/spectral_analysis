@@ -1,14 +1,12 @@
-# Spectral Classification of Astronomical Objects Using Deep Neural Networks
+# Spectral Classification of Astronomical Objects Using Neural Networks
 
 This project initiated in the Big Data Analysis course at the University of Copenhagen (KU) by Nikki Arendse, Zoe Ansari and Cecilie Hede and Andrew Chepreghy.
 
 Since then it has evolved to a thesis work by Andrew Chepreghy with the supervision of Adriano Agnello.
 
-This or
+This work focuses on classifying astronomical objects such as stars, galaxies and quasars based on the spectrum of their light using different neural network architectures. There are large amounts of data collected about astronomical objects by telescopes of wide field surveys, such as the Sloan Digital Sky Survey (SDSS). The way algorithmic classification is done today is by looping through spectral templates and picking one that fits a given spectrum best. In this work I explore more efficient methods to classify SDSS spectra, and re-assess the criteria used in the SDSS template classification.
 
-The aim to create automatic spectrum classification for stellar objects with machine learning that would would save time for researchers not having to classify these objects by eye.
-
-An example spectrum of a all 3 major classes with the added spectral lines are shown in the images below.
+## Data
 
 ### Quasar:
 <img src="https://raw.githubusercontent.com/csepreghy/spectral-analysis/master/plots/spectrum_quasar_plotify.png" width="800px" />
