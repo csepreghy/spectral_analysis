@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 
+
 import matplotlib.pyplot as plt
 
 import time as time
@@ -306,8 +307,8 @@ class MixedInputModel():
         return model
 
 def main():
-    df_fluxes = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='fluxes').head(30000)
-    df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='source_info').head(30000)
+    df_fluxes = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='fluxes').head(500)
+    df_source_info = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='source_info').head(500)
     df_wavelengths = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='wavelengths')
 
     # mixed_input_model = MixedInputModel(gaussian=True,
@@ -320,12 +321,12 @@ def main():
     print(df_source_info.columns)
     
     mixed_input_model = MixedInputModel(gaussian=False,
-                                        epochs=1,
+                                        epochs=5,
                                         load_model=True,
                                         model_path='logs/colab-logs/best_mixed_input_epoch20.h5',
                                         spectral_lines=False)
 
-    mixed_input_model.train(df_source_info, df_fluxes, df_wavelengths)
+    # mixed_input_model.train(df_source_info, df_fluxes, df_wavelengths)
 
 if __name__ == "__main__":
     main()

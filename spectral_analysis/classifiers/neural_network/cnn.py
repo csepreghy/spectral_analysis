@@ -6,7 +6,7 @@ from sklearn.preprocessing import StandardScaler
 
 from tensorflow.keras.optimizers import SGD, Adam
 from tensorflow.keras.callbacks import History, EarlyStopping
-from tensorflow.keras.layers import Dense, Dropout, Activation, Flatten, Conv1D, MaxPooling1D, Input
+from tensorflow.keras.layers import Dense, Dropout, Flatten, Conv1D, MaxPooling1D, Input
 from tensorflow.keras.models import Sequential, Model
 from tensorflow.keras.utils import to_categorical
 
@@ -70,7 +70,7 @@ class CNN:
                      verbose=0,
                      validation_data=(X_val, y_val),
                      callbacks=[EarlyStopping('val_accuracy', patience=4)])
-        print('Kakkanat\n\n\n\n\n\n Kakkanat')
+        print('kakkanat\n\n\n\n\n\n')
         print(tuner.results_summary())
         model = tuner.get_best_models(num_models=1)[0]
         print(model.summary())

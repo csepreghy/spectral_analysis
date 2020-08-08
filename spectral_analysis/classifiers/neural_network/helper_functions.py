@@ -59,7 +59,9 @@ def train_test_split(X, test_size, y=None, objids=None, indeces=None):
 
     if y is not None: return X_train, X_test, y_train, y_test, i_train, i_test
 
-    else: return X_train, X_test, i_train, i_test
+    else: return X_train, X_test
+
+    # elif i_train is not None: return X_train, X_test, i_train, i_test
 
 def get_incorrect_predictions(model,
                               X_test_fluxes,
@@ -76,16 +78,15 @@ def get_incorrect_predictions(model,
         else: labels.append(label.replace('label_', ''))
     
     predictions = model.predict(X_test_fluxes).argmax(axis=1)
-    print(f'predictions = {predictions[0:81]}')
+
     y_test = y_test.argmax(axis=1)
     wrong_indeces = []
     correct_indeces = []
     for i in range(len(predictions)):
-        if y_test[i] == 1:
-            if predictions[i] != y_test[i]:
-                wrong_indeces.append(i)
+        if predictions[i] != y_test[i]:
+            wrong_indeces.append(i)
             
-            else: correct_indeces.append(i)
+        else: correct_indeces.append(i)
 
     # indices = [i for i in enumerate(predictions) if predictions[i] != y_test[i]]
     wrong_predictions = []
@@ -121,15 +122,15 @@ def get_incorrect_predictions(model,
         source_info = df_source_info_test.iloc[i]
 
         if gaussian == False:
-            _, ax = plotify.get_figax(figsize=(8,6))
+            _, ax = plotify.get_figax(figsize=(10,6))
             title = f'Example of an {wrong_prediction["predicted"]} \n\n ra = {source_info.get(["ra"][0])}, dec = {source_info.get(["dec"][0])} z = {source_info.get(["z"][0])}, plate = {source_info.get(["plate"][0])}'
             ax.set_title(title, pad=10, fontsize=15)
             ax.set_xlabel('Wavelength (Å)')
             ax.set_ylabel(r'$F_{\lambda[10^{-17} erg \: cm^{-2}s^{-1} Å^{-1}]}$', fontsize=14)
             plt.plot(wavelengths, fluxes, color=plotify.c_orange, lw=0.6)
             plt.tight_layout()
-            plt.savefig(f'plots/wrong_predictions/_qso__wrong_prediction_{i}.png', dpi=150)
-        
+            plt.savefig(f'plots/wrong_predictions/____wrong_prediction_{i}.png', dpi=150)
+
         if gaussian == True:
             _, axs = plotify.get_figax(nrows=2, figsize=(5.5, 8))
             axs[0].plot(wavelengths, raw_fluxes, color=plotify.c_orange, lw=0.6)
@@ -156,14 +157,14 @@ def get_incorrect_predictions(model,
         source_info = df_source_info_test.iloc[i]
 
         if gaussian == False:
-            fig, ax = plotify.get_figax(figsize=(8,6))
+            fig, ax = plotify.get_figax(figsize=(10,6))
             title = f'Example of an {correct_prediction["predicted"]} \n\n ra = {source_info.get(["ra"][0])}, dec = {source_info.get(["dec"][0])} z = {source_info.get(["z"][0])}, plate = {source_info.get(["plate"][0])}'
             ax.set_title(title, pad=10, fontsize=15)
             ax.set_xlabel('Wavelength (Å)')
             ax.set_ylabel(r'$F_{\lambda[10^{-17} erg \: cm^{-2}s^{-1} Å^{-1}]}$', fontsize=14)
             plt.plot(wavelengths, fluxes, color=plotify.c_orange, lw=0.6)
             plt.tight_layout()
-            plt.savefig(f'plots/correct_predictions/__qso_correct_prediction_{i}.png', dpi=150)
+            plt.savefig(f'plots/correct_predictions/____correct_prediction_{i}.png', dpi=150)
         
         if gaussian == True:
             fig, axs = plotify.get_figax(nrows=2, figsize=(5.5, 8))
