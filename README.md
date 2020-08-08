@@ -8,14 +8,16 @@ This work focuses on classifying astronomical objects such as stars, galaxies an
 
 ## Data
 
-### Quasar:
-<img src="https://raw.githubusercontent.com/csepreghy/spectral-analysis/master/plots/spectrum_quasar_plotify.png" width="800px" />
+There are 3 main classes in the dataset 2 of which have further subclasses that are later considered in subclass classification. Below there are 3 representative examples of spectra from each main class.
 
 ### Star:
-<img src="https://raw.githubusercontent.com/csepreghy/spectral-analysis/master/plots/star_quasar_plotify.png" width="800px" />
+<img src="https://raw.githubusercontent.com/csepreghy/spectral-analysis/master/plots/thesis_plots/example_star.png" width="800px" />
 
 ### Galaxy:
-<img src="https://raw.githubusercontent.com/csepreghy/spectral-analysis/master/plots/spectrum_galaxy_plotify.png" width="800px" />
+<img src="https://raw.githubusercontent.com/csepreghy/spectral-analysis/master/plots/thesis_plots/example_galaxy.png" width="800px" />
+
+### Quasar:
+<img src="https://raw.githubusercontent.com/csepreghy/spectral-analysis/master/plots/thesis_plots/example_qso.png" width="800px" />
 
 The chronological order in which the downloading, data preprocessing and classification processes take place: 
 
