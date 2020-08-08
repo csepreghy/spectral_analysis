@@ -17,7 +17,7 @@ There are 3 main classes in the dataset 2 of which have further subclasses that 
 <img src="https://raw.githubusercontent.com/csepreghy/spectral-analysis/master/plots/thesis_plots/example_galaxy.png" width="600px" />
 
 ### Quasar:
-<img src="https://raw.githubusercontent.com/csepreghy/spectral_analysis/blob/master/plots/thesis_plots/examlpe_qso.png" width="600px" />
+<img src="https://raw.githubusercontent.com/csepreghy/spectral_analysis/master/plots/thesis_plots/examlpe_qso.png" width="600px" />
 
 The chronological order in which the downloading, data preprocessing and classification processes take place: 
 
