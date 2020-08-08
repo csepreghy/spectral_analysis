@@ -10,14 +10,16 @@ This work focuses on classifying astronomical objects such as stars, galaxies an
 
 There are 3 main classes in the dataset 2 of which have further subclasses that are later considered in subclass classification. Below there are 3 representative examples of spectra from each main class.
 
-### Star:
+### Star
 <img src="https://raw.githubusercontent.com/csepreghy/spectral-analysis/master/plots/thesis_plots/example_star.png" width="600px" />
 
-### Galaxy:
+### Galaxy
 <img src="https://raw.githubusercontent.com/csepreghy/spectral-analysis/master/plots/thesis_plots/example_galaxy.png" width="600px" />
 
-### Quasar:
+### Quasar
 <img src="https://raw.githubusercontent.com/csepreghy/spectral_analysis/master/plots/thesis_plots/examlpe_qso.png" width="600px" />
+
+## Data Preprocessing
 
 The chronological order in which the downloading, data preprocessing and classification processes take place: 
 
@@ -32,5 +34,9 @@ The chronological order in which the downloading, data preprocessing and classif
 9) Merge all data ---------------------------------------------------------
 10) Run the ML algorithms -------------------------------------------------
 
+## Neural Networks
+To be written
 
+## Results
+To be written
 The project is run under the [DARK Cosmology Centre](https://dark.nbi.ku.dk/), [Univesity of Copenhagen](https://www.ku.dk/english/) with the assistance of [Adriano Agnello](https://www.linkedin.com/in/adriano-agnello/).
