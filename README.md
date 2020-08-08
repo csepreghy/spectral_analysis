@@ -1,8 +1,10 @@
-# Spectral Analysis
+# Spectral Classification of Astronomical Objects Using Deep Neural Networks
 
-This is a project for analyzing spectral data by Nikki Arendse, Zoe Ansari and Cecilie Hede and Andrew Chepreghy
+This project initiated in the Big Data Analysis course at the University of Copenhagen (KU) by Nikki Arendse, Zoe Ansari and Cecilie Hede and Andrew Chepreghy.
 
-The project is focused on downloading spectral from the [SDSS survey](https://www.sdss.org/) and using different machine learning algorithms to do automatic classification of stellar objects.
+Since then it has evolved to a thesis work by Andrew Chepreghy with the supervision of Adriano Agnello.
+
+This or
 
 The aim to create automatic spectrum classification for stellar objects with machine learning that would would save time for researchers not having to classify these objects by eye.
 
