@@ -35,7 +35,7 @@ The chronological order in which the downloading, data preprocessing and classif
 10) Train and test a given neural network -----------------------------------
 
 ## Neural Networks
-To be written
+I propose two neural network architectures for this project. A Convolutional Neural Network (CNN) coupled with hyperparameter optimization implemented with Keras Tuner and a Mixed Input Neural Network (MINN).
 
 ## Results
 To be written
