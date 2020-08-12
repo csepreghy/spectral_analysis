@@ -56,11 +56,19 @@ This approach focuses only on the fluxes of a spectrum (raw datapoints), using a
 ### Results
 64,000 spectra were randomly subsampled on which 40 trials were run with different hyperparameters, the best of which resulted in a training accuracy: 0.999 and a **test accuracy: 0.989**. Here are 9 typical correct predictions of the classifier, 3 examples of each class followed by 9 typical incorrect predictions structured similarly
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/csepreghy/spectral_analysis/master/plots/thesis_plots/cnn_correct_predictions_collection.jpg" width="600px"/>
+</p>
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/csepreghy/spectral_analysis/master/plots/thesis_plots/cnn_wrong_predictions_collection.jpg" width="600px"/>
+</p>
+
 ## Mixed-input Neural Network
 The other pruposed neural network architecture is a mixed-input neural network (MINN). It incorporates a 1D CNN for the fluxes (visual features) described above and a feed forward neural network for numerical features such as redshift, Petrosian magnitudes and spectral lines. These features are provided by SDSS except spectral lines which are computed in this project. The architecture is shown below:
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/csepreghy/spectral_analysis/master/plots/thesis_plots/Neural-Andy-Layer.png" width="500px"/>
+  <img src="https://raw.githubusercontent.com/csepreghy/spectral_analysis/master/plots/thesis_plots/Neural-Andy-Layer.png" width="550px"/>
 </p>
 
 ### Results
