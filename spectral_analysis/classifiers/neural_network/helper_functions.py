@@ -1,3 +1,6 @@
+import sys
+sys.path.append('/Users/csepreghyandras/the_universe/projects/school/KU/Thesis/spectral-analysis')
+
 import numpy as np
 import pandas as pd
 
@@ -9,6 +12,7 @@ import datetime
 import math
 import seaborn as sn
 import random
+import os
 
 # from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
@@ -23,9 +27,6 @@ from tensorflow.keras.models import Sequential, Model
 from tensorflow.keras.utils import to_categorical
 
 from spectral_analysis.plotify import Plotify
-
-
-
 
 # This is a mixed input neural network that combines a CNN with an MLP.
 # Inputs:
@@ -239,51 +240,58 @@ def shuffle_along_axis(a, axis):
     idx = np.random.rand(*a.shape).argsort(axis=axis)
     return np.take_along_axis(a,idx,axis=axis)
 
+def check_benfordness(df_fluxes):
+    first_digits = []
+    for index, row in df_fluxes.iterrows():
+        for value in row.values:
+            if value > 0:
+                first_digits.append(str(value)[0])
+
+    ones = first_digits.count('1')
+    twos = first_digits.count('2')
+    threes = first_digits.count('3')
+    fours = first_digits.count('4')
+    fives = first_digits.count('5')
+    sixes = first_digits.count('6')
+    sevens = first_digits.count('7')
+    eights = first_digits.count('8')
+    nines = first_digits.count('9')
+
+    digit_counts = [ones, twos, threes, fours, fives, sixes, sevens, eights, nines]
+    total_digits = sum(digit_counts)
+    digit_ratios = [ones / total_digits * 100,
+                    twos / total_digits * 100,
+                    threes / total_digits * 100,
+                    fours / total_digits * 100,
+                    fives / total_digits * 100,
+                    sixes / total_digits * 100,
+                    sevens / total_digits * 100,
+                    eights / total_digits * 100,
+                    nines / total_digits * 100]
+    
+    xticks = np.linspace(1,9, 9)
+    print(xticks)
+    
+    print(f'digit_ratios = {digit_ratios}')
+
+    plotify = Plotify()
+    
+    fig, ax = plotify.get_figax()
+
+    
+    ax.plot(xticks, digit_ratios, color=plotify.c_orange)
+    ax.set_xlabel('Digits', color="white")
+    ax.tick_params(axis='y', colors='white')
+    ax.set_ylabel('Ratios (%)', color="white")
+    plt.ylim(0, 50)
+    plt.savefig('benford_ratios.png', facecolor=plotify.c_background, dpi=160)
+
 def main():
-    train = pd.read_csv('data/tensorboard-logs/cnn/cnn-train_accuracy.csv')['Value'].values
-    validation = pd.read_csv('data/tensorboard-logs/cnn/cnn-validation_accuracy.csv')['Value'].values
-    
-    train_loss = pd.read_csv('data/tensorboard-logs/cnn/cnn-train_loss.csv')['Value'].values
-    validation_loss = pd.read_csv('data/tensorboard-logs/cnn/cnn-validation_loss.csv')['Value'].values
-    xs = np.array(list(range(60)))
+    df_fluxes = pd.read_hdf('data/sdss/preprocessed/balanced.h5', key='fluxes').head(1000)
 
-    plotify = Plotify(theme='ugly')
-    fig, ax = plotify.get_figax()
+    check_benfordness(df_fluxes)
 
     
-    ax.plot(xs, train, color='#E71E50', label='training accuracy')
-    ax.plot(xs, validation, color='#2B57A4', label='validation accuracy')
-    ax.set_xlabel('Number of Epochs', fontsize=15)
-    ax.set_ylabel('Accuracy', fontsize=15)
-    ax.xaxis.set_major_locator(ticker.MultipleLocator(5))
-    ax.set_ylim(0.75,1)
-    plt.legend()
-    ax.grid(color='#AAAAAA')
-    ax.set_xticks(np.arange(0,60,10))
-    ax.set_title('CNN Training on 51,200 sources (Galaxy, Quasar, Star)')
-    ttl = ax.title
-    ttl.set_position([0.5, 1.025])
-    fig.tight_layout()
-    plt.savefig('plots/c_cnn_training_accuracies')
-    plt.show()
-
-    fig, ax = plotify.get_figax()
-    ax.plot(xs, train_loss, color='#E71E50', label='training loss')
-    ax.plot(xs, validation_loss, color='#2B57A4', label='validation loss')
-    ax.xaxis.set_major_locator(ticker.MultipleLocator(5))
-    ax.set_ylim(0,0.8)
-    ax.set_ylabel('Loss', fontsize=15)
-    ax.set_xlabel('Number of Epochs', fontsize=15)
-    ax.set_title('CNN Training on 51,200 sources (Galaxy, Quasar, Star)')
-    ttl = ax.title
-    ttl.set_position([0.5, 1.025])
-    plt.tight_layout()
-    plt.legend()
-    ax.grid(color='#AAAAAA')
-    ax.set_xticks(np.arange(0,60,10))
-
-    plt.savefig('plots/c_cnn_training_losses')
-    plt.show()
-
+    
 if __name__ == "__main__":
 	main()
