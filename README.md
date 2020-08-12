@@ -1,4 +1,4 @@
-## Spectral Classification of Astronomical Objects Using Deep Neural Networks
+# Spectral Classification of Astronomical Objects Using Deep Neural Networks
 
 This project initiated in the Big Data Analysis course at the University of Copenhagen (KU) by Nikki Arendse, Zoe Ansari and Cecilie Hede and Andrew Chepreghy.
 
@@ -46,14 +46,23 @@ The chronological order in which the downloading, data preprocessing and classif
 ## Neural Networks
 I propose two neural network architectures for this project. A Convolutional Neural Network (CNN) coupled with hyperparameter optimization implemented with Keras Tuner and a Mixed Input Neural Network (MINN).
 
-### CNN with Keras-Tuner hypertuning
-This approach focuses only on the fluxes of a spectrum (raw datapoints), using a 1 dimensional CNN that extracts successively larger visual features in a hierarchical set of layers. The intuition behind which is that since an astronomer is able to recognize visual patterns by only looking at the spectrum, a CNN in principle should be able to do the same. To maximize performance Keras Tuner was used for hypertuning. 64,000 spectra were randomly subsampled on which 40 trials were run with different hyperparameters, the best of which resulted in a training accuracy: 0.999 and a **test accuracy: 0.989**. The network architecture is shwon below.
+## CNN with Keras-Tuner hypertuning
+This approach focuses only on the fluxes of a spectrum (raw datapoints), using a 1 dimensional CNN that extracts successively larger visual features in a hierarchical set of layers. The intuition behind which is that since an astronomer is able to recognize visual patterns by only looking at the spectrum, a CNN in principle should be able to do the same. To maximize performance Keras Tuner was used for hypertuning. The network architecture is shwon below.
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/csepreghy/spectral_analysis/master/plots/thesis_plots/Andy-squared-equals-neural-network-modified.png" width="400px"/>
 </p>
 
-## Results
-To be written
+### Results
+64,000 spectra were randomly subsampled on which 40 trials were run with different hyperparameters, the best of which resulted in a training accuracy: 0.999 and a **test accuracy: 0.989**. Here are 9 typical correct predictions of the classifier, 3 examples of each class followed by 9 typical incorrect predictions structured similarly
+
+## Mixed-input Neural Network
+The other pruposed neural network architecture is a mixed-input neural network (MINN). It incorporates a 1D CNN for the fluxes (visual features) described above and a feed forward neural network for numerical features such as redshift, Petrosian magnitudes and spectral lines. These features are provided by SDSS except spectral lines which are computed in this project. The architecture is shown below:
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/csepreghy/spectral_analysis/master/plots/thesis_plots/Neural-Andy-Layer.png" width="500px"/>
+</p>
+
+### Results
 
 The project is run under the [DARK Cosmology Centre](https://dark.nbi.ku.dk/), [Univesity of Copenhagen](https://www.ku.dk/english/) with the assistance of [Adriano Agnello](https://www.linkedin.com/in/adriano-agnello/).
