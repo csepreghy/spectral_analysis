@@ -57,11 +57,11 @@ This approach focuses only on the fluxes of a spectrum (raw datapoints), using a
 64,000 spectra were randomly subsampled on which 40 trials were run with different hyperparameters, the best of which resulted in a training accuracy: 0.999 and a **test accuracy: 0.989**. Here are 9 typical correct predictions of the classifier, 3 examples of each class followed by 9 typical incorrect predictions structured similarly
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/csepreghy/spectral_analysis/master/plots/thesis_plots/cnn_correct_predictions_collection.jpg" width="600px"/>
+  <img src="https://raw.githubusercontent.com/csepreghy/spectral_analysis/master/plots/thesis_plots/cnn_correct_predictions_collection.jpg" width="750px"/>
 </p>
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/csepreghy/spectral_analysis/master/plots/thesis_plots/cnn_wrong_predictions_collection.jpg" width="600px"/>
+  <img src="https://raw.githubusercontent.com/csepreghy/spectral_analysis/master/plots/thesis_plots/cnn_wrong_predictions_collection.jpg" width="750px"/>
 </p>
 
 ## Mixed-input Neural Network
@@ -72,5 +72,14 @@ The other pruposed neural network architecture is a mixed-input neural network (
 </p>
 
 ### Results
+When classifying the three main classes of galaxy, qso and star, the network reached a **training accuracy: 0.998** and a **test accuracy: 0.993**. This shows that adding in the spectro-photometric features computed by SDSS and this project adds valuable information and helps the model predict more accurately. Here are 9 typical correct predictions of the classifier, 3 examples of each class followed by 9 typical incorrect predictions structured similarly:
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/csepreghy/spectral_analysis/master/plots/thesis_plots/correct_predictions_collection_2.jpg" width="750px"/>
+</p>
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/csepreghy/spectral_analysis/master/plots/thesis_plots/wrong_predictions_collection_2.jpg" width="750px"/>
+</p>
 
 The project is run under the [DARK Cosmology Centre](https://dark.nbi.ku.dk/), [Univesity of Copenhagen](https://www.ku.dk/english/) with the assistance of [Adriano Agnello](https://www.linkedin.com/in/adriano-agnello/).
